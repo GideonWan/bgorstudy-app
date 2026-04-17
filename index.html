@@ -2,7 +2,7 @@
 <html lang="en">
  <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>bgorstudy</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
-    html, body { min-height: 100vh; margin: 0; font-family: 'DM Sans', sans-serif; background-color: #f4f1ec !important; }
+    html, body { min-height: 100vh; margin: 0; font-family: 'DM Sans', sans-serif; background-color: #f4f1ec !important; padding-bottom: env(safe-area-inset-bottom); }
     * { box-sizing: border-box; }
     .font-display { font-family: 'Fraunces', serif; }
     
@@ -29,6 +29,10 @@
     .badge-status-prog { background-color: #e0e7ff !important; color: #3730a3 !important; }
     .badge-status-not { background-color: #f3f4f6 !important; color: #374151 !important; }
 
+    /* Forcing Quiz Button Colors */
+    .bg-correct, .bg-correct * { background-color: #16a34a !important; color: #ffffff !important; border-color: #16a34a !important; }
+    .bg-incorrect, .bg-incorrect * { background-color: #dc2626 !important; color: #ffffff !important; border-color: #dc2626 !important; }
+
     .toast-enter { animation: toastIn 0.35s ease-out; }
     .toast-exit { animation: toastOut 0.3s ease-in forwards; }
     @keyframes toastIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -40,9 +44,12 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 
+    /* Nav Tab Active States */
     .nav-tab.active { background-color: #004b55 !important; color: white !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .nav-tab-mobile.active { color: #004b55 !important; }
+    .nav-tab-mobile.active i { color: #004b55 !important; stroke-width: 2.5; }
     
-    .perspective { perspective: 800px; }
+    .perspective { perspective: 1000px; }
     .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
     .card-inner.flipped { transform: rotateY(180deg); }
     .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; background-color: #ffffff; }
@@ -52,7 +59,19 @@
     @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     .timer-active { animation: pulse-red 2s infinite; background-color: #ef4444 !important; color: white !important; border-color: #ef4444 !important; }
 
+    /* Currently Studying Pulse */
+    @keyframes pulse-green { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+    .studying-dot { animation: pulse-green 2s infinite; }
+
     .avatar-sel.selected { border: 3px solid #004b55; transform: scale(1.1); }
+    
+    /* Calendar UI */
+    .cal-cell.drag-over { background-color: #f0fdfa !important; border-color: #14b8a6 !important; }
+    .drag-log { cursor: grab; }
+    .drag-log:active { cursor: grabbing; }
+
+    /* Mobile Spacing */
+    #app-container { padding-bottom: 90px; }
   </style>
   <script>
     tailwind.config={theme:{extend:{colors:{teal:{primary:'#004b55',light:'#e6f2f3',mid:'#b3d9de'},correct:'#16a34a',incorrect:'#dc2626',bg:'#f4f1ec'}}}}};
@@ -60,7 +79,7 @@
  </head>
  <body>
 
-  <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+  <div id="toast-container" class="fixed bottom-24 sm:bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- LOGIN VIEW -->
   <div id="login-view" class="min-h-[500px] h-screen flex flex-col items-center justify-center p-6 bg-teal-light">
@@ -69,17 +88,31 @@
      <i data-lucide="cloud" class="w-10 h-10" style="color: #ffffff !important;"></i>
     </div>
     <h1 class="font-display text-4xl font-bold mb-2">bgorstudy</h1>
-    <p class="mb-8 font-medium text-sm text-gray-500">Log in to sync your progress to the cloud across all your devices.</p>
+    <p class="mb-8 font-medium text-sm text-gray-500">Log in to securely sync your progress to the cloud across all your devices.</p>
 
-    <button onclick="handleGoogleLogin()" id="btn-google-login" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
-     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-     </svg>
-     Continue with Google
-    </button>
+    <!-- Standard Login Button -->
+    <div id="login-standard-state">
+        <button onclick="handleGoogleLogin(false)" id="btn-google-login" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
+         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+         </svg>
+         Continue with Google
+        </button>
+    </div>
+
+    <!-- Active Session State -->
+    <div id="login-active-state" class="hidden space-y-3">
+        <button onclick="proceedToApp()" id="btn-continue-active" class="w-full bg-teal-primary hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
+            <img id="active-user-avatar" src="" class="w-6 h-6 rounded-full border border-teal-300">
+            <span>Continue as <span id="active-user-name">Student</span></span>
+        </button>
+        <button onclick="handleGoogleLogin(true)" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 font-bold py-3 px-6 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-95 text-sm">
+            <i data-lucide="users" class="w-4 h-4"></i> Switch Account
+        </button>
+    </div>
    </div>
   </div>
 
@@ -87,22 +120,28 @@
   <div id="app-container" class="hidden max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       
     <!-- HEADER & NAVIGATION -->
-    <header class="flex flex-col mb-8 pb-4 border-b border-gray-200">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-            <div>
-                <h1 class="font-display text-3xl sm:text-4xl font-bold text-teal-primary tracking-tight" style="color: #004b55 !important;">bgorstudy</h1>
-                <p class="text-sm font-bold text-gray-500 mt-1"><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1 text-teal-700"></i><span id="current-date-display">Loading time...</span></p>
+    <header class="flex flex-col mb-4 sm:mb-8 pb-4 border-b border-gray-200">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+            <div class="flex justify-between w-full sm:w-auto items-center">
+                <div>
+                    <h1 class="font-display text-3xl sm:text-4xl font-bold text-teal-primary tracking-tight" style="color: #004b55 !important;">bgorstudy</h1>
+                    <p class="text-sm font-bold text-gray-500 mt-1 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1 text-teal-700"></i><span id="current-date-display">Loading time...</span></p>
+                </div>
+                <!-- Mobile Only Timer Button (Top Right) -->
+                <button onclick="toggleGlobalTimer()" class="sm:hidden p-2.5 bg-white border border-gray-200 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50 transition flex items-center justify-center" id="mobile-timer-btn">
+                    <i data-lucide="play-circle" class="w-6 h-6 text-teal-600" id="mobile-timer-icon"></i>
+                </button>
             </div>
             
-            <div class="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
-                <!-- GLOBAL TIMER BUTTON -->
+            <!-- Desktop Action Buttons -->
+            <div class="hidden sm:flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
                 <button id="global-timer-btn" onclick="toggleGlobalTimer()" class="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50 transition flex items-center gap-2" style="color: #1f2937 !important;">
                     <i data-lucide="play-circle" class="w-5 h-5 text-teal-600" id="global-timer-icon"></i> 
                     <span id="global-timer-text">Start Study</span>
                 </button>
 
-                <div class="flex items-center gap-2 bg-teal-50 border border-teal-100 px-3 py-1.5 rounded-full shadow-sm">
-                    <img id="header-user-avatar" src="" class="w-6 h-6 rounded-full bg-white object-cover">
+                <div class="flex items-center gap-2 bg-teal-50 border border-teal-100 px-3 py-1.5 rounded-full shadow-sm cursor-pointer hover:bg-teal-100 transition" onclick="switchTab('profile')" title="View Profile">
+                    <img id="header-user-avatar" src="" class="w-6 h-6 rounded-full bg-white object-cover border border-teal-200">
                     <span id="header-user-badge" class="text-xs font-bold text-teal-800">Profile</span>
                 </div>
                 
@@ -112,15 +151,17 @@
             </div>
         </div>
         
-        <!-- TABS -->
-        <div class="flex flex-wrap gap-2 items-center">
+        <!-- DESKTOP TABS -->
+        <div class="hidden sm:flex flex-wrap gap-2 items-center">
             <button onclick="switchTab('home')" class="nav-tab active px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-home"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Home</button>
-            <button onclick="switchTab('assignments')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-assignments"><i data-lucide="calendar-clock" class="w-4 h-4"></i> Assignments</button>
+            <button onclick="switchTab('calendar')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-calendar"><i data-lucide="calendar-days" class="w-4 h-4"></i> Calendar</button>
+            <button onclick="switchTab('assignments')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-assignments"><i data-lucide="calendar-clock" class="w-4 h-4"></i> Tasks</button>
             <button onclick="switchTab('habits')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-habits"><i data-lucide="check-square" class="w-4 h-4"></i> Habits</button>
             <button onclick="switchTab('study')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-study"><i data-lucide="timer" class="w-4 h-4"></i> Study</button>
             <button onclick="switchTab('notes')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-notes"><i data-lucide="book-open" class="w-4 h-4"></i> Notes</button>
-            <button onclick="switchTab('flashcards')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-flashcards"><i data-lucide="layers" class="w-4 h-4"></i> Flashcards</button>
-            <button onclick="switchTab('profile')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-profile"><i data-lucide="user" class="w-4 h-4"></i> Profile</button>
+            <button onclick="switchTab('flashcards')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-flashcards"><i data-lucide="layers" class="w-4 h-4"></i> Cards</button>
+            <button onclick="switchTab('qa')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-qa"><i data-lucide="help-circle" class="w-4 h-4"></i> Q&A</button>
+            <button onclick="switchTab('chat')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-chat"><i data-lucide="message-square" class="w-4 h-4"></i> Chat</button>
 
             <!-- Global Music Toggle -->
             <button onclick="toggleMusicPanel()" class="ml-auto p-2.5 rounded-xl shadow-sm border border-gray-200 hover:bg-teal-light transition-colors bg-white" aria-label="Toggle music">
@@ -128,33 +169,59 @@
             </button>
         </div>
     </header>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <div class="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[90] flex justify-start items-center px-1 py-2 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] overflow-x-auto">
+        <button onclick="switchTab('home')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-home"><i data-lucide="layout-dashboard" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Home</span></button>
+        <button onclick="switchTab('calendar')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-calendar"><i data-lucide="calendar-days" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Cal</span></button>
+        <button onclick="switchTab('assignments')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-assignments"><i data-lucide="calendar-clock" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Tasks</span></button>
+        <button onclick="switchTab('habits')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-habits"><i data-lucide="check-square" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Habits</span></button>
+        <button onclick="switchTab('study')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-study"><i data-lucide="timer" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Study</span></button>
+        <button onclick="switchTab('notes')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-notes"><i data-lucide="book-open" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Notes</span></button>
+        <button onclick="switchTab('flashcards')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-flashcards"><i data-lucide="layers" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Cards</span></button>
+        <button onclick="switchTab('qa')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-qa"><i data-lucide="help-circle" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Q&A</span></button>
+        <button onclick="switchTab('chat')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-chat"><i data-lucide="message-square" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Chat</span></button>
+        <button onclick="switchTab('profile')" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]" id="mob-tab-profile"><i data-lucide="user" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Profile</span></button>
+        <button onclick="toggleMusicPanel()" class="nav-tab-mobile flex flex-col items-center p-2 text-gray-400 transition-colors min-w-[60px]"><i data-lucide="music" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Music</span></button>
+    </div>
     
     <!-- MUSIC PANEL (Global) -->
-    <div id="music-panel" class="hidden fixed top-28 right-4 z-[100] rounded-xl shadow-2xl border border-gray-200 p-5 w-80 bg-white">
+    <div id="music-panel" class="hidden fixed top-28 sm:top-28 bottom-24 sm:bottom-auto left-4 right-4 sm:left-auto sm:right-4 z-[100] rounded-xl shadow-2xl border border-gray-200 p-5 sm:w-80 bg-white">
         <div class="flex items-center justify-between mb-4">
             <span class="font-bold text-sm">Study Music Player</span> 
             <button onclick="toggleMusicPanel()" class="p-1 rounded hover:bg-gray-100"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
 
+        <!-- Music Type Tabs -->
         <div class="flex border-b border-gray-200 mb-4 gap-2">
             <button onclick="switchMusicType('ambient')" id="mtab-ambient" class="pb-1 px-1 text-xs font-bold border-b-2 border-teal-primary text-teal-primary">Generated</button>
             <button onclick="switchMusicType('online')" id="mtab-online" class="pb-1 px-1 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800">Online Radio</button>
             <button onclick="switchMusicType('upload')" id="mtab-upload" class="pb-1 px-1 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800">MP3</button>
         </div>
         
+        <!-- Ambient -->
         <div id="mview-ambient">
             <div class="grid grid-cols-2 gap-2 mb-4" id="music-genres"></div>
         </div>
 
+        <!-- Online Radio -->
         <div id="mview-online" class="hidden mb-4">
             <select id="online-radio-select" class="w-full border border-gray-200 rounded p-2 text-xs font-bold bg-gray-50 mb-2" onchange="loadOnlineRadio()">
-                <option value="jfKfPfyJRdk">Lofi Girl (beats to relax/study to)</option>
-                <option value="7NOSDKb0HlU">Chillhop Radio (lofi hip hop)</option>
-                <option value="4xDzrDKg11J">Classical Piano Music</option>
+                <option value="jfKfPfyJRdk">Lofi Girl (Beats to relax/study)</option>
+                <option value="4xDzrDKg11J">Lofi Girl (Synthwave - chill/gaming)</option>
+                <option value="7NOSDKb0HlU">Chillhop Radio</option>
+                <option value="FjHGZj2IjA8">Relaxing Classical Piano Music</option>
+                <option value="kgx4WGK0oNU">Jazz & Bossa Nova (Cozy Cafe)</option>
+                <option value="lTRiuFIWV54">Ghibli Piano Collection</option>
             </select>
-            <div id="youtube-container" class="w-full rounded overflow-hidden shadow-sm border border-gray-200"></div>
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="custom-yt-link" placeholder="Or paste YouTube link..." class="w-full border border-gray-200 rounded p-2 text-xs bg-gray-50 outline-none">
+                <button onclick="loadCustomYT()" class="bg-teal-primary text-white px-3 py-2 rounded text-xs font-bold shadow-sm">Play</button>
+            </div>
+            <div id="youtube-container" class="w-full rounded overflow-hidden shadow-sm border border-gray-200 relative pb-[56.25%] h-0"></div>
         </div>
 
+        <!-- Upload -->
         <div id="mview-upload" class="hidden mb-4">
             <input type="file" id="custom-music-upload" accept="audio/*" class="text-xs w-full border border-gray-200 rounded p-2 bg-gray-50">
             <audio id="custom-audio-player" loop></audio>
@@ -171,26 +238,48 @@
     
     <!-- 1. HOME VIEW -->
     <div id="view-home" class="view-section">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-700"><i data-lucide="file-text" class="w-5 h-5"></i></div>
-                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Pending Tasks</p><p class="text-2xl font-display font-bold" id="home-pending-count">0</p></div>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3 shadow-sm">
+            <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h4 class="font-bold text-blue-800 text-sm">Welcome to your Home Dashboard</h4>
+                <p class="text-xs text-blue-700 mt-1">Get a quick overview of your study progress and see how you rank against other students on the Community Leaderboard!</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700"><i data-lucide="clock" class="w-5 h-5"></i></div>
-                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Total Hrs Studied</p><p class="text-2xl font-display font-bold" id="home-total-hours">0</p></div>
+        </div>
+
+        <!-- NEW COMMUNITY CO-OP GOAL -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl shadow-md p-6 mb-6 text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-20"><i data-lucide="target" class="w-24 h-24"></i></div>
+            <div class="relative z-10">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-display font-bold text-xl flex items-center gap-2"><i data-lucide="users" class="w-5 h-5"></i> Community Co-op Goal</h3>
+                    <button onclick="promptNewCoopGoal()" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">Set New Goal</button>
+                </div>
+                <div id="coop-goal-content">
+                    <p class="text-sm font-medium mb-2 opacity-90">Loading goal...</p>
+                </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-700"><i data-lucide="bar-chart" class="w-5 h-5"></i></div>
-                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Avg. Daily Hrs</p><p class="text-2xl font-display font-bold" id="home-avg-hours">0</p></div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center text-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-700"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Pending Tasks</p><p class="text-xl font-display font-bold" id="home-pending-count">0</p></div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-700"><i data-lucide="activity" class="w-5 h-5"></i></div>
-                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Habits Done Today</p><p class="text-2xl font-display font-bold" id="home-habit-score">0</p></div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center text-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700"><i data-lucide="clock" class="w-4 h-4"></i></div>
+                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Total Hrs</p><p class="text-xl font-display font-bold" id="home-total-hours">0</p></div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-700"><i data-lucide="layers" class="w-5 h-5"></i></div>
-                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Flashcards</p><p class="text-2xl font-display font-bold" id="home-fc-count">0</p></div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center text-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-700"><i data-lucide="flame" class="w-4 h-4 text-orange-500"></i></div>
+                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Study Streak</p><p class="text-xl font-display font-bold text-orange-600" id="home-streak">0 🔥</p></div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center text-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-700"><i data-lucide="activity" class="w-4 h-4"></i></div>
+                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Habits Done</p><p class="text-xl font-display font-bold" id="home-habit-score">0</p></div>
+            </div>
+            <div class="col-span-2 md:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center text-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-700"><i data-lucide="layers" class="w-4 h-4"></i></div>
+                <div><p class="text-[10px] font-bold text-gray-500 uppercase">Flashcards</p><p class="text-xl font-display font-bold" id="home-fc-count">0</p></div>
             </div>
         </div>
 
@@ -215,45 +304,115 @@
         </div>
     </div>
 
+    <!-- NEW: CALENDAR & ANALYTICS HUB -->
+    <div id="view-calendar" class="view-section hidden">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3 shadow-sm">
+            <i data-lucide="calendar-check" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h4 class="font-bold text-blue-800 text-sm">Calendar & Analytics Hub</h4>
+                <p class="text-xs text-blue-700 mt-1">Sync with Google Calendar, visually track your study streaks via the Heatmap, and drag-and-drop your planned study sessions across the calendar grid.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Heatmap Analytics -->
+            <div class="lg:col-span-4 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-display text-xl font-bold flex items-center gap-2"><i data-lucide="bar-chart" class="w-5 h-5 text-teal-primary"></i> 60-Day Study Heatmap</h3>
+                    <div class="flex gap-2 text-[10px] font-bold text-gray-400 items-center">
+                        Less <div class="w-3 h-3 bg-gray-100 rounded-sm"></div><div class="w-3 h-3 bg-teal-200 rounded-sm"></div><div class="w-3 h-3 bg-teal-400 rounded-sm"></div><div class="w-3 h-3 bg-teal-600 rounded-sm"></div> More
+                    </div>
+                </div>
+                <div id="study-heatmap" class="flex flex-wrap gap-1"></div>
+            </div>
+            
+            <!-- Calendar Actions -->
+            <div class="lg:col-span-4 bg-white rounded-3xl shadow-sm border border-gray-100 p-4 flex flex-wrap gap-3 items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button onclick="changeCalMonth(-1)" class="p-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                    <h2 class="font-display text-xl font-bold w-40 text-center" id="cal-month-year">Month Year</h2>
+                    <button onclick="changeCalMonth(1)" class="p-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="fetchFromGCal()" class="text-xs font-bold px-4 py-2 border border-gray-200 bg-white hover:bg-gray-50 rounded-lg flex items-center gap-2 transition shadow-sm"><i data-lucide="download-cloud" class="w-3 h-3 text-indigo-500"></i> Fetch GCal</button>
+                    <button onclick="pushToGCal()" class="text-xs font-bold px-4 py-2 border border-gray-200 bg-white hover:bg-gray-50 rounded-lg flex items-center gap-2 transition shadow-sm"><i data-lucide="upload-cloud" class="w-3 h-3 text-teal-500"></i> Push to GCal</button>
+                </div>
+            </div>
+            
+            <!-- Full Calendar Grid -->
+            <div class="lg:col-span-4 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="grid grid-cols-7 bg-gray-50 border-b border-gray-100">
+                    <div class="py-2 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">Sun</div>
+                    <div class="py-2 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">Mon</div>
+                    <div class="py-2 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">Tue</div>
+                    <div class="py-2 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">Wed</div>
+                    <div class="py-2 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">Thu</div>
+                    <div class="py-2 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">Fri</div>
+                    <div class="py-2 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">Sat</div>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 auto-rows-fr min-h-[500px]">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 2. ASSIGNMENTS VIEW -->
     <div id="view-assignments" class="view-section hidden">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3 shadow-sm">
+            <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h4 class="font-bold text-blue-800 text-sm">How to use Assignments</h4>
+                <p class="text-xs text-blue-700 mt-1">Track your upcoming tests, homework, and projects. Click the circular checkmark on any task to update its status to "In Progress" or "Completed".</p>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 flex flex-col h-[700px]">
+            <div class="lg:col-span-2 flex flex-col lg:h-[700px]">
                 <!-- SUMMARY BANNER -->
                 <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-gray-200 mb-4 shadow-sm">
                     <div class="text-center w-1/3 border-r border-gray-100">
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total Assignments</p>
-                        <p class="text-3xl font-display font-bold mt-1 text-gray-800" id="ass-summary-total">0</p>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total Tasks</p>
+                        <p class="text-2xl sm:text-3xl font-display font-bold mt-1 text-gray-800" id="ass-summary-total">0</p>
                     </div>
                     <div class="text-center w-1/3 border-r border-gray-100">
                         <p class="text-[10px] text-green-600 font-bold uppercase tracking-wider">Completed</p>
-                        <p class="text-3xl font-display font-bold mt-1 text-green-600" id="ass-summary-completed">0</p>
+                        <p class="text-2xl sm:text-3xl font-display font-bold mt-1 text-green-600" id="ass-summary-completed">0</p>
                     </div>
                     <div class="text-center w-1/3">
                         <p class="text-[10px] text-orange-500 font-bold uppercase tracking-wider">Pending</p>
-                        <p class="text-3xl font-display font-bold mt-1 text-orange-500" id="ass-summary-pending">0</p>
+                        <p class="text-2xl sm:text-3xl font-display font-bold mt-1 text-orange-500" id="ass-summary-pending">0</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex-1 flex flex-col overflow-hidden">
-                    <div class="flex items-center justify-between mb-6">
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 flex-1 flex flex-col overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                         <h2 class="font-display text-xl font-bold flex items-center gap-2"><i data-lucide="calendar-clock" class="w-5 h-5 text-teal-primary"></i> Task List</h2>
-                        <button onclick="openAssignmentModal()" class="btn-primary bg-teal-primary px-4 py-2 rounded-xl text-sm font-bold shadow-md flex items-center gap-2">
+                        <button onclick="openAssignmentModal()" class="btn-primary bg-teal-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md flex items-center gap-2">
                             <i data-lucide="plus" class="w-4 h-4"></i> Add Task
                         </button>
                     </div>
                     <div id="assignments-list" class="flex-1 overflow-y-auto space-y-3 pr-2 pb-2"></div>
                 </div>
             </div>
-            <div class="space-y-6">
-                <!-- Modified Charts for Assignments -->
+            
+            <!-- 4 Charts for Assignments -->
+            <div class="space-y-6 lg:h-[700px] lg:overflow-y-auto pr-2 pb-10">
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="font-bold text-sm text-gray-500 mb-4 text-center uppercase tracking-wider">Status Breakdown</h3>
+                    <h3 class="font-bold text-sm text-gray-500 mb-4 text-center uppercase tracking-wider">State of Assignment</h3>
                     <div class="h-48"><canvas id="assStatusChart"></canvas></div>
                 </div>
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
                     <h3 class="font-bold text-sm text-gray-500 mb-4 text-center uppercase tracking-wider">Tasks by Priority</h3>
                     <div class="h-48"><canvas id="assPriorityChart"></canvas></div>
+                </div>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="font-bold text-sm text-gray-500 mb-4 text-center uppercase tracking-wider">Tasks by Type</h3>
+                    <div class="h-48"><canvas id="assTypeChart"></canvas></div>
+                </div>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="font-bold text-sm text-gray-500 mb-4 text-center uppercase tracking-wider">Tasks by Subject</h3>
+                    <div class="h-48"><canvas id="assSubjectChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -270,12 +429,12 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col h-[650px]">
-                <div class="flex items-center justify-between mb-6">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col lg:h-[650px]">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                     <h2 class="font-display text-xl font-bold flex items-center gap-2"><i data-lucide="check-square" class="w-5 h-5 text-teal-primary"></i> Today's Habits</h2>
                     <div class="flex gap-2">
-                        <button onclick="openHabitModal()" class="p-2 rounded-lg border border-gray-200 bg-gray-50 hover:bg-teal-50 hover:border-teal-200 transition" title="Add Habit"><i data-lucide="plus" class="w-4 h-4 text-teal-primary"></i></button>
-                        <button onclick="resetHabits()" class="p-2 rounded-lg border border-gray-200 bg-gray-50 hover:bg-red-50 hover:border-red-200 transition" title="Reset for new day"><i data-lucide="rotate-ccw" class="w-4 h-4 text-red-600"></i></button>
+                        <button onclick="openHabitModal()" class="px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 hover:bg-teal-50 hover:border-teal-200 transition text-sm font-bold flex items-center gap-1" title="Add Habit"><i data-lucide="plus" class="w-4 h-4 text-teal-primary"></i> New</button>
+                        <button onclick="resetHabits()" class="px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 hover:bg-red-50 hover:border-red-200 transition text-sm font-bold flex items-center gap-1" title="Reset for new day"><i data-lucide="rotate-ccw" class="w-4 h-4 text-red-600"></i> Reset</button>
                     </div>
                 </div>
                 <div class="mb-4">
@@ -285,22 +444,22 @@
                 <div id="habits-list" class="flex-1 overflow-y-auto space-y-2 pr-2"></div>
             </div>
 
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 h-[650px] flex flex-col">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:h-[650px] flex flex-col">
                 <h3 class="font-display text-xl font-bold mb-6">Habit Consistency Analytics</h3>
                 
-                <div class="flex-1 relative mb-6">
+                <div class="flex-1 relative mb-6 min-h-[150px]">
                     <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 text-center">Last 7 Days Outline</p>
-                    <div class="h-40"><canvas id="habitWeeklyChart"></canvas></div>
+                    <div class="h-full"><canvas id="habitWeeklyChart"></canvas></div>
                 </div>
                 
-                <div class="flex gap-4 h-40 border-t border-gray-100 pt-6">
-                    <div class="flex-1 relative">
+                <div class="flex flex-col sm:flex-row gap-4 sm:h-40 border-t border-gray-100 pt-6">
+                    <div class="flex-1 relative h-32 sm:h-auto">
                         <p class="text-[10px] font-bold text-gray-500 uppercase text-center mb-1">Weekly Success</p>
-                        <div class="h-32"><canvas id="habitWeeklyPieChart"></canvas></div>
+                        <div class="h-full"><canvas id="habitWeeklyPieChart"></canvas></div>
                     </div>
-                    <div class="flex-1 relative">
+                    <div class="flex-1 relative h-32 sm:h-auto">
                         <p class="text-[10px] font-bold text-gray-500 uppercase text-center mb-1">Monthly Success</p>
-                        <div class="h-32"><canvas id="habitMonthlyPieChart"></canvas></div>
+                        <div class="h-full"><canvas id="habitMonthlyPieChart"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -309,36 +468,27 @@
 
     <!-- 4. STUDY TRACKER VIEW -->
     <div id="view-study" class="view-section hidden">
-        <!-- REMINDER BANNER -->
-        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
-            <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5"></i>
-            <div>
-                <h4 class="font-bold text-blue-800">Monthly Study Plan Reminder</h4>
-                <p class="text-sm text-blue-700 mt-1">Use this module as your monthly plan! It's highly recommended to plan your schedule before each month begins, and clean up (delete) old study slots after the month ends.</p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
              <div class="flex justify-between items-center mb-4">
                  <h2 class="font-display text-xl font-bold flex items-center gap-2"><i data-lucide="calendar-plus" class="w-5 h-5 text-teal-primary"></i> Plan & Log Daily Study</h2>
              </div>
-             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
                  <div><label class="block text-xs font-bold mb-1">Date</label><input type="date" id="log-date" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-bold bg-gray-50"></div>
                  <div><label class="block text-xs font-bold mb-1">Subject</label><select id="log-subject" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-bold bg-white"></select></div>
                  <div><label class="block text-xs font-bold mb-1">Chapters / Pages</label><input type="text" id="log-chapters" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-bold bg-white" placeholder="e.g. ch 1-3"></div>
                  <div><label class="block text-xs font-bold mb-1">Target (Hrs)</label><input type="number" step="0.1" id="log-target" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-bold bg-white" placeholder="e.g. 2"></div>
-                 <div><button onclick="addStudyLog()" class="w-full btn-primary bg-teal-primary px-4 py-2 rounded-lg text-sm font-bold shadow-md text-white">Log Study</button></div>
+                 <div class="sm:col-span-2 md:col-span-1"><button onclick="addStudyLog()" class="w-full btn-primary bg-teal-primary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md">Log Study</button></div>
              </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-1 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col h-[650px]">
+            <div class="lg:col-span-1 bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col lg:h-[650px]">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="font-display text-xl font-bold flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-5 h-5 text-teal-primary"></i> Overall Goal</h2>
                     <button onclick="openSubjectModal()" class="p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-teal-50 transition text-teal-700" title="Add Subject"><i data-lucide="plus" class="w-4 h-4"></i></button>
                 </div>
                 <div id="subjects-grid" class="flex-1 overflow-y-auto space-y-4 pr-2"></div>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col h-[650px]">
+            <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col lg:h-[650px]">
                 <h2 class="font-display text-xl font-bold flex items-center gap-2 mb-6"><i data-lucide="history" class="w-5 h-5 text-teal-primary"></i> Daily Study History</h2>
                 <div id="study-logs-list" class="flex-1 overflow-y-auto space-y-3 pr-2"></div>
             </div>
@@ -347,14 +497,14 @@
 
     <!-- 5. NOTES VIEW -->
     <div id="view-notes" class="view-section hidden">
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-            <div class="flex justify-between items-center mb-6">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
+            <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
                 <h2 class="font-display text-xl font-bold flex items-center gap-2"><i data-lucide="book-open" class="w-5 h-5 text-teal-primary"></i> Notes & Revision Progress</h2>
                 <button onclick="openNoteModal()" class="btn-primary bg-teal-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md flex items-center gap-2">
                     <i data-lucide="plus" class="w-4 h-4"></i> Add Note
                 </button>
             </div>
-            <div class="flex border-b border-gray-200 mb-6 gap-4 overflow-x-auto whitespace-nowrap" id="notes-subject-tabs"></div>
+            <div class="flex border-b border-gray-200 mb-6 gap-4 overflow-x-auto whitespace-nowrap pb-2" id="notes-subject-tabs"></div>
             <div id="notes-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
             <div id="notes-empty" class="hidden text-center py-10 text-gray-500 font-bold text-sm">No notes found for this subject.</div>
         </div>
@@ -362,13 +512,14 @@
 
     <!-- 6. FLASHCARDS VIEW -->
     <div id="view-flashcards" class="view-section hidden">
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 border-b border-gray-100 pb-4">
                 <h2 class="font-display text-2xl font-bold flex items-center gap-2"><i data-lucide="layers" class="w-6 h-6 text-teal-primary"></i> Flashcard Studio</h2>
-                <div class="flex bg-gray-100 rounded-lg p-1 gap-1">
-                    <button onclick="switchFcMode('edit')" id="fc-btn-edit" class="fc-mode-btn px-4 py-2 rounded-md text-sm font-bold bg-teal-primary text-white shadow-sm transition-all">Manage Cards</button>
-                    <button onclick="switchFcMode('play')" id="fc-btn-play" class="fc-mode-btn px-4 py-2 rounded-md text-sm font-bold bg-transparent text-gray-600 hover:bg-gray-200 transition-all">Study Mode</button>
-                    <button onclick="switchFcMode('quiz')" id="fc-btn-quiz" class="fc-mode-btn px-4 py-2 rounded-md text-sm font-bold bg-transparent text-gray-600 hover:bg-gray-200 transition-all">Take Quiz</button>
+                <div class="flex bg-gray-100 rounded-lg p-1 gap-1 w-full sm:w-auto overflow-x-auto">
+                    <button onclick="switchFcMode('edit')" id="fc-btn-edit" class="fc-mode-btn whitespace-nowrap flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-bold bg-teal-primary text-white shadow-sm transition-all">Manage</button>
+                    <button onclick="switchFcMode('play')" id="fc-btn-play" class="fc-mode-btn whitespace-nowrap flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-bold bg-transparent text-gray-600 hover:bg-gray-200 transition-all">Study Mode</button>
+                    <button onclick="switchFcMode('quiz')" id="fc-btn-quiz" class="fc-mode-btn whitespace-nowrap flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-bold bg-transparent text-gray-600 hover:bg-gray-200 transition-all">Take Quiz</button>
+                    <button onclick="switchFcMode('community')" id="fc-btn-community" class="fc-mode-btn whitespace-nowrap flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-bold bg-transparent text-indigo-600 hover:bg-indigo-50 transition-all border border-indigo-100"><i data-lucide="globe" class="w-4 h-4 inline mb-0.5"></i> Library</button>
                 </div>
             </div>
 
@@ -376,13 +527,18 @@
             <div id="fc-mode-edit" class="fc-mode-panel">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                     <p class="text-sm font-bold text-gray-500" id="fc-count-text">0 cards</p>
-                    <button onclick="openFcModal()" class="btn-primary flex items-center gap-2 bg-teal-primary text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md">
-                        <i data-lucide="plus" class="w-4 h-4"></i> New Card
-                    </button>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="promptShareDeck()" class="flex-1 sm:flex-none btn-primary flex items-center justify-center gap-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-xl font-bold text-sm transition">
+                            <i data-lucide="share" class="w-4 h-4"></i> Publish Deck
+                        </button>
+                        <button onclick="openFcModal()" class="flex-1 sm:flex-none btn-primary flex items-center justify-center gap-2 bg-teal-primary text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md">
+                            <i data-lucide="plus" class="w-4 h-4"></i> New Card
+                        </button>
+                    </div>
                 </div>
                 <div class="flex flex-wrap gap-2 mb-6 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <select id="fc-filter-subject" onchange="renderFlashcards()" class="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white font-bold"><option value="">All Subjects</option></select> 
-                    <select id="fc-filter-topic" onchange="renderFlashcards()" class="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white font-bold"><option value="">All Topics</option></select>
+                    <select id="fc-filter-subject" onchange="renderFlashcards()" class="w-full sm:w-auto text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white font-bold"><option value="">All Subjects</option></select> 
+                    <select id="fc-filter-topic" onchange="renderFlashcards()" class="w-full sm:w-auto text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white font-bold"><option value="">All Topics</option></select>
                 </div>
                 <div id="fc-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 <div id="fc-empty-state" class="hidden flex flex-col items-center justify-center py-16 text-center">
@@ -394,7 +550,7 @@
 
             <!-- FC PLAY -->
             <div id="fc-mode-play" class="fc-mode-panel hidden">
-                <div id="fc-play-selection" class="max-w-xl mx-auto border border-gray-200 rounded-2xl p-8 bg-gray-50 text-center">
+                <div id="fc-play-selection" class="max-w-xl mx-auto border border-gray-200 rounded-2xl p-6 sm:p-8 bg-gray-50 text-center">
                     <h3 class="font-display text-xl font-bold mb-2">Start Study Session</h3>
                     <p class="text-sm font-bold text-gray-500 mb-6">Select topics to review:</p>
                     <div id="fc-play-categories" class="text-left space-y-2 mb-6 max-h-64 overflow-y-auto pr-2"></div>
@@ -410,30 +566,34 @@
                         <span id="fc-play-progress-text" class="text-sm font-bold">1 / 10</span> 
                     </div>
                     <div class="w-full h-2 bg-gray-200 rounded-full mb-6 overflow-hidden"><div id="fc-play-progress-bar" class="h-full bg-teal-primary rounded-full transition-all" style="width:0%"></div></div>
+                    
+                    <p class="text-center text-xs text-gray-400 mb-2 sm:hidden"><i data-lucide="move-horizontal" class="w-3 h-3 inline"></i> Swipe Left (Review) or Right (Known)</p>
+                    
                     <div class="perspective w-full" style="height:380px">
-                        <div id="fc-play-card" class="card-inner cursor-pointer shadow-xl rounded-2xl" onclick="flipFcCard()">
+                        <div id="fc-play-card" class="card-inner cursor-pointer shadow-xl rounded-2xl touch-none select-none" onclick="flipFcCard()"
+                             ontouchstart="handleFcTouchStart(event)" ontouchmove="handleFcTouchMove(event)" ontouchend="handleFcTouchEnd(event)">
                             <div class="card-face border border-gray-200 bg-white">
-                                <span class="text-xs font-bold uppercase tracking-wider mb-3 px-3 py-1 rounded-full bg-gray-100 text-gray-600" id="fc-play-card-label">Question</span>
-                                <div id="fc-play-card-front" class="w-full flex flex-col items-center justify-center text-gray-800"></div>
+                                <span class="text-xs font-bold uppercase tracking-wider mb-3 px-3 py-1 rounded-full bg-gray-100 text-gray-600 pointer-events-none" id="fc-play-card-label">Question</span>
+                                <div id="fc-play-card-front" class="w-full flex flex-col items-center justify-center text-gray-800 pointer-events-none"></div>
                                 <button id="fc-hint-btn" class="hidden mt-6 text-xs border border-gray-200 px-3 py-1 rounded-full hover:bg-gray-50 transition font-bold text-gray-600" onclick="event.stopPropagation();showFcHint()">Show Hint</button>
-                                <p id="fc-hint-text" class="hidden mt-4 text-sm font-bold p-3 rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-800"></p>
+                                <p id="fc-hint-text" class="hidden mt-4 text-sm font-bold p-3 rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-800 pointer-events-none"></p>
                             </div>
                             <div class="card-face card-back border border-gray-200 bg-teal-primary text-white">
-                                <span class="text-xs font-bold uppercase tracking-wider mb-3 px-3 py-1 rounded-full bg-teal-800 text-white">Answer</span>
-                                <p class="text-xl font-bold text-center" id="fc-play-card-back"></p>
+                                <span class="text-xs font-bold uppercase tracking-wider mb-3 px-3 py-1 rounded-full bg-teal-800 text-white pointer-events-none">Answer</span>
+                                <p class="text-xl font-bold text-center text-white pointer-events-none" id="fc-play-card-back"></p>
                             </div>
                         </div>
                     </div>
                     <div class="flex justify-center gap-4 mt-8">
-                        <button onclick="prevFcCard()" class="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition shadow-sm"><i data-lucide="chevron-left" class="w-6 h-6"></i></button> 
-                        <button onclick="nextFcCard()" class="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition shadow-sm"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+                        <button onclick="prevFcCard()" class="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition shadow-sm bg-white"><i data-lucide="chevron-left" class="w-6 h-6"></i></button> 
+                        <button onclick="nextFcCard()" class="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition shadow-sm bg-white"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- FC QUIZ -->
             <div id="fc-mode-quiz" class="fc-mode-panel hidden">
-                <div id="fc-quiz-setup" class="max-w-xl mx-auto border border-gray-200 rounded-2xl p-8 bg-gray-50 text-center">
+                <div id="fc-quiz-setup" class="max-w-xl mx-auto border border-gray-200 rounded-2xl p-6 sm:p-8 bg-gray-50 text-center">
                     <h3 class="font-display text-xl font-bold mb-2">Quiz Mode</h3>
                     <p class="text-sm font-bold text-gray-500 mb-6">Test your knowledge with smart multiple choice.</p>
                     <div id="fc-quiz-categories" class="text-left space-y-2 mb-6 max-h-64 overflow-y-auto pr-2"></div>
@@ -445,31 +605,73 @@
                         <div class="flex items-center gap-3"><span id="fc-quiz-score" class="text-sm font-bold px-3 py-1 rounded-full border border-teal-200 bg-teal-50 text-teal-800">Score: 0/0</span> <span id="fc-quiz-progress-text" class="text-sm font-bold text-gray-500">1/10</span></div>
                     </div>
                     <div class="w-full h-2 bg-gray-200 rounded-full mb-6 overflow-hidden"><div id="fc-quiz-progress-bar" class="progress-bar h-full bg-teal-primary rounded-full" style="width:0%"></div></div>
-                    <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-8 mb-6">
+                    <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-6 sm:p-8 mb-6">
                         <div class="text-xl font-bold text-center w-full flex flex-col items-center" id="fc-quiz-question"></div>
                     </div>
                     <div id="fc-quiz-options" class="space-y-3 mb-6"></div>
                     <div id="fc-quiz-feedback" class="hidden rounded-xl p-4 text-center text-sm font-bold mb-4 shadow-sm text-white"></div>
                     <button id="fc-quiz-next-btn" onclick="nextFcQuizQuestion()" class="hidden btn-primary w-full bg-teal-primary text-white py-4 rounded-xl font-bold shadow-md">Next Question</button>
                 </div>
-                <div id="fc-quiz-results" class="hidden max-w-lg mx-auto text-center py-12 rounded-3xl shadow-md border border-gray-200 bg-white">
+                <div id="fc-quiz-results" class="hidden max-w-lg mx-auto text-center py-12 rounded-3xl shadow-md border border-gray-200 bg-white px-4">
                     <div class="w-20 h-20 rounded-full border border-gray-200 flex items-center justify-center mx-auto mb-6 bg-gray-50"><i data-lucide="trophy" class="w-10 h-10 text-yellow-500"></i></div>
                     <h2 class="font-display text-3xl font-bold mb-3">Quiz Complete!</h2>
                     <p class="text-6xl font-display font-bold mb-4 text-teal-primary" id="fc-final-score"></p>
                     <p class="text-sm font-bold text-gray-500 mb-8" id="fc-final-message"></p>
-                    <div class="flex justify-center gap-4">
-                        <button onclick="startFcQuiz()" class="btn-primary bg-teal-primary text-white px-8 py-3 rounded-xl font-bold shadow-md">Retry Quiz</button> 
-                        <button onclick="switchFcMode('edit')" class="px-8 py-3 rounded-xl font-bold border border-gray-200 hover:bg-gray-50 transition">Done</button>
+                    <div class="flex justify-center gap-4 flex-wrap">
+                        <button onclick="startFcQuiz()" class="btn-primary bg-teal-primary text-white px-8 py-3 rounded-xl font-bold shadow-md w-full sm:w-auto">Retry</button> 
+                        <button onclick="switchFcMode('edit')" class="px-8 py-3 rounded-xl font-bold border border-gray-200 hover:bg-gray-50 transition w-full sm:w-auto">Done</button>
                     </div>
                 </div>
             </div>
+
+            <!-- FC COMMUNITY LIBRARY -->
+            <div id="fc-mode-community" class="fc-mode-panel hidden">
+                <div class="mb-6">
+                    <h3 class="font-display text-xl font-bold mb-1">Community Library</h3>
+                    <p class="text-sm text-gray-500">Browse and download flashcard decks shared by other students.</p>
+                </div>
+                <div id="fc-community-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- 7. PROFILE VIEW -->
+    <!-- Q&A BOARD VIEW -->
+    <div id="view-qa" class="view-section hidden">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:min-h-[700px] flex flex-col">
+            <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
+                <h2 class="font-display text-xl font-bold flex items-center gap-2"><i data-lucide="help-circle" class="w-5 h-5 text-teal-primary"></i> Help Board</h2>
+                <button onclick="promptNewQuestion()" class="btn-primary bg-teal-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Ask Question
+                </button>
+            </div>
+            <div id="qa-list" class="flex-1 space-y-4 overflow-y-auto pr-2 pb-10"></div>
+        </div>
+    </div>
+
+    <!-- CHAT VIEW -->
+    <div id="view-chat" class="view-section hidden">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col h-[70vh] sm:h-[700px]">
+            <h2 class="font-display text-xl font-bold flex items-center gap-2 mb-4"><i data-lucide="messages-square" class="w-5 h-5 text-teal-primary"></i> Live Chat</h2>
+            
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 p-2 sm:p-4 bg-gray-50 rounded-xl border border-gray-100 mb-4 flex flex-col">
+                </div>
+            
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" class="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-teal-500" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()" class="bg-teal-primary hover:bg-teal-800 text-white px-4 sm:px-6 py-3 rounded-xl font-bold transition shadow-sm flex items-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i> <span class="hidden sm:inline">Send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PROFILE VIEW -->
     <div id="view-profile" class="view-section hidden">
         <div class="max-w-2xl mx-auto space-y-6">
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 text-center">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8 text-center">
                 <h2 class="font-display text-xl font-bold mb-6 border-b border-gray-100 pb-4">My Avatar & Profile Info</h2>
                 <img id="prof-avatar-preview" src="" class="w-32 h-32 mx-auto rounded-full bg-gray-50 border-4 border-teal-50 object-cover mb-4 shadow-sm">
                 <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Choose Avatar:</p>
@@ -490,21 +692,28 @@
                         <label class="block text-sm font-bold mb-1">Bio</label>
                         <textarea id="prof-bio" rows="3" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" placeholder="Write something about your study goals..."></textarea>
                     </div>
-                    <div class="flex justify-end pt-2">
-                        <button onclick="saveProfileInfo()" class="btn-primary bg-teal-primary text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md">Save Profile Info</button>
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="restoreLocalData()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-2 px-4 rounded-lg transition border border-indigo-200"><i data-lucide="refresh-cw" class="w-3 h-3 inline"></i> Migrate Local Data</button>
+                        <button onclick="saveProfileInfo()" class="btn-primary bg-teal-primary text-white px-6 py-3 rounded-lg text-sm font-bold shadow-md">Save Profile Info</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-  </div> <!-- End App Container -->
+  </div> 
+  
+  <div id="input-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[250] flex items-center justify-center p-4">
+      <div class="modal-content rounded-2xl shadow-2xl w-full max-w-sm my-auto bg-white border border-gray-100 p-6 text-center">
+          <h3 class="font-display text-xl font-bold mb-4 text-gray-800" id="input-modal-title">Enter Value</h3>
+          <input type="text" id="input-modal-value" class="w-full border border-gray-200 rounded-lg px-3 py-3 text-sm bg-gray-50 mb-6 outline-none focus:border-teal-500">
+          <div class="flex justify-center gap-3">
+              <button onclick="closeInputModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold border border-gray-200 bg-white hover:bg-gray-50 transition shadow-sm w-1/2">Cancel</button>
+              <button id="input-modal-btn" class="btn-primary bg-teal-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold w-1/2">Save</button>
+          </div>
+      </div>
+  </div>
 
-  <!-- ==========================================
-                    MODALS 
-  =========================================== -->
-
-  <!-- PUBLIC PROFILE MODAL -->
   <div id="public-profile-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4 overflow-y-auto" onclick="if(event.target===this)closePublicProfileModal()">
       <div class="modal-content rounded-3xl shadow-2xl w-full max-w-sm my-auto bg-white border border-gray-100 p-8 text-center relative overflow-hidden">
           <div class="absolute top-0 left-0 w-full h-24 bg-teal-primary opacity-90"></div>
@@ -512,30 +721,61 @@
           
           <img id="pub-prof-avatar" src="" class="w-24 h-24 mx-auto rounded-full bg-white border-4 border-white object-cover relative z-10 mt-4 mb-3 shadow-md">
           <h3 id="pub-prof-username" class="font-display font-bold text-2xl mb-1">Username</h3>
-          <p id="pub-prof-bio" class="text-sm text-gray-500 mb-6 italic px-4">"Bio goes here"</p>
+          <p id="pub-prof-bio" class="text-sm text-gray-500 mb-4 italic px-4">"Bio goes here"</p>
           
-          <div class="grid grid-cols-2 gap-4 border-t border-gray-100 pt-6">
+          <div class="flex flex-wrap justify-center gap-2 mb-6" id="pub-prof-stickers">
+              <!-- Stickers injected here -->
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 border-t border-gray-100 pt-6 mb-6">
               <div class="bg-indigo-50 rounded-xl p-3">
-                  <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-1">Total Hours</p>
-                  <p id="pub-prof-hrs" class="text-xl font-bold text-indigo-700">0h</p>
+                  <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-1">Hours</p>
+                  <p id="pub-prof-hrs" class="text-lg font-bold text-indigo-700">0h</p>
               </div>
               <div class="bg-green-50 rounded-xl p-3">
-                  <p class="text-[10px] font-bold text-green-500 uppercase tracking-wider mb-1">Habits Done</p>
-                  <p id="pub-prof-habits" class="text-xl font-bold text-green-700">0</p>
+                  <p class="text-[10px] font-bold text-green-500 uppercase tracking-wider mb-1">Habits</p>
+                  <p id="pub-prof-habits" class="text-lg font-bold text-green-700">0</p>
+              </div>
+              <div class="bg-orange-50 rounded-xl p-3">
+                  <p class="text-[10px] font-bold text-orange-500 uppercase tracking-wider mb-1">Streak</p>
+                  <p id="pub-prof-streak" class="text-lg font-bold text-orange-700">0 🔥</p>
+              </div>
+          </div>
+          
+          <div id="give-sticker-section" class="border-t border-gray-100 pt-4">
+              <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Award a Sticker:</p>
+              <div class="flex justify-center gap-2">
+                  <button onclick="giveSticker('Brainiac', '🧠')" class="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-bold transition">🧠 Brainiac</button>
+                  <button onclick="giveSticker('Hard Worker', '🔥')" class="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-bold transition">🔥 Hard Worker</button>
+                  <button onclick="giveSticker('Great Helper', '💡')" class="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-bold transition">💡 Great Helper</button>
               </div>
           </div>
       </div>
   </div>
 
-  <!-- GLOBAL STUDY TIMER MODAL -->
+  <div id="day-view-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[250] flex items-center justify-center p-4 overflow-y-auto" onclick="if(event.target===this)closeDayViewModal()">
+      <div class="modal-content rounded-2xl shadow-2xl w-full max-w-md my-auto bg-white border border-gray-100 p-6">
+          <div class="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
+              <h3 class="font-display font-bold text-xl text-teal-primary" id="day-view-title">Date</h3>
+              <button onclick="closeDayViewModal()" class="p-1 rounded-lg bg-gray-50 hover:bg-gray-100 transition"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+          </div>
+          <div id="day-view-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+      </div>
+  </div>
+
   <div id="timer-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4 overflow-y-auto" onclick="if(event.target===this)closeTimerModal()">
       <div class="modal-content rounded-2xl shadow-2xl w-full max-w-sm my-auto bg-white border border-gray-100 p-6 text-center">
           <div class="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4 border border-teal-100">
               <i data-lucide="play-circle" class="w-8 h-8 text-teal-primary"></i>
           </div>
           <h3 class="font-display font-bold text-xl mb-1">Start Study Session</h3>
-          <p class="text-sm text-gray-500 mb-6">Select a planned slot from today, or create a new one to start tracking time.</p>
+          <p class="text-sm text-gray-500 mb-6">Select a planned slot, or create a new one to start tracking time.</p>
           
+          <div class="flex gap-2 p-1 bg-gray-100 rounded-lg mb-6">
+              <button id="t-mode-stopwatch" onclick="setTimerMode('stopwatch')" class="flex-1 py-1.5 text-xs font-bold bg-white rounded shadow-sm text-gray-800 transition">Stopwatch</button>
+              <button id="t-mode-pomodoro" onclick="setTimerMode('pomodoro')" class="flex-1 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-800 transition">Pomodoro (25m)</button>
+          </div>
+
           <div class="space-y-4 text-left mb-6">
               <div>
                   <label class="block text-sm font-bold mb-1">Select Study Log</label>
@@ -562,7 +802,6 @@
       </div>
   </div>
 
-  <!-- GENERIC CUSTOM CONFIRM MODAL -->
   <div id="confirm-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4 overflow-y-auto">
     <div class="modal-content rounded-2xl shadow-2xl w-full max-w-sm my-auto bg-white border border-gray-100 p-6 text-center">
      <div class="w-16 h-16 rounded-full border border-red-100 flex items-center justify-center mx-auto mb-4 bg-red-50">
@@ -577,7 +816,6 @@
     </div>
   </div>
 
-  <!-- ADD ASSIGNMENT MODAL -->
   <div id="assignment-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[150] flex items-center justify-center p-4 overflow-y-auto" onclick="if(event.target===this)closeAssignmentModal()">
       <div class="modal-content rounded-2xl shadow-2xl w-full max-w-md my-auto bg-white border border-gray-100">
           <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50 rounded-t-2xl">
@@ -602,7 +840,6 @@
       </div>
   </div>
 
-  <!-- ADD HABIT MODAL -->
   <div id="habit-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[150] flex items-center justify-center p-4 overflow-y-auto" onclick="if(event.target===this)closeHabitModal()">
       <div class="modal-content rounded-2xl shadow-2xl w-full max-w-sm my-auto bg-white border border-gray-100">
           <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50 rounded-t-2xl">
@@ -620,7 +857,6 @@
       </div>
   </div>
 
-  <!-- ADD SUBJECT MODAL -->
   <div id="subject-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[150] flex items-center justify-center p-4 overflow-y-auto" onclick="if(event.target===this)closeSubjectModal()">
       <div class="modal-content rounded-2xl shadow-2xl w-full max-w-sm my-auto bg-white border border-gray-100">
           <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50 rounded-t-2xl">
@@ -638,7 +874,6 @@
       </div>
   </div>
 
-  <!-- ADD NOTE MODAL -->
   <div id="note-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[150] flex items-center justify-center p-4 overflow-y-auto" onclick="if(event.target===this)closeNoteModal()">
       <div class="modal-content rounded-2xl shadow-2xl w-full max-w-sm my-auto bg-white border border-gray-100">
           <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50 rounded-t-2xl">
@@ -667,7 +902,6 @@
       </div>
   </div>
 
-  <!-- ADD/EDIT FLASHCARD MODAL -->
   <div id="fc-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[150] flex items-center justify-center p-4 overflow-y-auto" onclick="if(event.target===this)closeFcModal()">
     <div class="modal-content rounded-2xl shadow-2xl w-full max-w-md my-auto bg-white border border-gray-100">
      <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50 rounded-t-2xl">
@@ -692,30 +926,39 @@
   <script type="module">
 // ─── 1. CLOUD SYNC SETTINGS (FIREBASE) ───
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, orderBy, limit, addDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBuMOMcS6Hz2H9YNI4Rtk9qEe1cPmYEvOA",
-  authDomain: "bgorstudy-v2.firebaseapp.com",
-  projectId: "bgorstudy-v2",
-  storageBucket: "bgorstudy-v2.firebasestorage.app",
-  messagingSenderId: "854435454246",
-  appId: "1:854435454246:web:9b048a2ce998d715bef5e7",
-  measurementId: "G-WQ3PC4HN5W"
+const MY_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyArvSV-RkzHFSIh6h5byPR4arQnpM1-IQE",
+  authDomain: "bgorstudy-app-bdad6.firebaseapp.com",
+  projectId: "bgorstudy-app-bdad6"
 };
+const appId = "bgorstudy"; 
 
 const app = initializeApp(MY_FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 // ─── DEFAULT DATA ───
+const getFutureDate = (days) => {
+    const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"}));
+    d.setDate(d.getDate() + days);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
 const defaultAssignments = [
-    { id: 1, title: 'Chinese UT', subject: 'Chinese', type: 'Test', date: '2026-04-16', status: 'Not Started', priority: 'High' }
+    { id: 1, title: 'Chinese UT', subject: 'Chinese', type: 'Test', date: getFutureDate(3), status: 'Not Started', priority: 'High' },
+    { id: 2, title: 'Math Past Paper', subject: 'Math', type: 'Homework', date: getFutureDate(1), status: 'In Progress', priority: 'Medium' },
+    { id: 3, title: 'English Essay', subject: 'English', type: 'Project', date: getFutureDate(5), status: 'Not Started', priority: 'High' }
 ];
+
 const defaultHabits = [
-    { id: 1, name: 'Math 20 min', done: false, icon: 'calculator', history: Array(30).fill(false) }
+    { id: 1, name: 'Math 20 min', done: false, icon: 'calculator', history: Array(30).fill(false) },
+    { id: 2, name: 'Read 10 pages', done: false, icon: 'book', history: Array(30).fill(false) },
+    { id: 3, name: 'Drink Water', done: false, icon: 'droplet', history: Array(30).fill(false) }
 ];
+
 const defaultSubjects = [
     { id: 'sub1', name: 'Chinese', color: '#ef4444' },     
     { id: 'sub2', name: 'English', color: '#3b82f6' },     
@@ -726,7 +969,11 @@ const defaultSubjects = [
     { id: 'sub7', name: 'Biology', color: '#22c55e' }
 ];
 const defaultStudyLogs = [];
-const defaultNotes = [];
+const defaultNotes = [
+    { id: 'n1', subject: 'Biology', chapter: 'Ch 1: Cells', link: '', status: 'Not yet started', revCount: 0 },
+    { id: 'n2', subject: 'Chemistry', chapter: 'Ch 3: Metals', link: '', status: 'Notes done', revCount: 0 }
+];
+
 const defaultFlashcards = [
     { __backendId: 'fc1', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「完璧歸趙」中，藺相如如何威脅秦王以保住和氏璧？', answer: '他拿著和氏璧倚著柱子，威脅如果秦王強奪，他就會把自己的頭和玉璧一起撞碎在柱子上。' },
     { __backendId: 'fc2', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「澠池之會」中，藺相如為何逼秦王擊缻？', answer: '為了報復秦王要趙王鼓瑟的侮辱，維護趙國的尊嚴，顯示兩國地位平等。' },
@@ -742,9 +989,9 @@ const defaultFlashcards = [
 
 // ─── STATE ───
 let authUser = null;
-let currentUser = null; // Stored as Google UID for unique ID
-let currentUserName = ''; // Display Name
-let userProfile = { avatar: '', bio: '' };
+let currentUser = null; 
+let currentUserName = ''; 
+let userProfile = { avatar: '', bio: '', stickers: [] };
 let assignments = [];
 let habits = [];
 let subjects = [];
@@ -755,6 +1002,21 @@ let unsubscribeData = null;
 let unsubscribeLeaderboard = null;
 let allUsersData = [];
 
+// Chat State
+let chatMessages = [];
+let unsubscribeChat = null;
+
+// Q&A State
+let qaPosts = [];
+let unsubscribeQA = null;
+
+// Community Goal State
+let communityGoal = null;
+let unsubscribeGoal = null;
+
+// Shared Flashcards
+let sharedDecks = [];
+
 // Flashcard State
 let editingFcCard = null;
 let fcPlayCards = [], fcPlayIndex = 0, fcPlayFlipped = false;
@@ -764,8 +1026,9 @@ let fcQuizCards = [], fcQuizIndex = 0, fcQuizScore = 0, fcQuizAnswered = false, 
 let homeStatusChart, homeHoursChart, assStatusChart, assPriorityChart, assTypeChart, assSubjectChart, habitWeeklyChart, habitWeeklyPieChart, habitMonthlyPieChart;
 let currentNoteSubject = '';
 
-// Study Timer State
-let timerState = { active: false, startTime: null, interval: null, logId: null, subject: '', chapters: '' };
+// Calendar & Timer State
+let currentCalDate = new Date();
+let timerState = { active: false, mode: 'stopwatch', startTime: null, interval: null, logId: null, subject: '', chapters: '', targetEndTime: 0, phase: 'study' };
 
 // Music State
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -778,14 +1041,9 @@ let musicVolume = 0.5;
 let musicInterval = null;
 let noteIndex = 0;
 
-const genres = [
-  { id: 'lofi', label: '🎵 Lo-fi', type: 'sine', notes: [261.6, 329.6, 392.0, 523.3], speed: 600 },
-  { id: 'ambient', label: '🌊 Ambient', type: 'triangle', notes: [220.0, 261.6, 329.6, 440.0], speed: 1000 },
-  { id: 'classical', label: '🎹 Classical', type: 'sine', notes: [392.0, 493.9, 587.3, 784.0], speed: 450 },
-  { id: 'nature', label: '🌿 Nature', type: 'sine', notes: [329.6, 392.0, 440.0, 523.3], speed: 800 }
-];
-
 let confirmCallback = null;
+let inputCallback = null;
+let currentViewedUser = null; 
 
 // ─── UTILITIES ───
 function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -800,9 +1058,43 @@ function updateClock() {
     const el = document.getElementById('current-date-display');
     if(el) {
         const now = new Date();
-        const options = { timeZone: 'Asia/Hong_Kong', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const options = { timeZone: 'Asia/Hong_Kong', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
         el.textContent = now.toLocaleString('en-US', options);
     }
+}
+
+function calculateStreak(logs) {
+    if(!logs || logs.length === 0) return 0;
+    let dates = new Set([...logs.map(l => l.date)]);
+    let sorted = [...dates].sort((a,b) => new Date(b) - new Date(a));
+    let streak = 0;
+    
+    const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"}));
+    d.setHours(0,0,0,0);
+    const formatDateStr = (dateObj) => `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
+    
+    let todayStr = formatDateStr(d);
+    let yesterday = new Date(d); yesterday.setDate(yesterday.getDate() - 1);
+    let yesterdayStr = formatDateStr(yesterday);
+
+    if(sorted.includes(todayStr)) {
+        streak++;
+        let checkDate = new Date(d);
+        checkDate.setDate(checkDate.getDate() - 1);
+        while(sorted.includes(formatDateStr(checkDate))) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+        }
+    } else if (sorted.includes(yesterdayStr)) {
+        streak++;
+        let checkDate = new Date(yesterday);
+        checkDate.setDate(checkDate.getDate() - 1);
+        while(sorted.includes(formatDateStr(checkDate))) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+        }
+    }
+    return streak;
 }
 
 window.showToast = function(msg, type = 'success') {
@@ -821,7 +1113,21 @@ window.requestConfirm = function(callback) {
 window.closeConfirmModal = function() { document.getElementById('confirm-modal-overlay').classList.add('hidden'); confirmCallback = null; }
 document.getElementById('confirm-modal-btn').addEventListener('click', () => { if(confirmCallback) confirmCallback(); closeConfirmModal(); });
 
-// ─── INIT ───
+window.requestInput = function(title, defaultValue, callback) {
+    document.getElementById('input-modal-title').textContent = title;
+    document.getElementById('input-modal-value').value = defaultValue || '';
+    inputCallback = callback;
+    document.getElementById('input-modal-overlay').classList.remove('hidden');
+    document.getElementById('input-modal-value').focus();
+}
+window.closeInputModal = function() { document.getElementById('input-modal-overlay').classList.add('hidden'); inputCallback = null; }
+document.getElementById('input-modal-btn').addEventListener('click', () => {
+    if(inputCallback) inputCallback(document.getElementById('input-modal-value').value);
+    closeInputModal();
+});
+
+
+// ─── INIT & EVENT LISTENERS ───
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('music-genres').innerHTML = genres.map(g => `<button onclick="window.setGenre('${g.id}')" id="genre-${g.id}" class="music-btn px-2 py-1.5 rounded text-xs font-bold border border-gray-200 bg-white hover:bg-gray-50" style="color: #1f2937 !important; ${g.id === currentGenre ? 'border-color: #004b55; background-color: rgba(0,75,85,.1) !important;' : ''}">${g.label}</button>`).join('');
 
@@ -844,19 +1150,28 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ─── GOOGLE AUTH LOGIC ───
-window.handleGoogleLogin = async () => {
+setPersistence(auth, browserSessionPersistence).catch((err) => console.log(err));
+
+window.handleGoogleLogin = async (forceSwitch = false) => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' }); 
+    // Calendar scope NOT included initially to bypass school restrictions.
+    
+    if (forceSwitch) await signOut(auth); 
+
     const btn = document.getElementById('btn-google-login');
     const origHtml = btn.innerHTML;
     btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Loading...`;
     lucide.createIcons();
     
     try {
+        sessionStorage.setItem('active_session', 'true');
         await signInWithPopup(auth, provider);
-        // Result handles automatically in onAuthStateChanged
     } catch (error) {
         console.error(error);
-        window.showToast("Google Sign-In cancelled or failed.", "error");
+        if (error.code !== 'auth/popup-closed-by-user') {
+            window.showToast("Google Sign-In failed.", "error");
+        }
         btn.innerHTML = origHtml;
         lucide.createIcons();
     }
@@ -865,15 +1180,22 @@ window.handleGoogleLogin = async () => {
 onAuthStateChanged(auth, async (user) => {
     authUser = user;
     if (user) {
-        currentUser = user.uid;
+        currentUser = user.uid; 
         currentUserName = user.displayName || 'Student';
-        
+
+        if (!sessionStorage.getItem('active_session')) {
+            document.getElementById('login-standard-state').classList.add('hidden');
+            document.getElementById('login-active-state').classList.remove('hidden');
+            document.getElementById('active-user-name').textContent = currentUserName;
+            document.getElementById('active-user-avatar').src = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`;
+            return; 
+        }
+
         document.getElementById('login-view').classList.add('hidden');
         document.getElementById('app-container').classList.remove('hidden');
         document.getElementById('header-user-badge').textContent = currentUserName;
         document.getElementById('header-user-badge').classList.remove('hidden');
-        document.getElementById('prof-username').value = currentUserName;
-
+        
         try {
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser);
             const docSnap = await getDoc(docRef);
@@ -881,28 +1203,30 @@ onAuthStateChanged(auth, async (user) => {
             if (!docSnap.exists()) {
                 const newData = {
                     username: currentUserName,
-                    profile: { avatar: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`, bio: 'A dedicated student.' },
+                    profile: { avatar: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`, bio: 'A dedicated student.', stickers: [] },
                     assignments: defaultAssignments,
                     habits: defaultHabits,
                     subjects: defaultSubjects,
                     studyLogs: defaultStudyLogs,
                     notes: defaultNotes,
-                    flashcards: defaultFlashcards
+                    flashcards: defaultFlashcards,
+                    currentlyStudying: { active: false }
                 };
                 await setDoc(docRef, newData);
                 window.showToast("Cloud Profile Created!");
             } else {
-                // Update Name/Avatar in case it changed via Google
                 await setDoc(docRef, { 
                     username: currentUserName,
-                    'profile.avatar': docSnap.data().profile?.avatar || user.photoURL 
+                    'profile.avatar': docSnap.data().profile?.avatar || user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`
                 }, { merge: true });
                 window.showToast(`Welcome back, ${currentUserName}!`);
             }
             
             setupDataListener();
+            initChatListener();
+            initQAListener();
+            initGoalListener();
             
-            // Leaderboard Sync
             if (unsubscribeLeaderboard) unsubscribeLeaderboard();
             unsubscribeLeaderboard = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users'), (snapshot) => {
                 allUsersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -911,14 +1235,21 @@ onAuthStateChanged(auth, async (user) => {
 
         } catch (e) {
             console.error("Cloud connect error", e);
-            window.showToast("Error connecting to Cloud", "error");
+            window.showToast("Error connecting to Cloud: " + e.message, "error");
         }
     } else {
         currentUser = null;
+        sessionStorage.removeItem('active_session');
         if (unsubscribeData) { unsubscribeData(); unsubscribeData = null; }
         if (unsubscribeLeaderboard) { unsubscribeLeaderboard(); unsubscribeLeaderboard = null; }
+        if (unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
+        if (unsubscribeQA) { unsubscribeQA(); unsubscribeQA = null; }
+        if (unsubscribeGoal) { unsubscribeGoal(); unsubscribeGoal = null; }
+        
         document.getElementById('login-view').classList.remove('hidden');
         document.getElementById('app-container').classList.add('hidden');
+        document.getElementById('login-standard-state').classList.remove('hidden');
+        document.getElementById('login-active-state').classList.add('hidden');
         
         const btn = document.getElementById('btn-google-login');
         if(btn) {
@@ -927,8 +1258,25 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+window.proceedToApp = function() {
+    sessionStorage.setItem('active_session', 'true');
+    const user = auth.currentUser;
+    if (user) {
+        document.getElementById('login-standard-state').classList.remove('hidden');
+        document.getElementById('login-active-state').classList.add('hidden');
+        onAuthStateChanged(auth, () => {})(user); 
+    }
+}
+
 window.signOutUser = () => {
-    if(timerState.active) stopGlobalTimer();
+    if(timerState.active) stopGlobalTimer(false, true); 
+    if (authUser) {
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({doc, updateDoc}) => {
+             updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser), {
+                currentlyStudying: { active: false }
+             }).catch(()=>{});
+        });
+    }
     signOut(auth);
 };
 
@@ -940,7 +1288,7 @@ function setupDataListener() {
     unsubscribeData = onSnapshot(docRef, (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            userProfile = data.profile || { avatar: '', bio: '' };
+            userProfile = data.profile || { avatar: '', bio: '', stickers: [] };
             assignments = data.assignments || [];
             habits = data.habits || [];
             subjects = data.subjects || [];
@@ -956,7 +1304,7 @@ function setupDataListener() {
             const subNames = [...new Set(notes.map(n => n.subject))];
             if(subNames.length > 0 && !currentNoteSubject) currentNoteSubject = subNames[0];
 
-            window.switchTab(document.querySelector('.nav-tab.active')?.id.replace('tab-', '') || 'home');
+            window.switchTab(document.querySelector('.nav-tab.active')?.id.replace('tab-', '')?.replace('mob-tab-', '') || 'home');
         }
     }, (err) => {
         console.error(err);
@@ -973,6 +1321,33 @@ async function saveData() {
         console.error(e);
         window.showToast("Failed to save changes", "error");
     }
+}
+
+window.restoreLocalData = function() {
+    let oldData = null;
+    for(let i=0; i<localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if(key.startsWith('gw_tracker_full_data_')) {
+            oldData = JSON.parse(localStorage.getItem(key));
+            break;
+        }
+    }
+    if(!oldData) {
+        window.showToast("No local data found on this device.", "error");
+        return;
+    }
+    
+    requestConfirm(() => {
+        if(oldData.assignments) assignments = oldData.assignments;
+        if(oldData.habits) habits = oldData.habits;
+        if(oldData.subjects) subjects = oldData.subjects;
+        if(oldData.notes) notes = oldData.notes;
+        if(oldData.studyLogs) studyLogs = oldData.studyLogs;
+        if(oldData.flashcards) flashcards = oldData.flashcards;
+        saveData();
+        window.showToast("Local data successfully restored to Cloud!");
+        window.switchTab('home');
+    });
 }
 
 // ─── PROFILE LOGIC ───
@@ -997,35 +1372,620 @@ window.showPublicProfile = function(uid) {
     const userData = allUsersData.find(u => u.id === uid);
     if(!userData) return;
     
+    currentViewedUser = uid;
+    
     const logs = userData.studyLogs || [];
     const totalHrs = logs.reduce((sum, l) => sum + (l.actual || 0), 0);
     const habitsDone = (userData.habits || []).filter(h => h.done).length;
+    const streak = calculateStreak(logs);
+    const stickers = userData.profile?.stickers || [];
     
-    document.getElementById('pub-prof-avatar').src = userData.profile?.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed='+uid;
+    document.getElementById('pub-prof-avatar').src = userData.profile?.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${uid}`;
     document.getElementById('pub-prof-username').textContent = userData.username || 'Student';
     document.getElementById('pub-prof-bio').textContent = `"${userData.profile?.bio || 'No bio provided.'}"`;
     document.getElementById('pub-prof-hrs').textContent = totalHrs.toFixed(1) + 'h';
     document.getElementById('pub-prof-habits').textContent = habitsDone;
+    document.getElementById('pub-prof-streak').textContent = streak + ' 🔥';
     
+    const sDiv = document.getElementById('pub-prof-stickers');
+    if (stickers.length === 0) {
+        sDiv.innerHTML = `<span class="text-xs text-gray-400">No stickers yet.</span>`;
+    } else {
+        sDiv.innerHTML = stickers.map(s => `<span class="inline-block bg-gray-50 border border-gray-200 rounded-full px-2 py-1 text-[10px] font-bold shadow-sm" title="From ${esc(s.senderName)}">${s.icon} ${esc(s.name)}</span>`).join('');
+    }
+    
+    document.getElementById('give-sticker-section').style.display = uid === currentUser ? 'none' : 'block';
     document.getElementById('public-profile-modal-overlay').classList.remove('hidden');
 }
-window.closePublicProfileModal = function() { document.getElementById('public-profile-modal-overlay').classList.add('hidden'); }
+window.closePublicProfileModal = function() { document.getElementById('public-profile-modal-overlay').classList.add('hidden'); currentViewedUser = null; }
+
+window.giveSticker = async function(name, icon) {
+    if (!currentUser || !currentViewedUser) return;
+    try {
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion}) => {
+             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentViewedUser);
+             const newSticker = { senderName: currentUserName, name: name, icon: icon, timestamp: Date.now() };
+             await updateDoc(docRef, {
+                 'profile.stickers': arrayUnion(newSticker)
+             });
+             window.showToast(`Gave a ${name} sticker!`);
+             const sDiv = document.getElementById('pub-prof-stickers');
+             if (sDiv.innerHTML.includes('No stickers yet.')) sDiv.innerHTML = '';
+             sDiv.innerHTML += `<span class="inline-block bg-gray-50 border border-gray-200 rounded-full px-2 py-1 text-[10px] font-bold shadow-sm" title="From ${esc(currentUserName)}">${icon} ${esc(name)}</span>`;
+        });
+    } catch(e) {
+        console.error(e);
+        window.showToast("Error giving sticker.", "error");
+    }
+}
+
+
+// ─── COMMUNITY GOAL LOGIC ───
+function initGoalListener() {
+    if(!authUser) return;
+    unsubscribeGoal = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_meta', 'coop_goal'), (docSnap) => {
+        if (docSnap.exists()) {
+            communityGoal = docSnap.data();
+        } else {
+            communityGoal = null;
+        }
+        if (!document.getElementById('view-home').classList.contains('hidden')) renderCommunityGoal();
+    }, (e) => console.log("Goal error"));
+}
+
+window.promptNewCoopGoal = function() {
+    requestInput("Set Community Goal Subject (e.g. Math, Reading):", "", (subject) => {
+        if(subject) {
+            requestInput(`Target Hours for ${subject}:`, "100", async (hrs) => {
+                const target = parseFloat(hrs);
+                if(target > 0) {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_meta', 'coop_goal'), {
+                        subject: subject.trim(),
+                        targetHrs: target,
+                        startDate: getHKDateString()
+                    });
+                    window.showToast("New Community Goal Set!");
+                }
+            });
+        }
+    });
+}
+
+function renderCommunityGoal() {
+    const el = document.getElementById('coop-goal-content');
+    if (!el) return;
+    
+    if (!communityGoal) {
+        el.innerHTML = `<p class="text-sm font-medium mb-2 opacity-90">No active goal right now.</p><p class="text-xs opacity-75">Click 'Set New Goal' to challenge the community!</p>`;
+        return;
+    }
+    
+    let totalHrs = 0;
+    allUsersData.forEach(user => {
+        const logs = user.studyLogs || [];
+        logs.forEach(l => {
+            if (l.subject.toLowerCase() === communityGoal.subject.toLowerCase() && l.date >= communityGoal.startDate) {
+                totalHrs += (parseFloat(l.actual) || 0);
+            }
+        });
+    });
+    
+    const pct = Math.min(100, Math.round((totalHrs / communityGoal.targetHrs) * 100));
+    
+    el.innerHTML = `
+        <div class="flex justify-between items-end mb-2">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Target: ${esc(communityGoal.subject)}</p>
+                <p class="text-3xl font-display font-bold">${totalHrs.toFixed(1)} <span class="text-sm opacity-80 font-sans font-medium">/ ${communityGoal.targetHrs} hrs</span></p>
+            </div>
+            <div class="text-right">
+                <p class="text-2xl font-bold">${pct}%</p>
+            </div>
+        </div>
+        <div class="w-full bg-white/20 rounded-full h-3 overflow-hidden shadow-inner">
+            <div class="bg-white h-full rounded-full transition-all duration-1000 relative" style="width: ${pct}%">
+                <div class="absolute inset-0 bg-white/30 animate-[pulse_2s_infinite]"></div>
+            </div>
+        </div>
+        ${pct >= 100 ? `<p class="mt-3 text-sm font-bold text-yellow-300 flex items-center gap-1"><i data-lucide="trophy" class="w-4 h-4"></i> Goal Achieved! Set a new one.</p>` : ''}
+    `;
+    lucide.createIcons();
+}
+
+// ─── CHATROOM LOGIC ───
+function initChatListener() {
+    if(!authUser) return;
+    const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_chat'), orderBy('timestamp', 'desc'), limit(50));
+    unsubscribeChat = onSnapshot(q, (snapshot) => {
+        chatMessages = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).reverse();
+        if(!document.getElementById('view-chat').classList.contains('hidden')) renderChat();
+    }, (e) => {
+        console.error("Chat error. Rule update required.", e);
+        const errDiv = document.getElementById('chat-messages');
+        if(errDiv) errDiv.innerHTML = `<div class="text-center p-6 text-red-500 font-bold">Failed to load chat. Please ensure the Firebase rules are updated.</div>`;
+    });
+}
+
+function renderChat() {
+    const list = document.getElementById('chat-messages');
+    if(!list) return;
+    
+    if(chatMessages.length === 0) {
+        list.innerHTML = `<div class="text-center p-6 text-gray-400 font-bold">No messages yet. Be the first to say hello!</div>`;
+        return;
+    }
+    
+    list.innerHTML = chatMessages.map(msg => {
+        if(msg.isSystemMsg) {
+            return `<div class="flex justify-center mb-4">
+                <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm flex items-center gap-2">
+                    <img src="${esc(msg.avatar)}" class="w-4 h-4 rounded-full border border-yellow-300"> 
+                    ${esc(msg.text)}
+                </div>
+            </div>`;
+        }
+
+        const isMe = msg.uid === currentUser;
+        
+        let timeStr = "Sending...";
+        if (msg.timestamp) {
+            timeStr = new Date(msg.timestamp.toDate ? msg.timestamp.toDate() : msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        const likesCount = msg.likes ? msg.likes.length : 0;
+        const iLiked = msg.likes && msg.likes.includes(currentUser);
+        
+        return `
+        <div class="flex ${isMe ? 'justify-end' : 'justify-start'} mb-4">
+            <div class="flex gap-3 max-w-[85%] ${isMe ? 'flex-row-reverse' : ''}">
+                <img src="${esc(msg.avatar)}" class="w-8 h-8 rounded-full border border-gray-200 object-cover mt-1 flex-shrink-0 cursor-pointer" onclick="showPublicProfile('${esc(msg.uid)}')">
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xs font-bold text-gray-600">${esc(msg.username)}</span>
+                        <span class="text-[10px] text-gray-400">${timeStr}</span>
+                    </div>
+                    <div class="px-4 py-2 rounded-2xl ${isMe ? 'bg-teal-600 text-white rounded-tr-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm'} text-sm shadow-sm break-words relative group">
+                        ${esc(msg.text)}
+                        <div class="absolute ${isMe ? '-left-8' : '-right-8'} bottom-0 cursor-pointer text-gray-400 hover:text-red-500 transition flex items-center gap-1" onclick="toggleLikeMessage('${msg.id}')">
+                            <i data-lucide="heart" class="w-4 h-4 ${iLiked ? 'fill-red-500 text-red-500' : ''}"></i>
+                            ${likesCount > 0 ? `<span class="text-[10px] font-bold ${iLiked ? 'text-red-500' : ''}">${likesCount}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+    list.scrollTop = list.scrollHeight;
+    lucide.createIcons();
+}
+
+window.sendChatMessage = async function() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    
+    try {
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection, serverTimestamp}) => {
+             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_chat'), {
+                 text: text,
+                 uid: currentUser,
+                 username: currentUserName,
+                 avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                 timestamp: serverTimestamp(),
+                 likes: []
+             });
+        });
+    } catch(e) {
+        window.showToast("Failed to send message. Please check Firebase rules.", "error");
+        console.error(e);
+    }
+}
+
+window.toggleLikeMessage = async function(msgId) {
+    if (!currentUser) return;
+    try {
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, getDoc, updateDoc, arrayRemove, arrayUnion}) => {
+             const msgRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_chat', msgId);
+             const docSnap = await getDoc(msgRef);
+             if (docSnap.exists()) {
+                 const data = docSnap.data();
+                 const likes = data.likes || [];
+                 if (likes.includes(currentUser)) {
+                     await updateDoc(msgRef, { likes: arrayRemove(currentUser) });
+                 } else {
+                     await updateDoc(msgRef, { likes: arrayUnion(currentUser) });
+                 }
+             }
+        });
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+// ─── Q&A BOARD LOGIC ───
+function initQAListener() {
+    if(!authUser) return;
+    const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), orderBy('timestamp', 'desc'), limit(50));
+    unsubscribeQA = onSnapshot(q, (snapshot) => {
+        qaPosts = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        if(!document.getElementById('view-qa').classList.contains('hidden')) renderQA();
+    }, (e) => console.error("QA error", e));
+}
+
+window.promptNewQuestion = function() {
+    requestInput("What is your question?", "", async (title) => {
+        if(title) {
+            requestInput("Add details (optional):", "", async (detail) => {
+                try {
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection}) => {
+                         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
+                             title: title.trim(),
+                             detail: detail ? detail.trim() : '',
+                             uid: currentUser,
+                             username: currentUserName,
+                             avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                             timestamp: Date.now(),
+                             replies: []
+                         });
+                         window.showToast("Question posted!");
+                    });
+                } catch(e) { console.error(e); window.showToast("Error posting.", "error"); }
+            });
+        }
+    });
+}
+
+window.addQAReply = async function(qaId) {
+    requestInput("Your reply/answer:", "", async (text) => {
+        if(text) {
+            try {
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion}) => {
+                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId);
+                     const replyObj = {
+                         text: text.trim(),
+                         username: currentUserName,
+                         avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                         timestamp: Date.now()
+                     };
+                     await updateDoc(docRef, { replies: arrayUnion(replyObj) });
+                     window.showToast("Reply added!");
+                });
+            } catch(e) { console.error(e); window.showToast("Error replying.", "error"); }
+        }
+    });
+}
+
+function renderQA() {
+    const list = document.getElementById('qa-list');
+    if(!list) return;
+    
+    if(qaPosts.length === 0) {
+        list.innerHTML = `<div class="text-center p-10 text-gray-400 font-bold">No questions yet. Ask something!</div>`;
+        return;
+    }
+    
+    list.innerHTML = qaPosts.map(qa => {
+        const timeStr = new Date(qa.timestamp).toLocaleDateString() + ' ' + new Date(qa.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        return `
+        <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition">
+            <div class="flex items-start gap-3 mb-3">
+                <img src="${esc(qa.avatar)}" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer" onclick="showPublicProfile('${esc(qa.uid)}')">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold text-sm text-gray-800">${esc(qa.username)}</span>
+                        <span class="text-[10px] text-gray-400">${timeStr}</span>
+                    </div>
+                    <h4 class="font-bold text-lg leading-tight mb-1 text-teal-primary">${esc(qa.title)}</h4>
+                    ${qa.detail ? `<p class="text-sm text-gray-600 mb-2">${esc(qa.detail)}</p>` : ''}
+                </div>
+            </div>
+            
+            <div class="pl-12 space-y-3 mt-4 border-t border-gray-100 pt-3">
+                ${(qa.replies || []).map(r => `
+                    <div class="flex items-start gap-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <img src="${esc(r.avatar)}" class="w-6 h-6 rounded-full object-cover">
+                        <div>
+                            <p class="text-xs font-bold text-gray-700 mb-0.5">${esc(r.username)} <span class="text-[9px] text-gray-400 font-normal ml-1">${new Date(r.timestamp).toLocaleDateString()}</span></p>
+                            <p class="text-sm text-gray-800">${esc(r.text)}</p>
+                        </div>
+                    </div>
+                `).join('')}
+                <button onclick="addQAReply('${qa.id}')" class="text-xs font-bold text-teal-600 hover:text-teal-800 transition flex items-center gap-1 mt-2 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-100">
+                    <i data-lucide="message-circle" class="w-3 h-3"></i> Add Reply
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+    lucide.createIcons();
+}
+
+
+// ─── CALENDAR HUB LOGIC ───
+window.changeCalMonth = function(delta) {
+    currentCalDate.setDate(1); 
+    currentCalDate.setMonth(currentCalDate.getMonth() + delta);
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const monthYearEl = document.getElementById('cal-month-year');
+    const gridEl = document.getElementById('calendar-grid');
+    if(!monthYearEl || !gridEl) return;
+    
+    const year = currentCalDate.getFullYear();
+    const month = currentCalDate.getMonth();
+    monthYearEl.textContent = new Date(year, month, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    let html = '';
+    
+    for(let i=0; i<firstDay; i++) {
+        html += `<div class="bg-gray-50 border-r border-b border-gray-100 opacity-50 p-1 min-h-[80px]"></div>`;
+    }
+    
+    for(let day=1; day<=daysInMonth; day++) {
+        let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        let isToday = dateStr === getHKDateString();
+        
+        let dayAss = assignments.filter(a => a.date === dateStr);
+        let dayLogs = studyLogs.filter(l => l.date === dateStr);
+        
+        let assHtml = dayAss.map(a => `<div class="text-[9px] bg-red-100 text-red-700 px-1 py-0.5 rounded truncate mb-0.5" title="${esc(a.title)}">🔴 ${esc(a.title)}</div>`).join('');
+        let logsHtml = dayLogs.map(l => `<div draggable="true" ondragstart="dragLog(event, ${l.id})" class="drag-log text-[9px] ${l.actual > 0 ? 'bg-teal-500 text-white' : 'bg-teal-100 text-teal-800'} px-1 py-0.5 rounded truncate mb-0.5 shadow-sm" title="${esc(l.subject)}: ${esc(l.chapters)}">${esc(l.subject)}</div>`).join('');
+        
+        html += `
+        <div class="cal-cell bg-white border-r border-b border-gray-100 p-1 sm:p-2 min-h-[80px] hover:bg-gray-50 transition relative"
+             ondragover="allowDrop(event)" ondrop="dropLog(event, '${dateStr}')" onclick="openDayView('${dateStr}')">
+            <span class="text-xs font-bold ${isToday ? 'bg-teal-primary text-white w-5 h-5 flex items-center justify-center rounded-full' : 'text-gray-500'} mb-1">${day}</span>
+            <div class="flex flex-col gap-0.5 pointer-events-none mt-1">
+                ${assHtml}
+                ${logsHtml}
+            </div>
+        </div>`;
+    }
+    gridEl.innerHTML = html;
+}
+
+window.allowDrop = function(ev) {
+    ev.preventDefault();
+    if(ev.target.classList.contains('cal-cell')) ev.target.classList.add('drag-over');
+}
+
+window.dragLog = function(ev, logId) {
+    ev.dataTransfer.setData("text/plain", logId.toString()); 
+    ev.stopPropagation(); 
+}
+
+window.dropLog = function(ev, targetDate) {
+    ev.preventDefault();
+    document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('drag-over'));
+    
+    let logId = parseFloat(ev.dataTransfer.getData("text/plain"));
+    let log = studyLogs.find(l => l.id === logId);
+    if(log && log.date !== targetDate) {
+        log.date = targetDate;
+        saveData();
+        renderCalendar();
+        renderSubjects();
+        window.showToast("Study slot rescheduled!");
+    }
+}
+
+window.openDayView = function(dateStr) {
+    if (window.event && window.event.target.classList.contains('drag-log')) return;
+
+    document.getElementById('day-view-title').textContent = new Date(dateStr).toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+    const content = document.getElementById('day-view-content');
+    
+    const dayAss = assignments.filter(a => a.date === dateStr);
+    const dayLogs = studyLogs.filter(l => l.date === dateStr);
+    
+    let html = '';
+    
+    if(dayAss.length > 0) {
+        html += `<h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Assignments Due</h4>`;
+        html += dayAss.map(a => `<div class="bg-red-50 text-red-800 p-2 rounded-lg text-sm mb-2 border border-red-100 flex justify-between"><span>🔴 ${esc(a.title)}</span> <span class="font-bold text-xs">${a.status}</span></div>`).join('');
+    }
+    
+    const past = dayLogs.filter(l => l.actual > 0);
+    const planned = dayLogs.filter(l => l.actual === 0 && l.target > 0);
+    
+    if(past.length > 0) {
+        html += `<h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">Completed Study</h4>`;
+        html += past.map(l => `<div class="bg-teal-50 text-teal-800 p-2 rounded-lg text-sm mb-2 border border-teal-100 flex justify-between"><span>✅ ${esc(l.subject)}: ${esc(l.chapters)}</span> <span class="font-bold text-xs">${l.actual}h</span></div>`).join('');
+    }
+    
+    if(planned.length > 0) {
+        html += `<h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">Planned Study</h4>`;
+        html += planned.map(l => `<div class="bg-gray-50 text-gray-700 p-2 rounded-lg text-sm mb-2 border border-gray-200 flex justify-between"><span>⏳ ${esc(l.subject)}: ${esc(l.chapters)}</span> <span class="font-bold text-xs">${l.target}h target</span></div>`).join('');
+    }
+    
+    if(!html) {
+        html = `<p class="text-center text-sm text-gray-400 py-4">Nothing scheduled for this day.</p>`;
+    }
+    
+    html += `<button onclick="closeDayViewModal(); switchTab('study')" class="mt-4 w-full py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 transition">Add Plan via Study Tab</button>`;
+    
+    content.innerHTML = html;
+    document.getElementById('day-view-modal-overlay').classList.remove('hidden');
+}
+window.closeDayViewModal = function() { document.getElementById('day-view-modal-overlay').classList.add('hidden'); }
+
+window.pushToGCal = async function() {
+    const token = sessionStorage.getItem('gcal_token');
+    if(!token) {
+        try {
+            const provider = new GoogleAuthProvider();
+            provider.addScope('https://www.googleapis.com/auth/calendar.events');
+            const result = await signInWithPopup(auth, provider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            if (credential) {
+                sessionStorage.setItem('gcal_token', credential.accessToken);
+                return window.pushToGCal(); 
+            }
+        } catch (error) {
+            window.showToast("Calendar access blocked by your school/admin.", "error");
+            return;
+        }
+    }
+    
+    const btn = event.currentTarget;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Pushing...`;
+    lucide.createIcons();
+    
+    try {
+        const futureLogs = studyLogs.filter(l => l.target > 0 && l.actual === 0 && new Date(l.date) >= new Date(getHKDateString()));
+        if(futureLogs.length === 0) {
+            btn.innerHTML = origHtml;
+            return window.showToast("No upcoming planned study to sync.");
+        }
+        
+        let count = 0;
+        for (let log of futureLogs) {
+            const ev = {
+               summary: `Study: ${log.subject} (${log.chapters})`,
+               description: `Target: ${log.target} hours. Tracked via bgorstudy.`,
+               start: { date: log.date },
+               end: { date: log.date }
+            };
+            const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+               method: 'POST',
+               headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+               body: JSON.stringify(ev)
+            });
+            if(res.ok) count++;
+        }
+        window.showToast(`Successfully pushed ${count} plans to Google Calendar!`);
+    } catch (e) {
+        console.error(e);
+        window.showToast("Failed to push to Google Calendar.", "error");
+    }
+    btn.innerHTML = origHtml;
+    lucide.createIcons();
+}
+
+window.fetchFromGCal = async function() {
+    const token = sessionStorage.getItem('gcal_token');
+    if(!token) {
+        try {
+            const provider = new GoogleAuthProvider();
+            provider.addScope('https://www.googleapis.com/auth/calendar.events');
+            const result = await signInWithPopup(auth, provider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            if (credential) {
+                sessionStorage.setItem('gcal_token', credential.accessToken);
+                return window.fetchFromGCal(); 
+            }
+        } catch (error) {
+            window.showToast("Calendar access blocked by your school/admin.", "error");
+            return;
+        }
+    }
+    
+    const btn = event.currentTarget;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Fetching...`;
+    lucide.createIcons();
+    
+    try {
+        const timeMin = new Date().toISOString();
+        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&maxResults=15&singleEvents=true&orderBy=startTime`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        
+        if(data.items && data.items.length > 0) {
+            let count = 0;
+            data.items.forEach(item => {
+                const dateVal = item.start.date || (item.start.dateTime ? item.start.dateTime.split('T')[0] : null);
+                if (dateVal && item.summary && !item.summary.startsWith('Study:') && !assignments.find(a => a.title === item.summary)) {
+                    assignments.push({
+                        id: Date.now() + Math.random(),
+                        title: item.summary,
+                        date: dateVal,
+                        subject: 'External',
+                        type: 'Project',
+                        status: 'Not Started',
+                        priority: 'Medium'
+                    });
+                    count++;
+                }
+            });
+            if(count > 0) {
+                saveData(); 
+                renderAssignments();
+                window.showToast(`Imported ${count} new events to Tasks!`);
+            } else {
+                window.showToast("No new external events found.");
+            }
+        } else {
+            window.showToast("No upcoming events found.");
+        }
+    } catch (e) {
+        console.error(e);
+        window.showToast("Failed to fetch from Google Calendar.", "error");
+    }
+    btn.innerHTML = origHtml;
+    lucide.createIcons();
+}
+
+function renderHeatmap() {
+    const container = document.getElementById('study-heatmap');
+    if(!container) return;
+    
+    let html = '';
+    let d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"}));
+    d.setDate(d.getDate() - 59); 
+    
+    for(let i=0; i<=59; i++) {
+        let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        let hrs = studyLogs.filter(l=>l.date === dateStr).reduce((s, l)=>s+(l.actual||0),0);
+        
+        let colorClass = 'bg-gray-100 border border-gray-200';
+        if(hrs > 0) colorClass = 'bg-teal-200 border-teal-300';
+        if(hrs > 2) colorClass = 'bg-teal-400 border-teal-500';
+        if(hrs >= 4) colorClass = 'bg-teal-600 border-teal-700 shadow-[0_0_8px_rgba(13,148,136,0.6)]';
+        
+        html += `<div class="w-3 h-3 sm:w-4 sm:h-4 rounded-sm ${colorClass} cursor-help transition hover:scale-125" title="${dateStr}: ${hrs} hrs"></div>`;
+        d.setDate(d.getDate() + 1);
+    }
+    container.innerHTML = html;
+}
 
 
 // ─── STUDY TIMER LOGIC ───
+window.setTimerMode = function(mode) {
+    timerState.mode = mode;
+    document.getElementById('t-mode-stopwatch').classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
+    document.getElementById('t-mode-stopwatch').classList.add('text-gray-500');
+    document.getElementById('t-mode-pomodoro').classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
+    document.getElementById('t-mode-pomodoro').classList.add('text-gray-500');
+    
+    if(mode === 'stopwatch') {
+        document.getElementById('t-mode-stopwatch').classList.add('bg-white', 'shadow-sm', 'text-gray-800');
+        document.getElementById('t-mode-stopwatch').classList.remove('text-gray-500');
+    } else {
+        document.getElementById('t-mode-pomodoro').classList.add('bg-white', 'shadow-sm', 'text-gray-800');
+        document.getElementById('t-mode-pomodoro').classList.remove('text-gray-500');
+    }
+}
+
 window.toggleGlobalTimer = function() {
     if (timerState.active) stopGlobalTimer();
     else openTimerModal();
 }
 
 window.openTimerModal = function() {
-    const today = getHKDateString();
-    const todaysLogs = studyLogs.filter(l => l.date === today);
-    
     const select = document.getElementById('timer-log-select');
     let opts = '<option value="new">-- New / Other Subject --</option>';
-    todaysLogs.forEach(l => {
-        opts += `<option value="${l.id}">${esc(l.subject)} (${esc(l.chapters)}) - Target: ${l.target}h</option>`;
+    
+    const recentLogs = [...studyLogs].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 30);
+    recentLogs.forEach(l => {
+        opts += `<option value="${l.id}">[${l.date}] ${esc(l.subject)} (${esc(l.chapters)}) - Target: ${l.target}h</option>`;
     });
     select.innerHTML = opts;
     
@@ -1053,52 +2013,114 @@ window.startGlobalTimer = function() {
         timerState.chapters = chap;
         timerState.logId = null;
     } else {
-        timerState.logId = parseInt(logVal);
+        timerState.logId = parseFloat(logVal);
+        const lg = studyLogs.find(x=>x.id === timerState.logId);
+        if(lg) timerState.subject = lg.subject; 
     }
     
+    if (timerState.interval) clearInterval(timerState.interval);
     timerState.startTime = Date.now();
     timerState.active = true;
+    timerState.phase = 'study';
+    if(timerState.mode === 'pomodoro') {
+        timerState.targetEndTime = Date.now() + (25 * 60 * 1000); 
+    }
     
     const btn = document.getElementById('global-timer-btn');
     btn.classList.add('timer-active');
     document.getElementById('global-timer-icon').setAttribute('data-lucide', 'square');
+    
+    const mobBtn = document.getElementById('mobile-timer-btn');
+    if(mobBtn) {
+        mobBtn.classList.add('timer-active');
+        document.getElementById('mobile-timer-icon').setAttribute('data-lucide', 'square');
+    }
+    
     lucide.createIcons();
     
     timerState.interval = setInterval(updateTimerDisplay, 1000);
     closeTimerModal();
-    window.showToast("Study Session Started!");
+    window.showToast(timerState.mode === 'pomodoro' ? "Pomodoro Started! 25 mins on the clock." : "Study Session Started!");
+    updateTimerDisplay();
+
+    if (authUser) {
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({doc, updateDoc}) => {
+             updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser), {
+                currentlyStudying: { active: true, subject: timerState.subject, startTime: Date.now() }
+             }).catch(()=>{});
+        });
+    }
 }
 
 function updateTimerDisplay() {
     if(!timerState.active) return;
-    const diff = Math.floor((Date.now() - timerState.startTime) / 1000);
-    const h = Math.floor(diff / 3600).toString().padStart(2, '0');
-    const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
-    const s = (diff % 60).toString().padStart(2, '0');
-    document.getElementById('global-timer-text').textContent = `${h}:${m}:${s}`;
+    
+    if (timerState.mode === 'stopwatch') {
+        const diff = Math.floor((Date.now() - timerState.startTime) / 1000);
+        const h = Math.floor(diff / 3600).toString().padStart(2, '0');
+        const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+        const s = (diff % 60).toString().padStart(2, '0');
+        document.getElementById('global-timer-text').textContent = `${h}:${m}:${s}`;
+    } else {
+        const remainingMs = timerState.targetEndTime - Date.now();
+        timerState.timeLeft = Math.ceil(remainingMs / 1000);
+        
+        if (timerState.timeLeft <= 0) {
+            new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3').play().catch(()=>{});
+            
+            if (timerState.phase === 'study') {
+                logTime(25 / 60); 
+                window.showToast("Pomodoro complete! Time for a 5 min break ☕.", "success");
+                timerState.phase = 'break';
+                timerState.targetEndTime = Date.now() + (5 * 60 * 1000); 
+            } else {
+                window.showToast("Break over! Ready to study?", "success");
+                stopGlobalTimer(true, false); 
+                return;
+            }
+        }
+        const displayTime = Math.max(0, timerState.timeLeft);
+        const m = Math.floor(displayTime / 60).toString().padStart(2, '0');
+        const s = (displayTime % 60).toString().padStart(2, '0');
+        document.getElementById('global-timer-text').textContent = `${timerState.phase === 'study' ? '🍅' : '☕'} ${m}:${s}`;
+    }
 }
 
-window.stopGlobalTimer = function() {
-    if(!timerState.active) return;
-    clearInterval(timerState.interval);
-    
-    const diffMs = Date.now() - timerState.startTime;
-    const elapsedHrs = diffMs / (1000 * 60 * 60); 
-    
-    const today = getHKDateString();
-    
+function logTime(elapsedHrs) {
     if (timerState.logId) {
         const log = studyLogs.find(l => l.id === timerState.logId);
         if(log) log.actual = Math.round((log.actual + elapsedHrs)*100)/100;
     } else {
+        const today = getHKDateString();
         studyLogs.unshift({
-            id: Date.now(),
+            id: Date.now() + Math.random(),
             date: today,
             subject: timerState.subject,
             chapters: timerState.chapters,
             target: 0,
             actual: Math.round(elapsedHrs*100)/100
         });
+        timerState.logId = studyLogs[0].id; 
+    }
+    saveData();
+    if (!document.getElementById('view-study').classList.contains('hidden')) renderSubjects();
+    if (!document.getElementById('view-home').classList.contains('hidden')) { renderHome(); renderCommunityGoal(); }
+}
+
+window.stopGlobalTimer = function(skipLogging = false, skipCloudSync = false) {
+    if(!timerState.active) return;
+    clearInterval(timerState.interval);
+    
+    if (!skipLogging && timerState.mode === 'stopwatch') {
+        const diffMs = Date.now() - timerState.startTime;
+        const elapsedHrs = diffMs / (1000 * 60 * 60); 
+        logTime(elapsedHrs);
+        window.showToast(`Session ended! Logged ${elapsedHrs.toFixed(2)} hours.`);
+    } else if (!skipLogging && timerState.mode === 'pomodoro' && timerState.phase === 'study') {
+        const elapsedSecs = Math.max(0, (25 * 60) - timerState.timeLeft);
+        const elapsedHrs = elapsedSecs / 3600;
+        logTime(elapsedHrs);
+        window.showToast(`Pomodoro interrupted! Logged ${elapsedHrs.toFixed(2)} hours.`);
     }
     
     timerState.active = false;
@@ -1109,768 +2131,54 @@ window.stopGlobalTimer = function() {
     btn.classList.remove('timer-active');
     document.getElementById('global-timer-text').textContent = 'Start Study';
     document.getElementById('global-timer-icon').setAttribute('data-lucide', 'play-circle');
-    lucide.createIcons();
     
-    saveData();
-    window.showToast(`Session ended! Logged ${elapsedHrs.toFixed(2)} hours.`);
+    const mobBtn = document.getElementById('mobile-timer-btn');
+    if(mobBtn) {
+        mobBtn.classList.remove('timer-active');
+        document.getElementById('mobile-timer-icon').setAttribute('data-lucide', 'play-circle');
+    }
+    
+    lucide.createIcons();
+
+    if (!skipCloudSync && authUser) {
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({doc, updateDoc}) => {
+             updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser), {
+                currentlyStudying: { active: false }
+             }).catch(()=>{});
+        });
+    }
 }
 
 
 // ─── MAIN TABS LOGIC ───
 window.switchTab = function(tabName) {
   document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab, .nav-tab-mobile').forEach(el => el.classList.remove('active'));
   document.getElementById(`view-${tabName}`).classList.remove('hidden');
-  document.getElementById(`tab-${tabName}`).classList.add('active');
+  
+  const desktopTab = document.getElementById(`tab-${tabName}`);
+  if (desktopTab) desktopTab.classList.add('active');
+  const mobileTab = document.getElementById(`mob-tab-${tabName}`);
+  if (mobileTab) mobileTab.classList.add('active');
 
   if(tabName === 'home') renderHome();
+  if(tabName === 'calendar') { renderCalendar(); renderHeatmap(); }
   if(tabName === 'assignments') renderAssignments();
   if(tabName === 'habits') renderHabits();
   if(tabName === 'study') renderSubjects();
   if(tabName === 'notes') renderNotes();
   if(tabName === 'flashcards') { window.switchFcMode('edit'); updateFcFilters(); }
+  if(tabName === 'qa') { renderQA(); }
+  if(tabName === 'chat') { renderChat(); }
 }
-
-// ─── 1. HOME ───
-function renderHome() {
-    document.getElementById('home-pending-count').textContent = assignments.filter(a => a.status !== 'Completed').length;
-    const totalHrs = studyLogs.reduce((sum, log) => sum + (log.actual || 0), 0);
-    document.getElementById('home-total-hours').textContent = totalHrs.toFixed(1) + 'h';
-    
-    const uniqueDays = new Set(studyLogs.map(l => l.date)).size;
-    const avgHrs = uniqueDays > 0 ? (totalHrs / uniqueDays).toFixed(1) : '0';
-    document.getElementById('home-avg-hours').textContent = avgHrs + 'h';
-    
-    document.getElementById('home-habit-score').textContent = `${habits.filter(h => h.done).length}/${habits.length}`;
-    document.getElementById('home-fc-count').textContent = flashcards.length;
-
-    const ctx = document.getElementById('homeStatusChart').getContext('2d');
-    const counts = { 'Not Started': 0, 'In Progress': 0, 'Completed': 0 };
-    assignments.forEach(a => { if(counts[a.status]!==undefined) counts[a.status]++; });
-    if(homeStatusChart) homeStatusChart.destroy();
-    homeStatusChart = new Chart(ctx, {
-        type: 'doughnut', data: { labels: ['Not Started', 'In Progress', 'Completed'], datasets: [{ data: [counts['Not Started'], counts['In Progress'], counts['Completed']], backgroundColor: ['#f3f4f6', '#818cf8', '#34d399'] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-    });
-
-    const ctxHr = document.getElementById('homeHoursChart').getContext('2d');
-    if(homeHoursChart) homeHoursChart.destroy();
-    
-    const chartActuals = [];
-    const chartTargets = [];
-    subjects.forEach(s => {
-        const t = studyLogs.filter(l => l.subject === s.name).reduce((sum, l) => sum + (parseFloat(l.target) || 0), 0);
-        const a = studyLogs.filter(l => l.subject === s.name).reduce((sum, l) => sum + (parseFloat(l.actual) || 0), 0);
-        chartTargets.push(Math.round(t*100)/100);
-        chartActuals.push(Math.round(a*100)/100);
-    });
-    
-    homeHoursChart = new Chart(ctxHr, {
-        type: 'bar',
-        data: { labels: subjects.map(s => s.name), datasets: [{ label: 'Actual Hours', data: chartActuals, backgroundColor: subjects.map(s => s.color) }, { label: 'Target Hours', data: chartTargets, backgroundColor: '#e5e7eb', type: 'bar' }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-    });
-
-    renderUserComparison();
-}
-
-function renderUserComparison() {
-    let usersData = [];
-    const today = getHKDateString();
-    const currentMonth = today.substring(0, 7); 
-
-    allUsersData.forEach(docData => {
-        const uid = docData.id;
-        const name = docData.username || 'Student';
-        const logs = docData.studyLogs || [];
-        const dailyHrs = logs.filter(l => l.date === today).reduce((sum, l) => sum + (l.actual || 0), 0);
-        const monthlyHrs = logs.filter(l => l.date && l.date.startsWith(currentMonth)).reduce((sum, l) => sum + (l.actual || 0), 0);
-        const habitsDone = (docData.habits || []).filter(h => h.done).length;
-        const avatar = docData.profile?.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${uid}`;
-        
-        usersData.push({ uid, username: name, dailyHrs, monthlyHrs, habitsDone, avatar });
-    });
-    
-    usersData.sort((a,b) => b.monthlyHrs - a.monthlyHrs); 
-    
-    const listEl = document.getElementById('user-comparison-list');
-    if (usersData.length === 0) {
-        listEl.innerHTML = `<p class="text-sm font-bold text-gray-400">No community data found.</p>`;
-        return;
-    }
-
-    listEl.innerHTML = usersData.map((u, i) => `
-        <div class="flex items-center justify-between p-4 rounded-xl ${u.uid === currentUser ? 'bg-teal-50 border border-teal-100' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'} transition cursor-pointer" onclick="showPublicProfile('${esc(u.uid)}')">
-            <div class="flex items-center gap-4">
-                <span class="font-display text-lg font-bold text-gray-400 w-6">#${i+1}</span>
-                <img src="${esc(u.avatar)}" class="w-10 h-10 rounded-full bg-white object-cover border border-gray-200">
-                <span class="font-bold text-gray-800">${esc(u.username)} ${u.uid === currentUser ? '<span class="text-teal-600 text-xs">(You)</span>' : ''}</span>
-            </div>
-            <div class="flex gap-6 text-sm font-bold text-gray-500 text-right">
-                <div class="flex flex-col"><span class="text-xs uppercase tracking-wider text-teal-600">Daily Hrs</span><span class="text-gray-800">${u.dailyHrs.toFixed(1)}h</span></div>
-                <div class="flex flex-col"><span class="text-xs uppercase tracking-wider text-indigo-600">Monthly Hrs</span><span class="text-gray-800">${u.monthlyHrs.toFixed(1)}h</span></div>
-            </div>
-        </div>
-    `).join('');
-}
-
-// ─── 2. ASSIGNMENTS ───
-window.cycleAssignmentStatus = function(id) {
-    const item = assignments.find(a => a.id === id);
-    if (item.status === 'Not Started') item.status = 'In Progress';
-    else if (item.status === 'In Progress') item.status = 'Completed';
-    else item.status = 'Not Started';
-    saveData(); renderAssignments();
-}
-window.deleteAssignment = function(id) {
-    requestConfirm(() => {
-        assignments = assignments.filter(a => a.id !== id); saveData(); renderAssignments(); window.showToast('Deleted');
-    });
-}
-function calculateDaysLeft(targetDateStr) {
-    const today = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"}));
-    today.setHours(0,0,0,0);
-    const target = new Date(targetDateStr);
-    const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
-    return diffDays === 0 ? "Today!" : (diffDays < 0 ? "Past Due" : `${diffDays} days left`);
-}
-
-function renderAssignments() {
-    const list = document.getElementById('assignments-list');
-    if(!list) return;
-    
-    let html = '';
-    let pending = 0, completed = 0;
-
-    assignments.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(ass => {
-        if (ass.status !== 'Completed') pending++;
-        else completed++;
-
-        const daysLeft = calculateDaysLeft(ass.date);
-        const isDone = ass.status === 'Completed';
-        let statusClass = 'badge-status-not'; let statusIcon = 'circle';
-        if (ass.status === 'In Progress') { statusClass = 'badge-status-prog'; statusIcon = 'loader'; }
-        if (isDone) { statusClass = 'badge-status-done'; statusIcon = 'check-circle-2'; }
-        let priorityClass = 'badge-low';
-        if (ass.priority === 'High') priorityClass = 'badge-high';
-        else if (ass.priority === 'Extremely high') priorityClass = 'badge-ext';
-        else if (ass.priority === 'Medium') priorityClass = 'badge-med';
-
-        html += `
-        <div class="border border-gray-200 rounded-xl p-4 transition hover:shadow-md bg-white ${isDone ? 'opacity-60' : ''} group relative">
-            <button onclick="deleteAssignment(${ass.id})" class="absolute top-2 right-2 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition opacity-0 group-hover:opacity-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            <div class="flex justify-between items-start mb-3 pr-8">
-                <div>
-                    <h3 class="font-bold text-lg leading-tight ${isDone ? 'line-through' : ''}">${esc(ass.title)}</h3>
-                    <p class="text-xs font-bold text-gray-500 mt-1"><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i> ${ass.date} • <span class="text-teal-700">${daysLeft}</span></p>
-                </div>
-            </div>
-            <div class="mb-3 flex flex-wrap items-center gap-2">
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-md ${priorityClass} uppercase tracking-wider">${esc(ass.priority)}</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 uppercase tracking-wider border border-gray-200">${esc(ass.type || 'Task')}</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-200"><i data-lucide="book" class="w-3 h-3 inline mr-1"></i>${esc(ass.subject)}</span>
-            </div>
-            <div class="pt-2 border-t border-gray-100">
-                <button onclick="cycleAssignmentStatus(${ass.id})" class="w-full justify-center text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${statusClass} shadow-sm border border-transparent hover:border-gray-300"><i data-lucide="${statusIcon}" class="w-4 h-4"></i> ${ass.status}</button>
-            </div>
-        </div>`;
-    });
-    
-    list.innerHTML = html;
-    
-    document.getElementById('ass-summary-total').textContent = assignments.length;
-    document.getElementById('ass-summary-completed').textContent = completed;
-    document.getElementById('ass-summary-pending').textContent = pending;
-
-    lucide.createIcons();
-
-    if(document.getElementById('view-assignments').classList.contains('hidden') === false) {
-        const ctxType = document.getElementById('assTypeChart').getContext('2d');
-        const cType = {}; assignments.forEach(a => { cType[a.type || 'Task'] = (cType[a.type || 'Task']||0)+1; });
-        if(assTypeChart) assTypeChart.destroy();
-        assTypeChart = new Chart(ctxType, { 
-            type: 'pie', 
-            data: { labels: Object.keys(cType), datasets: [{ data: Object.values(cType), backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'] }] }, 
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } 
-        });
-
-        const ctxSub = document.getElementById('assSubjectChart').getContext('2d');
-        const cSub = {}; assignments.forEach(a => { cSub[a.subject || 'Other'] = (cSub[a.subject || 'Other']||0)+1; });
-        if(assSubjectChart) assSubjectChart.destroy();
-        assSubjectChart = new Chart(ctxSub, { 
-            type: 'bar', 
-            data: { labels: Object.keys(cSub), datasets: [{ label: 'Tasks', data: Object.values(cSub), backgroundColor: '#0ea5e9' }] }, 
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } 
-        });
-    }
-}
-
-window.openAssignmentModal = function() {
-    document.getElementById('inp-ass-subject').innerHTML = subjects.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('') + '<option value="Other">Other</option>';
-    document.getElementById('inp-ass-title').value = '';
-    document.getElementById('inp-ass-date').value = getHKDateString();
-    document.getElementById('assignment-modal-overlay').classList.remove('hidden');
-}
-window.closeAssignmentModal = function() { document.getElementById('assignment-modal-overlay').classList.add('hidden'); }
-window.saveAssignment = function() {
-    const title = document.getElementById('inp-ass-title').value.trim();
-    const date = document.getElementById('inp-ass-date').value;
-    if(!title || !date) return window.showToast("Title and Date are required!", "error");
-    assignments.push({ id: Date.now(), title, date, subject: document.getElementById('inp-ass-subject').value, type: document.getElementById('inp-ass-type').value, status: 'Not Started', priority: document.getElementById('inp-ass-priority').value });
-    saveData(); renderAssignments(); closeAssignmentModal(); window.showToast("Task added!");
-}
-
-// ─── 3. HABITS ───
-window.toggleHabit = function(id) { const item = habits.find(h => h.id === id); item.done = !item.done; saveData(); renderHabits(); if(item.done) window.showToast(`Completed: ${item.name}!`); }
-window.resetHabits = function() { 
-    habits.forEach(h => { 
-        h.history.shift(); 
-        h.history.push(h.done); 
-        h.done = false; 
-    }); 
-    saveData(); renderHabits(); 
-    window.showToast("Habits shifted and reset for a new day!"); 
-}
-function renderHabits() {
-    const list = document.getElementById('habits-list');
-    if(!list) return;
-    let html = ''; let doneCount = 0;
-    habits.forEach(hab => {
-        if (hab.done) doneCount++;
-        html += `
-        <div class="flex items-center justify-between p-3 sm:p-4 rounded-xl border ${hab.done ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-white hover:border-teal-300'} transition group relative">
-            <button onclick="deleteHabit(${hab.id})" class="absolute -left-2 -top-2 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm"><i data-lucide="x" class="w-3 h-3"></i></button>
-            <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="toggleHabit(${hab.id})">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center ${hab.done ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500 group-hover:bg-teal-50'} transition"><i data-lucide="${hab.icon || 'check-circle'}" class="w-4 h-4"></i></div>
-                <span class="font-bold text-sm sm:text-base ${hab.done ? 'text-green-800 line-through opacity-70' : 'text-gray-800'}">${esc(hab.name)}</span>
-            </div>
-            <div onclick="toggleHabit(${hab.id})" class="cursor-pointer w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${hab.done ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 bg-white'}">${hab.done ? '<i data-lucide="check" class="w-4 h-4" style="color: white !important;"></i>' : ''}</div>
-        </div>`;
-    });
-    list.innerHTML = html;
-    document.getElementById('habit-score-text').textContent = `${doneCount}/${habits.length}`;
-    document.getElementById('habit-score-bar').style.width = `${habits.length === 0 ? 0 : (doneCount/habits.length)*100}%`;
-    
-    const forgotten = habits.filter(h => h.history && h.history.slice(-7).filter(d => !d).length >= 4);
-    if (forgotten.length > 0) { document.getElementById('habit-alert-container').classList.remove('hidden'); document.getElementById('habit-alert-text').textContent = `You often forget: ${forgotten.map(f => f.name).join(', ')}. Focus on these today!`; } 
-    else { document.getElementById('habit-alert-container').classList.add('hidden'); }
-
-    if (document.getElementById('view-habits').classList.contains('hidden') === false) {
-        updateHabitCharts();
-    }
-    lucide.createIcons();
-}
-
-function updateHabitCharts() {
-    const ctxWeekly = document.getElementById('habitWeeklyChart');
-    if(!ctxWeekly) return;
-    const days = ['D1','D2','D3','D4','D5','D6','D7'];
-    const dataLine = [0,0,0,0,0,0,0]; 
-    habits.forEach(h => { 
-        const last7 = h.history.slice(-7);
-        for(let i=0; i<7; i++) if(last7[i]) dataLine[i]++; 
-    });
-
-    if(habitWeeklyChart) habitWeeklyChart.destroy();
-    habitWeeklyChart = new Chart(ctxWeekly.getContext('2d'), { 
-        type: 'line', data: { labels: days, datasets: [{ label: 'Habits Completed', data: dataLine, borderColor: '#004b55', backgroundColor: 'rgba(0,75,85,0.1)', tension: 0.3, fill: true }] }, 
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: habits.length } } } 
-    });
-
-    let totalWeeklyDone = 0; let totalWeeklyMissed = 0;
-    habits.forEach(h => {
-        const last7 = h.history.slice(-7);
-        totalWeeklyDone += last7.filter(d=>d).length;
-        totalWeeklyMissed += last7.filter(d=>!d).length;
-    });
-    if(habitWeeklyPieChart) habitWeeklyPieChart.destroy();
-    habitWeeklyPieChart = new Chart(document.getElementById('habitWeeklyPieChart').getContext('2d'), {
-        type: 'pie', data: { labels: ['Done', 'Missed'], datasets: [{ data: [totalWeeklyDone, totalWeeklyMissed], backgroundColor: ['#10b981', '#f3f4f6'] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    let totalMonthlyDone = 0; let totalMonthlyMissed = 0;
-    habits.forEach(h => {
-        totalMonthlyDone += h.history.filter(d=>d).length;
-        totalMonthlyMissed += h.history.filter(d=>!d).length;
-    });
-    if(habitMonthlyPieChart) habitMonthlyPieChart.destroy();
-    habitMonthlyPieChart = new Chart(document.getElementById('habitMonthlyPieChart').getContext('2d'), {
-        type: 'pie', data: { labels: ['Done', 'Missed'], datasets: [{ data: [totalMonthlyDone, totalMonthlyMissed], backgroundColor: ['#3b82f6', '#f3f4f6'] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-}
-
-window.openHabitModal = function() { document.getElementById('inp-habit-title').value = ''; document.getElementById('habit-modal-overlay').classList.remove('hidden'); }
-window.closeHabitModal = function() { document.getElementById('habit-modal-overlay').classList.add('hidden'); }
-window.saveHabit = function() {
-    const title = document.getElementById('inp-habit-title').value.trim(); if(!title) return;
-    habits.push({ id: Date.now(), name: title, done: false, icon: document.getElementById('inp-habit-icon').value, history: Array(30).fill(false) });
-    saveData(); renderHabits(); closeHabitModal(); window.showToast("Habit added!");
-}
-window.deleteHabit = function(id) { 
-    requestConfirm(() => { habits = habits.filter(h => h.id !== id); saveData(); renderHabits(); window.showToast("Deleted"); });
-}
-
-// ─── 4. STUDY TRACKER ───
-window.openSubjectModal = function() {
-    document.getElementById('inp-sub-name').value = '';
-    document.getElementById('inp-sub-color').value = '#0ea5e9';
-    document.getElementById('subject-modal-overlay').classList.remove('hidden');
-}
-window.closeSubjectModal = function() { document.getElementById('subject-modal-overlay').classList.add('hidden'); }
-window.saveSubject = function() {
-    const name = document.getElementById('inp-sub-name').value.trim();
-    const color = document.getElementById('inp-sub-color').value;
-    if(!name) return window.showToast("Name is required!", "error");
-    subjects.push({ id: 'sub'+Date.now(), name, color });
-    saveData(); renderSubjects(); closeSubjectModal(); window.showToast("Subject Added!");
-}
-window.deleteSubject = function(id) {
-    requestConfirm(() => { subjects = subjects.filter(s => s.id !== id); saveData(); renderSubjects(); window.showToast("Deleted"); });
-}
-
-window.addStudyLog = function() {
-    const date = document.getElementById('log-date').value;
-    const subject = document.getElementById('log-subject').value;
-    const chapters = document.getElementById('log-chapters').value.trim();
-    const target = parseFloat(document.getElementById('log-target').value) || 0;
-    if(!date || !chapters || !subject) return window.showToast("Date, Subject and Chapters are required!", "error");
-    studyLogs.unshift({ id: Date.now(), date, subject, chapters, target, actual: 0 });
-    document.getElementById('log-chapters').value = ''; document.getElementById('log-target').value = '';
-    saveData(); renderSubjects(); window.showToast("Study Plan Logged!");
-}
-window.updateLogActual = function(id, val) {
-    const log = studyLogs.find(l => l.id === id);
-    if(log) { log.actual = Math.round(Math.max(0, parseFloat(val) || 0) * 100) / 100; saveData(); renderSubjects(); }
-}
-window.deleteStudyLog = function(id) { 
-    requestConfirm(() => { studyLogs = studyLogs.filter(l => l.id !== id); saveData(); renderSubjects(); window.showToast("Deleted"); }); 
-}
-
-function renderSubjects() {
-    const subSelect = document.getElementById('log-subject');
-    if(subSelect) {
-        const prev = subSelect.value;
-        subSelect.innerHTML = subjects.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
-        if(prev && subjects.find(s=>s.name === prev)) subSelect.value = prev;
-        if(!document.getElementById('log-date').value) document.getElementById('log-date').value = getHKDateString();
-    }
-    const grid = document.getElementById('subjects-grid');
-    if(grid) {
-        grid.innerHTML = subjects.map(sub => {
-            const calcTarget = studyLogs.filter(l => l.subject === sub.name).reduce((sum, l) => sum + (parseFloat(l.target) || 0), 0);
-            const actualSum = studyLogs.filter(l => l.subject === sub.name).reduce((sum, l) => sum + (parseFloat(l.actual) || 0), 0);
-            const actualRounded = Math.round(actualSum * 100) / 100;
-            const targetRounded = Math.round(calcTarget * 100) / 100;
-            const pct = targetRounded > 0 ? Math.min(100, Math.round((actualRounded / targetRounded) * 100)) : (actualRounded > 0 ? 100 : 0);
-            
-            return `
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden group">
-                <button onclick="deleteSubject('${sub.id}')" class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition opacity-0 group-hover:opacity-100 z-10"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                <div class="flex items-center justify-between mb-2 pr-6">
-                    <span class="font-bold text-gray-800 flex items-center gap-2"><span class="w-3 h-3 rounded-full block" style="background-color: ${sub.color}"></span> ${esc(sub.name)}</span>
-                </div>
-                <div class="flex justify-between items-end mb-2"><span class="text-2xl font-display font-bold">${actualRounded}</span><span class="text-xs font-bold text-gray-500 pb-1">/ ${targetRounded} hrs (${pct}%)</span></div>
-                <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden"><div class="h-full rounded-full transition-all duration-500 ease-out" style="width: ${pct}%; background-color: ${sub.color};"></div></div>
-            </div>`;
-        }).join('');
-    }
-    const logsList = document.getElementById('study-logs-list');
-    if(logsList) {
-        const sortedLogs = [...studyLogs].sort((a,b) => new Date(b.date) - new Date(a.date));
-        logsList.innerHTML = sortedLogs.length === 0 ? `<p class="text-sm font-bold text-gray-400 text-center py-8">No daily study logs yet.</p>` : sortedLogs.map(log => {
-            const subColor = subjects.find(s => s.name === log.subject)?.color || '#9ca3af';
-            const logPct = log.target > 0 ? Math.min(100, Math.round((log.actual / log.target) * 100)) : (log.actual > 0 ? 100 : 0);
-            return `
-            <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm flex items-center justify-between hover:shadow-md transition">
-                <div class="flex-1 pr-4">
-                    <p class="text-xs font-bold mb-1"><span class="text-gray-500">${log.date} • </span> <span style="color: ${subColor} !important;">${esc(log.subject)}</span></p>
-                    <p class="font-bold text-sm bg-gray-50 p-2 rounded-lg border border-gray-100 inline-block">${esc(log.chapters)}</p>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-center"><p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Target</p><p class="font-bold text-gray-800">${log.target}h</p></div>
-                    <div class="text-center bg-teal-50 px-3 py-2 rounded-lg border border-teal-100">
-                        <p class="text-[10px] text-teal-700 font-bold uppercase tracking-wider mb-1" style="color: #0f766e !important;">Actual</p>
-                        <div class="flex items-center gap-1">
-                            <input type="number" step="0.1" value="${log.actual}" onchange="updateLogActual(${log.id}, this.value)" class="w-16 p-1 text-center border border-gray-300 rounded font-bold text-sm bg-white outline-none transition" style="color: #1f2937 !important;">
-                        </div>
-                    </div>
-                    <div class="text-center w-12"><p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Done</p><p class="font-bold text-indigo-600">${logPct}%</p></div>
-                    <button onclick="deleteStudyLog(${log.id})" class="text-gray-300 hover:text-red-500 transition ml-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-                </div>
-            </div>`;
-        }).join('');
-    }
-    lucide.createIcons();
-}
-
-// ─── 5. NOTES ───
-window.switchNoteSubject = function(sub) { currentNoteSubject = sub; renderNotes(); }
-window.updateNoteStatus = function(id, st) { const note = notes.find(n => n.id === id); note.status = st; if(st !== 'Notes revised') note.revCount = 0; saveData(); renderNotes(); }
-window.updateNoteRevCount = function(id, count) { notes.find(n => n.id === id).revCount = parseInt(count) || 0; saveData(); }
-
-window.openNoteModal = function() {
-    const subList = document.getElementById('note-sub-list');
-    const uniqueSubs = [...new Set(notes.map(n => n.subject))];
-    subList.innerHTML = uniqueSubs.map(s => `<option value="${esc(s)}">`).join('');
-    
-    document.getElementById('inp-note-subject').value = currentNoteSubject || (uniqueSubs.length > 0 ? uniqueSubs[0] : '');
-    document.getElementById('inp-note-chapter').value = '';
-    document.getElementById('inp-note-link').value = '';
-    document.getElementById('note-modal-overlay').classList.remove('hidden');
-}
-window.closeNoteModal = function() { document.getElementById('note-modal-overlay').classList.add('hidden'); }
-
-window.saveNote = function() {
-    const subject = document.getElementById('inp-note-subject').value.trim();
-    const chapter = document.getElementById('inp-note-chapter').value.trim();
-    const link = document.getElementById('inp-note-link').value.trim();
-    if(!subject || !chapter) return window.showToast("Subject and Chapter required", "error");
-    
-    notes.push({ id: Date.now().toString(), subject, chapter, link, status: 'Not yet started', revCount: 0 });
-    currentNoteSubject = subject; 
-    saveData(); renderNotes(); closeNoteModal(); window.showToast("Note tracker added!");
-}
-
-window.editNoteLink = function(id) {
-    const link = prompt("Enter Google Doc or PDF URL for this Note:");
-    if(link !== null) {
-        notes.find(n => n.id === id).link = link.trim();
-        saveData(); renderNotes();
-    }
-}
-
-function renderNotes() {
-    const tabsContainer = document.getElementById('notes-subject-tabs');
-    const grid = document.getElementById('notes-grid');
-    const emptyMsg = document.getElementById('notes-empty');
-    if(!tabsContainer || !grid) return;
-
-    const subNames = [...new Set(notes.map(n => n.subject))];
-    if(subNames.length > 0 && !subNames.includes(currentNoteSubject)) currentNoteSubject = subNames[0];
-
-    tabsContainer.innerHTML = subNames.map(sub => `
-        <button onclick="switchNoteSubject('${esc(sub)}')" class="pb-2 px-1 font-bold text-sm transition-colors border-b-2 ${sub === currentNoteSubject ? 'border-teal-primary text-teal-primary' : 'border-transparent text-gray-500 hover:text-gray-800'}">${esc(sub)}</button>
-    `).join('');
-
-    const filteredNotes = notes.filter(n => n.subject === currentNoteSubject);
-    if(filteredNotes.length === 0) {
-        grid.innerHTML = '';
-        if(emptyMsg) emptyMsg.classList.remove('hidden');
-    } else {
-        if(emptyMsg) emptyMsg.classList.add('hidden');
-        grid.innerHTML = filteredNotes.map(n => {
-            let statusColor = 'bg-gray-100';
-            if(n.status === 'Notes done') statusColor = 'bg-blue-100 border-blue-200 text-blue-800';
-            if(n.status === 'Notes revised') statusColor = 'bg-purple-100 border-purple-200 text-purple-800';
-            if(n.status === 'Done PP') statusColor = 'bg-green-100 border-green-200 text-green-800';
-            return `
-            <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm flex flex-col justify-between h-32 hover:border-teal-300 transition relative group">
-                <button onclick="deleteNote('${n.id}')" class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition opacity-0 group-hover:opacity-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                <div class="flex justify-between items-start mb-2 pr-6">
-                    <h4 class="font-bold text-lg truncate" title="${esc(n.chapter)}">${esc(n.chapter)}</h4>
-                    ${n.link ? `<a href="${esc(n.link)}" target="_blank" class="text-teal-600 hover:text-teal-800 transition bg-teal-50 p-1.5 rounded-lg" title="Open Note"><i data-lucide="external-link" class="w-4 h-4"></i></a>` : `<button onclick="editNoteLink('${n.id}')" class="text-gray-400 hover:text-teal-600 transition bg-gray-50 p-1.5 rounded-lg" title="Add Link"><i data-lucide="link" class="w-4 h-4"></i></button>`}
-                </div>
-                <div class="flex gap-2 items-center">
-                    <select onchange="updateNoteStatus('${n.id}', this.value)" class="flex-1 text-xs font-bold p-1.5 border rounded-lg outline-none cursor-pointer ${statusColor}">
-                        <option value="Not yet started" ${n.status==='Not yet started'?'selected':''}>Not yet started</option>
-                        <option value="Notes done" ${n.status==='Notes done'?'selected':''}>Notes done</option>
-                        <option value="Notes revised" ${n.status==='Notes revised'?'selected':''}>Notes revised</option>
-                        <option value="Done PP" ${n.status==='Done PP'?'selected':''}>Done PP</option>
-                    </select>
-                    ${n.status === 'Notes revised' ? `<div class="flex items-center gap-1"><input type="number" min="1" value="${n.revCount || 1}" onchange="updateNoteRevCount('${n.id}', this.value)" class="w-12 text-xs font-bold p-1.5 border border-purple-200 rounded-lg outline-none text-center bg-purple-50" style="color: #1f2937 !important;"><span class="text-xs font-bold text-gray-500">times</span></div>` : ''}
-                </div>
-            </div>`;
-        }).join('');
-    }
-    lucide.createIcons();
-}
-
-window.deleteNote = function(id) {
-    requestConfirm(() => { notes = notes.filter(n => n.id !== id); saveData(); renderNotes(); window.showToast("Deleted"); });
-}
-
-
-// ─── 6. FLASHCARD STUDIO ───
-window.switchFcMode = function(mode) {
-  document.querySelectorAll('.fc-mode-panel').forEach(p => p.classList.add('hidden'));
-  document.getElementById(`fc-mode-${mode}`).classList.remove('hidden');
-  document.querySelectorAll('.fc-mode-btn').forEach(b => {
-    b.classList.remove('bg-teal-primary', 'text-white', 'shadow-sm');
-    b.classList.add('bg-transparent', 'text-gray-600');
-  });
-  const active = document.getElementById(`fc-btn-${mode}`);
-  if (active) {
-      active.classList.add('bg-teal-primary', 'text-white', 'shadow-sm');
-      active.classList.remove('bg-transparent', 'text-gray-600');
-  }
-  if (mode === 'edit') renderFlashcards();
-  if (mode === 'play') window.buildFcPlayCategories();
-  if (mode === 'quiz') window.buildFcQuizCategories();
-}
-
-window.updateFcFilters = function() {
-  const subjects = [...new Set(flashcards.map(c => c.subject).filter(Boolean))];
-  const topics = [...new Set(flashcards.map(c => c.topic).filter(Boolean))];
-  const fs = document.getElementById('fc-filter-subject');
-  const ft = document.getElementById('fc-filter-topic');
-  if(fs && ft) {
-      const sv = fs.value, tv = ft.value;
-      fs.innerHTML = '<option value="">All Subjects</option>' + subjects.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
-      ft.innerHTML = '<option value="">All Topics</option>' + topics.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
-      fs.value = sv; ft.value = tv;
-  }
-}
-
-window.renderFlashcards = function() {
-  const fs = document.getElementById('fc-filter-subject')?.value;
-  const ft = document.getElementById('fc-filter-topic')?.value;
-  let filtered = flashcards;
-  if (fs) filtered = filtered.filter(c => c.subject === fs);
-  if (ft) filtered = filtered.filter(c => c.topic === ft);
-  
-  const grid = document.getElementById('fc-grid');
-  const empty = document.getElementById('fc-empty-state');
-  if(!grid || !empty) return;
-  
-  if (filtered.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
-  empty.classList.add('hidden');
-  
-  grid.innerHTML = filtered.map(card => `
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
-        <div class="flex items-start justify-between mb-2">
-            <div class="flex flex-wrap gap-1">
-                ${card.subject ? `<span class="text-[10px] font-bold uppercase tracking-wider text-teal-primary bg-teal-light px-2 py-0.5 rounded-full">${esc(card.subject)}</span>` : ''}
-                ${card.topic ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50">${esc(card.topic)}</span>` : ''}
-            </div>
-            <div class="flex gap-1">
-                <button onclick="window.editFlashcard('${card.__backendId}')" class="p-1 rounded bg-white hover:bg-gray-100 transition"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
-                <button onclick="window.deleteFlashcard('${card.__backendId}')" class="p-1 rounded bg-white hover:bg-red-50 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-incorrect"></i></button>
-            </div>
-        </div>
-        ${card.image ? `<img src="${esc(card.image)}" class="w-full h-24 object-cover rounded-lg mb-2 border border-gray-100" onerror="this.style.display='none'">` : ''}
-        <p class="text-sm font-bold mb-1 line-clamp-2">${esc(card.question)}</p>
-        <p class="text-xs line-clamp-1 text-gray-500">${esc(card.answer)}</p>
-        ${card.hint ? `<p class="text-[10px] mt-1 italic font-bold text-gray-400">💡 ${esc(card.hint)}</p>` : ''}
-    </div>
-  `).join('');
-  document.getElementById('fc-count-text').textContent = `${flashcards.length} cards`;
-  lucide.createIcons();
-}
-
-window.openFcModal = function() {
-  editingFcCard = null;
-  document.getElementById('fc-modal-title').textContent = 'New Card';
-  document.getElementById('fc-inp-subject').value = '';
-  document.getElementById('fc-inp-topic').value = '';
-  document.getElementById('fc-inp-question').value = '';
-  document.getElementById('fc-inp-answer').value = '';
-  document.getElementById('fc-inp-image').value = '';
-  document.getElementById('fc-inp-hint').value = '';
-  document.getElementById('fc-modal-overlay').classList.remove('hidden');
-}
-window.closeFcModal = function() { document.getElementById('fc-modal-overlay').classList.add('hidden'); }
-
-window.editFlashcard = function(id) {
-  const card = flashcards.find(c => c.__backendId === id);
-  if (card) {
-      editingFcCard = card;
-      document.getElementById('fc-modal-title').textContent = 'Edit Card';
-      document.getElementById('fc-inp-subject').value = card.subject || '';
-      document.getElementById('fc-inp-topic').value = card.topic || '';
-      document.getElementById('fc-inp-question').value = card.question || '';
-      document.getElementById('fc-inp-answer').value = card.answer || '';
-      document.getElementById('fc-inp-image').value = card.image || '';
-      document.getElementById('fc-inp-hint').value = card.hint || '';
-      document.getElementById('fc-modal-overlay').classList.remove('hidden');
-  }
-}
-
-window.saveFlashcard = function() {
-  const q = document.getElementById('fc-inp-question').value.trim();
-  const a = document.getElementById('fc-inp-answer').value.trim();
-  if (!q || !a) return window.showToast('Question and answer are required', 'error'); 
-  
-  const data = {
-    question: q, answer: a,
-    image: document.getElementById('fc-inp-image').value.trim(),
-    hint: document.getElementById('fc-inp-hint').value.trim(),
-    subject: document.getElementById('fc-inp-subject').value.trim(),
-    topic: document.getElementById('fc-inp-topic').value.trim()
-  };
-  
-  const cardId = editingFcCard ? editingFcCard.__backendId : crypto.randomUUID();
-  if (editingFcCard) {
-      const index = flashcards.findIndex(c => c.__backendId === cardId);
-      if (index !== -1) flashcards[index] = { ...data, __backendId: cardId };
-  } else {
-      flashcards.push({ ...data, __backendId: cardId });
-  }
-  
-  saveData(); updateFcFilters(); renderFlashcards(); closeFcModal();
-  window.showToast(editingFcCard ? 'Card updated!' : 'Card created!');
-}
-
-window.deleteFlashcard = function(id) {
-  requestConfirm(() => { flashcards = flashcards.filter(c => c.__backendId !== id); saveData(); updateFcFilters(); renderFlashcards(); window.showToast('Deleted'); });
-}
-
-window.buildFcPlayCategories = function() {
-  const categories = {};
-  flashcards.forEach(c => {
-      const sub = c.subject || 'Uncategorized'; const top = c.topic || 'General';
-      if (!categories[sub]) categories[sub] = new Set();
-      categories[sub].add(top);
-  });
-  
-  const el = document.getElementById('fc-play-categories');
-  if (Object.keys(categories).length === 0) { el.innerHTML = '<p class="text-sm font-bold">No cards yet.</p>'; return; }
-  
-  let html = '';
-  for (const sub in categories) {
-      html += `<div class="font-bold text-sm mb-2 mt-4">${esc(sub)}</div>`;
-      categories[sub].forEach(top => {
-          html += `<label class="flex items-center gap-2 bg-white rounded-lg px-3 py-2.5 shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition text-sm font-bold ml-2 mb-2"><input type="checkbox" value="${esc(sub)}:::${esc(top)}" checked class="play-cat accent-teal-primary w-4 h-4"> ${esc(top)}</label>`;
-      });
-  }
-  el.innerHTML = html;
-  document.getElementById('fc-play-selection').classList.remove('hidden');
-  document.getElementById('fc-play-area').classList.add('hidden');
-}
-
-window.startFcPlay = function() {
-  const checked = [...document.querySelectorAll('#fc-play-selection .play-cat:checked')].map(c => c.value);
-  if (checked.length === 0) return window.showToast('Select at least one topic', 'error');
-  fcPlayCards = flashcards.filter(c => checked.includes(`${c.subject || 'Uncategorized'}:::${c.topic || 'General'}`));
-  if (fcPlayCards.length === 0) return window.showToast('No cards in selected topics', 'error'); 
-  if (document.getElementById('fc-shuffle-check').checked) shuffleArray(fcPlayCards);
-  fcPlayIndex = 0; fcPlayFlipped = false;
-  document.getElementById('fc-play-selection').classList.add('hidden');
-  document.getElementById('fc-play-area').classList.remove('hidden');
-  window.renderFcPlayCard();
-}
-
-window.renderFcPlayCard = function() {
-  if (!fcPlayCards.length) return;
-  const card = fcPlayCards[fcPlayIndex];
-  document.getElementById('fc-play-card-front').innerHTML = `${card.image ? `<img src="${esc(card.image)}" class="max-h-32 w-auto mx-auto object-contain mb-4 rounded-lg shadow-sm" onerror="this.style.display='none'">` : ''}<p class="text-lg sm:text-xl font-bold text-center">${esc(card.question)}</p>`;
-  document.getElementById('fc-play-card-back').textContent = card.answer;
-  document.getElementById('fc-play-card').classList.remove('flipped');
-  fcPlayFlipped = false;
-  
-  const hintBtn = document.getElementById('fc-hint-btn');
-  const hintText = document.getElementById('fc-hint-text');
-  hintText.classList.add('hidden');
-  if (card.hint) { hintBtn.classList.remove('hidden'); } else { hintBtn.classList.add('hidden'); }
-  
-  document.getElementById('fc-play-progress-text').textContent = `${fcPlayIndex + 1} / ${fcPlayCards.length}`;
-  document.getElementById('fc-play-progress-bar').style.width = `${((fcPlayIndex + 1) / fcPlayCards.length) * 100}%`;
-}
-
-window.flipFcCard = function() { fcPlayFlipped = !fcPlayFlipped; document.getElementById('fc-play-card').classList.toggle('flipped', fcPlayFlipped); }
-window.showFcHint = function() { document.getElementById('fc-hint-text').textContent = fcPlayCards[fcPlayIndex]?.hint || ''; document.getElementById('fc-hint-text').classList.remove('hidden'); }
-window.nextFcCard = function() { if (fcPlayIndex < fcPlayCards.length - 1) { fcPlayIndex++; window.renderFcPlayCard(); } }
-window.prevFcCard = function() { if (fcPlayIndex > 0) { fcPlayIndex--; window.renderFcPlayCard(); } }
-
-window.buildFcQuizCategories = function() {
-  const categories = {};
-  flashcards.forEach(c => {
-      const sub = c.subject || 'Uncategorized'; const top = c.topic || 'General';
-      if (!categories[sub]) categories[sub] = new Set();
-      categories[sub].add(top);
-  });
-  const el = document.getElementById('fc-quiz-categories');
-  if (Object.keys(categories).length === 0) { el.innerHTML = '<p class="text-sm font-bold">No cards yet.</p>'; return; }
-  let html = '';
-  for (const sub in categories) {
-      html += `<div class="font-bold text-sm mb-2 mt-4">${esc(sub)}</div>`;
-      categories[sub].forEach(top => {
-          html += `<label class="flex items-center gap-2 bg-white rounded-lg px-3 py-2.5 shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition text-sm font-bold ml-2 mb-2"><input type="checkbox" value="${esc(sub)}:::${esc(top)}" checked class="quiz-cat accent-teal-primary w-4 h-4"> ${esc(top)}</label>`;
-      });
-  }
-  el.innerHTML = html;
-  document.getElementById('fc-quiz-setup').classList.remove('hidden');
-  document.getElementById('fc-quiz-area').classList.add('hidden');
-  document.getElementById('fc-quiz-results').classList.add('hidden');
-}
-
-window.startFcQuiz = function() {
-  const checked = [...document.querySelectorAll('#fc-quiz-setup .quiz-cat:checked')].map(c => c.value);
-  if (checked.length === 0) return window.showToast('Select at least one topic', 'error');
-  fcQuizCards = flashcards.filter(c => checked.includes(`${c.subject || 'Uncategorized'}:::${c.topic || 'General'}`));
-  if (fcQuizCards.length < 2) return window.showToast('Need at least 2 cards for a quiz', 'error');
-  shuffleArray(fcQuizCards);
-  fcQuizIndex = 0; fcQuizScore = 0; fcQuizAnswered = false;
-  document.getElementById('fc-quiz-setup').classList.add('hidden');
-  document.getElementById('fc-quiz-results').classList.add('hidden');
-  document.getElementById('fc-quiz-area').classList.remove('hidden');
-  window.renderFcQuizQuestion();
-}
-
-window.renderFcQuizQuestion = function() {
-  if (fcQuizIndex >= fcQuizCards.length) { 
-      document.getElementById('fc-quiz-area').classList.add('hidden');
-      document.getElementById('fc-quiz-results').classList.remove('hidden');
-      document.getElementById('fc-final-score').textContent = `${fcQuizScore} / ${fcQuizCards.length}`;
-      const pct = fcQuizScore / fcQuizCards.length;
-      document.getElementById('fc-final-message').textContent = pct === 1 ? 'Perfect score!' : (pct >= 0.7 ? 'Great job!' : 'Keep practicing!');
-      return; 
-  }
-  fcQuizAnswered = false;
-  const card = fcQuizCards[fcQuizIndex];
-  
-  document.getElementById('fc-quiz-question').innerHTML = `${card.image ? `<img src="${esc(card.image)}" class="max-h-32 w-auto mx-auto object-contain mb-4 rounded-lg shadow-sm" onerror="this.style.display='none'">` : ''}<span>${esc(card.question)}</span>`;
-  document.getElementById('fc-quiz-score').textContent = `Score: ${fcQuizScore}/${fcQuizIndex}`;
-  document.getElementById('fc-quiz-progress-text').textContent = `${fcQuizIndex + 1}/${fcQuizCards.length}`;
-  document.getElementById('fc-quiz-progress-bar').style.width = `${((fcQuizIndex + 1) / fcQuizCards.length) * 100}%`;
-  document.getElementById('fc-quiz-feedback').classList.add('hidden');
-  document.getElementById('fc-quiz-next-btn').classList.add('hidden');
-  
-  let sameTopicPool = flashcards.filter(c => c.__backendId !== card.__backendId && c.subject === card.subject && c.topic === card.topic).map(c => c.answer);
-  let sameSubjectPool = flashcards.filter(c => c.__backendId !== card.__backendId && c.subject === card.subject && c.topic !== card.topic).map(c => c.answer);
-  let otherPool = flashcards.filter(c => c.__backendId !== card.__backendId && c.subject !== card.subject).map(c => c.answer);
-  sameTopicPool = [...new Set(sameTopicPool)]; sameSubjectPool = [...new Set(sameSubjectPool)]; otherPool = [...new Set(otherPool)];
-  shuffleArray(sameTopicPool); shuffleArray(sameSubjectPool); shuffleArray(otherPool);
-  
-  let wrongAnswers = [...sameTopicPool];
-  if (wrongAnswers.length < 3) wrongAnswers.push(...sameSubjectPool);
-  if (wrongAnswers.length < 3) wrongAnswers.push(...otherPool);
-  wrongAnswers = wrongAnswers.slice(0, 3);
-  
-  const options = [card.answer, ...wrongAnswers]; shuffleArray(options); currentFcQuizOptions = options;
-  
-  document.getElementById('fc-quiz-options').innerHTML = options.map((o, i) => `<button onclick="window.selectFcQuizAnswer(this, ${i})" class="w-full text-left px-5 py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition font-bold" style="background-color: #ffffff !important; color: #1f2937 !important;">${esc(o)}</button>`).join('');
-}
-
-window.selectFcQuizAnswer = function(btnEl, optionIndex) {
-  if (fcQuizAnswered) return;
-  fcQuizAnswered = true;
-  const isCorrect = currentFcQuizOptions[optionIndex] === fcQuizCards[fcQuizIndex].answer;
-  if (isCorrect) fcQuizScore++;
-  document.getElementById('fc-quiz-score').textContent = `Score: ${fcQuizScore}/${fcQuizIndex + 1}`;
-
-  const feedback = document.getElementById('fc-quiz-feedback');
-  feedback.classList.remove('hidden', 'bg-correct', 'bg-incorrect');
-  
-  if (isCorrect) {
-    feedback.classList.add('bg-correct'); feedback.innerHTML = '<span style="color: white !important;">Correct!</span>';
-    btnEl.classList.add('bg-correct', 'border-correct'); btnEl.classList.remove('hover:bg-gray-50', 'bg-white'); btnEl.style.color = "white"; 
-  } else {
-    feedback.classList.add('bg-incorrect'); feedback.innerHTML = `<span style="color: white !important;">Incorrect. The correct answer was: ${fcQuizCards[fcQuizIndex].answer}</span>`;
-    btnEl.classList.add('bg-incorrect', 'border-incorrect'); btnEl.classList.remove('hover:bg-gray-50', 'bg-white'); btnEl.style.color = "white"; 
-    const optionsContainer = document.getElementById('fc-quiz-options');
-    const correctIndex = currentFcQuizOptions.indexOf(fcQuizCards[fcQuizIndex].answer);
-    if (correctIndex > -1 && optionsContainer.children[correctIndex]) optionsContainer.children[correctIndex].classList.add('border-correct', 'border-2');
-  }
-  document.getElementById('fc-quiz-next-btn').classList.remove('hidden');
-}
-window.nextFcQuizQuestion = function() { fcQuizIndex++; window.renderFcQuizQuestion(); }
 
 // ─── GLOBAL MUSIC PLAYER ───
 window.toggleMusicPanel = function() {
   const p = document.getElementById('music-panel');
   p.classList.toggle('hidden');
+  if (!p.classList.contains('hidden') && document.getElementById('music-genres').innerHTML === '') {
+    document.getElementById('music-genres').innerHTML = genres.map(g => `<button onclick="window.setGenre('${g.id}')" id="genre-${g.id}" class="music-btn px-2 py-1.5 rounded text-xs font-bold border border-gray-200 bg-white hover:bg-gray-50" style="color: #1f2937 !important; ${g.id === currentGenre ? 'border-color: #004b55; background-color: rgba(0,75,85,.1) !important;' : ''}">${g.label}</button>`).join('');
+  }
 }
 window.switchMusicType = function(type) {
     ['ambient', 'online', 'upload'].forEach(t => {
@@ -1888,8 +2196,32 @@ window.switchMusicType = function(type) {
 window.loadOnlineRadio = function() {
     if(musicPlaying) stopMusic();
     const vidId = document.getElementById('online-radio-select').value;
-    document.getElementById('youtube-container').innerHTML = `<iframe width="100%" height="150" src="https://www.youtube.com/embed/${vidId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    document.getElementById('youtube-container').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vidId}" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>`;
     document.getElementById('music-controls').style.display = 'none'; 
+}
+
+window.loadCustomYT = function() {
+    const link = document.getElementById('custom-yt-link').value.trim();
+    if(!link) return;
+    let vidId = null;
+    try {
+        if (link.includes('youtu.be/')) {
+            vidId = link.split('youtu.be/')[1].split('?')[0];
+        } else if (link.includes('youtube.com/watch')) {
+            const urlParams = new URLSearchParams(new URL(link).search);
+            vidId = urlParams.get('v');
+        } else {
+            vidId = link; 
+        }
+    } catch(e) {}
+    
+    if(vidId) {
+        if(musicPlaying) stopMusic();
+        document.getElementById('youtube-container').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vidId}" title="YouTube video player" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>`;
+        document.getElementById('music-controls').style.display = 'none'; 
+    } else {
+        window.showToast("Invalid YouTube link", "error");
+    }
 }
 
 window.setGenre = function(id) {
@@ -1932,6 +2264,7 @@ function startMusic() {
         osc.connect(env); env.connect(gainNode); 
         osc.start(now); osc.stop(now + (genre.speed / 1000));
       }
+      if (musicInterval) clearInterval(musicInterval);
       musicInterval = setInterval(playNote, genre.speed); playNote();
   }
 }
