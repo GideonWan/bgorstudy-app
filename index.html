@@ -89,6 +89,7 @@
     <h1 class="font-display text-4xl font-bold mb-2">bgorstudy</h1>
     <p class="mb-8 font-medium text-sm text-gray-500">Log in to securely sync your progress to the cloud across all your devices.</p>
 
+    <!-- Standard Login Button -->
     <div id="login-standard-state">
         <button onclick="handleGoogleLogin(false)" id="btn-google-login" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -100,19 +101,6 @@
          Continue with Google
         </button>
     </div>
-
-    <div id="login-active-state" class="hidden space-y-3">
-        <button onclick="proceedToApp()" id="btn-continue-active" class="w-full bg-teal-primary hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
-            <img id="active-user-avatar" src="" class="w-6 h-6 rounded-full border border-teal-300">
-            <span>Continue as <span id="active-user-name">Student</span></span>
-        </button>
-        <button onclick="handleGoogleLogin(true)" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 font-bold py-3 px-6 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-95 text-sm">
-            <i data-lucide="users" class="w-4 h-4"></i> Switch Account
-        </button>
-    </div>
-   </div>
-  </div>
-
   <!-- MAIN APP VIEW -->
   <div id="app-container" class="hidden max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       
@@ -960,19 +948,68 @@
   </div>
 
   <script type="module">
+// ─── 1. CLOUD SYNC SETTINGS (FIREBASE) ───
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, orderBy, limit, addDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, orderBy, limit, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-
-const firebaseConfig = {
+const MY_FIREBASE_CONFIG = {
   apiKey: "AIzaSyArvSV-RkzHFSIh6h5byPR4arQnpM1-IQE",
   authDomain: "bgorstudy-app-bdad6.firebaseapp.com",
-  projectId: "bgorstudy-app-bdad6",
-  storageBucket: "bgorstudy-app-bdad6.firebasestorage.app",
-  messagingSenderId: "686769076395",
-  appId: "1:686769076395:web:809330d9dfda90593b9fee"
+  projectId: "bgorstudy-app-bdad6"
 };
+const appId = "bgorstudy-default"; 
+
+const app = initializeApp(MY_FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ─── DEFAULT DATA ───
+const getFutureDate = (days) => {
+    const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"}));
+    d.setDate(d.getDate() + days);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+const defaultAssignments = [
+    { id: 1, title: 'Chinese UT', subject: 'Chinese', type: 'Test', date: getFutureDate(3), status: 'Not Started', priority: 'High' },
+    { id: 2, title: 'Math Past Paper', subject: 'Math', type: 'Homework', date: getFutureDate(1), status: 'In Progress', priority: 'Medium' },
+    { id: 3, title: 'English Essay', subject: 'English', type: 'Project', date: getFutureDate(5), status: 'Not Started', priority: 'High' }
+];
+const defaultHabits = [
+    { id: 1, name: 'Math 20 min', done: false, icon: 'calculator', history: Array(30).fill(false) },
+    { id: 2, name: 'Read 10 pages', done: false, icon: 'book', history: Array(30).fill(false) },
+    { id: 3, name: 'Drink Water', done: false, icon: 'droplet', history: Array(30).fill(false) }
+];
+const defaultSubjects = [
+    { id: 'sub1', name: 'Chinese', color: '#ef4444' },     
+    { id: 'sub2', name: 'English', color: '#3b82f6' },     
+    { id: 'sub3', name: 'Math', color: '#6366f1' },
+    { id: 'sub4', name: 'M2', color: '#a855f7' },
+    { id: 'sub5', name: 'Physics', color: '#f97316' },
+    { id: 'sub6', name: 'Chemistry', color: '#10b981' },
+    { id: 'sub7', name: 'Biology', color: '#22c55e' }
+];
+const defaultStudyLogs = [];
+const defaultNotes = [
+    { id: 'n1', subject: 'Biology', chapter: 'Ch 1: Cells', link: '', status: 'Not yet started', revCount: 0 },
+    { id: 'n2', subject: 'Chemistry', chapter: 'Ch 3: Metals', link: '', status: 'Notes done', revCount: 0 }
+];
+
+const defaultFlashcards = [
+    { __backendId: 'fc1', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「完璧歸趙」中，藺相如如何威脅秦王以保住和氏璧？', answer: '他拿著和氏璧倚著柱子，威脅如果秦王強奪，他就會把自己的頭和玉璧一起撞碎在柱子上。' },
+    { __backendId: 'fc2', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「澠池之會」中，藺相如為何逼秦王擊缻？', answer: '為了報復秦王要趙王鼓瑟的侮辱，維護趙國的尊嚴，顯示兩國地位平等。' },
+    { __backendId: 'fc3', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「負荊請罪」的原因是什麼？', answer: '廉頗意識到自己心胸狹隘，而藺相如以國家利益為重（先國家之急而後私讎），因此感到慚愧並認錯。' },
+    { __backendId: 'fc4', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '藺相如的性格特徵是什麼？（寫出兩個）', answer: '1. 智勇雙全（有勇有謀） 2. 以國為重（公而忘私/顧全大局）' },
+    { __backendId: 'fc5', subject: 'Chinese', topic: '文言知識', question: '解釋文言詞彙「徒」在「徒見欺」中的意思。', answer: '白白地 / 徒然' },
+    { __backendId: 'fc6', subject: 'English', topic: 'Text Types', question: 'What is the main difference between an Editorial and a Letter to the Editor?', answer: 'An Editorial represents the official opinion of the newspaper\'s editors/board, while a Letter to the Editor is the opinion of a reader/public citizen.', hint: 'Who writes it?' },
+    { __backendId: 'fc7', subject: 'English', topic: 'Text Types', question: 'What are 3 typical components/features of a Feature Article?', answer: '1. Catchy headline/title 2. Engaging hook/introduction 3. Quotes or interviews from experts/people involved.' },
+    { __backendId: 'fc8', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'ubiquitous\'?', answer: 'Present, appearing, or found everywhere.', hint: 'Synonym: everywhere' },
+    { __backendId: 'fc9', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'pragmatic\'?', answer: 'Dealing with things sensibly and realistically in a way that is based on practical rather than theoretical considerations.', hint: 'Synonym: practical' },
+    { __backendId: 'fc10', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'detrimental\'?', answer: 'Tending to cause harm; damaging.', hint: 'Synonym: harmful' }
+];
+
+
 // ─── STATE ───
 let authUser = null;
 let currentUser = null; 
