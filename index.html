@@ -76,6 +76,7 @@
 
   <div id="toast-container" class="fixed bottom-24 sm:bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
+  <!-- LOGIN VIEW -->
   <div id="login-view" class="min-h-[500px] h-screen flex flex-col items-center justify-center p-6 bg-teal-light">
    <div class="p-8 rounded-3xl shadow-xl max-w-md w-full text-center" style="background-color: #ffffff !important;">
     <div class="w-20 h-20 bg-teal-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md transform rotate-3">
@@ -84,6 +85,7 @@
     <h1 class="font-display text-4xl font-bold mb-2">bgorstudy</h1>
     <p class="mb-8 font-medium text-sm text-gray-500">Log in to securely sync your progress to the cloud across all your devices.</p>
 
+    <!-- Standard Login Button -->
     <div id="login-standard-state">
         <button onclick="handleGoogleLogin(false)" id="btn-google-login" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -96,6 +98,7 @@
         </button>
     </div>
 
+    <!-- Active Session State -->
     <div id="login-active-state" class="hidden space-y-3">
         <button onclick="proceedToApp()" id="btn-continue-active" class="w-full bg-teal-primary hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
             <img id="active-user-avatar" src="" class="w-6 h-6 rounded-full border border-teal-300">
@@ -108,8 +111,10 @@
    </div>
   </div>
 
+  <!-- MAIN APP VIEW -->
   <div id="app-container" class="hidden max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       
+    <!-- HEADER & NAVIGATION -->
     <header class="flex flex-col mb-4 sm:mb-8 pb-4 border-b border-gray-200">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
             <div class="flex justify-between w-full sm:w-auto items-center">
@@ -117,11 +122,13 @@
                     <h1 onclick="secretLogoClick()" class="cursor-pointer font-display text-3xl sm:text-4xl font-bold text-teal-primary tracking-tight" style="color: #004b55 !important;">bgorstudy</h1>
                     <p class="text-sm font-bold text-gray-500 mt-1 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1 text-teal-700"></i><span id="current-date-display">Loading time...</span></p>
                 </div>
+                <!-- Mobile Only Timer Button (Top Right) -->
                 <button onclick="toggleGlobalTimer()" class="sm:hidden p-2.5 bg-white border border-gray-200 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50 transition flex items-center justify-center" id="mobile-timer-btn">
                     <i data-lucide="play-circle" class="w-6 h-6 text-teal-600" id="mobile-timer-icon"></i>
                 </button>
             </div>
             
+            <!-- Desktop Action Buttons -->
             <div class="hidden sm:flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
                 <button id="global-timer-btn" onclick="toggleGlobalTimer()" class="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50 transition flex items-center gap-2" style="color: #1f2937 !important;">
                     <i data-lucide="play-circle" class="w-5 h-5 text-teal-600" id="global-timer-icon"></i> 
@@ -139,6 +146,7 @@
             </div>
         </div>
         
+        <!-- DESKTOP TABS -->
         <div class="hidden sm:flex flex-wrap gap-2 items-center">
             <button onclick="switchTab('home')" class="nav-tab active px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-home"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Home</button>
             <button onclick="switchTab('assignments')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-assignments"><i data-lucide="calendar-clock" class="w-4 h-4"></i> Tasks</button>
@@ -150,12 +158,14 @@
             <button onclick="switchTab('chat')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-chat"><i data-lucide="message-square" class="w-4 h-4"></i> Chat</button>
             <button onclick="switchTab('profile')" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-white border border-gray-200 transition-all flex items-center gap-2" id="tab-profile"><i data-lucide="user" class="w-4 h-4"></i> Profile</button>
 
+            <!-- Global Music Toggle -->
             <button onclick="toggleMusicPanel()" class="ml-auto p-2.5 rounded-xl shadow-sm border border-gray-200 hover:bg-teal-light transition-colors bg-white" aria-label="Toggle music">
                 <i data-lucide="music" class="w-4 h-4"></i>
             </button>
         </div>
     </header>
 
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
     <div class="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[90] flex justify-start items-center px-1 py-1 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] overflow-x-auto gap-1">
         <button onclick="switchTab('home')" class="nav-tab-mobile flex-shrink-0 flex flex-col items-center p-2 text-gray-400 transition-colors w-16" id="mob-tab-home"><i data-lucide="layout-dashboard" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Home</span></button>
         <button onclick="switchTab('assignments')" class="nav-tab-mobile flex-shrink-0 flex flex-col items-center p-2 text-gray-400 transition-colors w-16" id="mob-tab-assignments"><i data-lucide="calendar-clock" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Tasks</span></button>
@@ -169,22 +179,26 @@
         <button onclick="toggleMusicPanel()" class="nav-tab-mobile flex-shrink-0 flex flex-col items-center p-2 text-gray-400 transition-colors w-16"><i data-lucide="music" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Music</span></button>
     </div>
     
+    <!-- MUSIC PANEL (Global) -->
     <div id="music-panel" class="hidden fixed top-28 sm:top-28 bottom-24 sm:bottom-auto left-4 right-4 sm:left-auto sm:right-4 z-[100] rounded-xl shadow-2xl border border-gray-200 p-5 sm:w-80 bg-white">
         <div class="flex items-center justify-between mb-4">
             <span class="font-bold text-sm">Study Music Player</span> 
             <button onclick="toggleMusicPanel()" class="p-1 rounded hover:bg-gray-100"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
 
+        <!-- Music Type Tabs -->
         <div class="flex border-b border-gray-200 mb-4 gap-2">
             <button onclick="switchMusicType('ambient')" id="mtab-ambient" class="pb-1 px-1 text-xs font-bold border-b-2 border-teal-primary text-teal-primary">Generated</button>
             <button onclick="switchMusicType('online')" id="mtab-online" class="pb-1 px-1 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800">Online Radio</button>
             <button onclick="switchMusicType('upload')" id="mtab-upload" class="pb-1 px-1 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800">MP3</button>
         </div>
         
+        <!-- Ambient -->
         <div id="mview-ambient">
             <div class="grid grid-cols-2 gap-2 mb-4" id="music-genres"></div>
         </div>
 
+        <!-- Online Radio -->
         <div id="mview-online" class="hidden mb-4">
             <select id="online-radio-select" class="w-full border border-gray-200 rounded p-2 text-xs font-bold bg-gray-50 mb-2" onchange="loadOnlineRadio()">
                 <option value="jfKfPfyJRdk">Lofi Girl (Beats to relax/study)</option>
@@ -198,9 +212,11 @@
                 <input type="text" id="custom-yt-link" placeholder="Or paste YouTube link..." class="w-full border border-gray-200 rounded p-2 text-xs bg-gray-50 outline-none">
                 <button onclick="loadCustomYT()" class="bg-teal-primary text-white px-3 py-2 rounded text-xs font-bold shadow-sm">Play</button>
             </div>
+            <!-- Removed autoplay=1 so mobile doesn't block it -->
             <div id="youtube-container" class="w-full rounded overflow-hidden shadow-sm border border-gray-200 relative pb-[56.25%] h-0"></div>
         </div>
 
+        <!-- Upload -->
         <div id="mview-upload" class="hidden mb-4">
             <input type="file" id="custom-music-upload" accept="audio/*" class="text-xs w-full border border-gray-200 rounded p-2 bg-gray-50">
             <audio id="custom-audio-player" loop></audio>
@@ -215,7 +231,17 @@
         </div>
     </div>
     
+    <!-- 1. HOME VIEW -->
     <div id="view-home" class="view-section">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3 shadow-sm">
+            <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h4 class="font-bold text-blue-800 text-sm">Welcome to your Home Dashboard</h4>
+                <p class="text-xs text-blue-700 mt-1">Get a quick overview of your study progress and see how you rank against other students on the Community Leaderboard!</p>
+            </div>
+        </div>
+
+        <!-- NEW COMMUNITY CO-OP GOAL -->
         <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl shadow-md p-6 mb-6 text-white relative overflow-hidden">
             <div class="absolute top-0 right-0 p-4 opacity-20"><i data-lucide="target" class="w-24 h-24"></i></div>
             <div class="relative z-10">
@@ -263,6 +289,7 @@
             </div>
         </div>
 
+        <!-- Community Leaderboard -->
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mt-6">
             <div class="flex items-center gap-3 mb-6">
                 <i data-lucide="globe" class="w-6 h-6 text-teal-primary"></i>
@@ -272,9 +299,19 @@
         </div>
     </div>
 
+    <!-- 2. ASSIGNMENTS VIEW -->
     <div id="view-assignments" class="view-section hidden">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3 shadow-sm">
+            <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h4 class="font-bold text-blue-800 text-sm">How to use Assignments</h4>
+                <p class="text-xs text-blue-700 mt-1">Track your upcoming tests, homework, and projects. Click the circular checkmark on any task to update its status to "In Progress" or "Completed".</p>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 flex flex-col lg:h-[700px]">
+                <!-- SUMMARY BANNER -->
                 <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-gray-200 mb-4 shadow-sm">
                     <div class="text-center w-1/3 border-r border-gray-100">
                         <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total Tasks</p>
@@ -301,6 +338,7 @@
                 </div>
             </div>
             
+            <!-- 4 Charts for Assignments -->
             <div class="space-y-6 lg:h-[700px] lg:overflow-y-auto pr-2 pb-10">
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
                     <h3 class="font-bold text-sm text-gray-500 mb-4 text-center uppercase tracking-wider">State of Assignment</h3>
@@ -322,6 +360,7 @@
         </div>
     </div>
 
+    <!-- 3. HABITS VIEW -->
     <div id="view-habits" class="view-section hidden">
         <div id="habit-alert-container" class="hidden mb-6 bg-orange-50 border border-orange-200 rounded-2xl p-4 flex items-start gap-3">
             <i data-lucide="alert-triangle" class="w-5 h-5 text-orange-500 mt-0.5"></i>
@@ -369,6 +408,7 @@
         </div>
     </div>
 
+    <!-- 4. STUDY TRACKER VIEW -->
     <div id="view-study" class="view-section hidden">
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
              <div class="flex justify-between items-center mb-4">
@@ -397,6 +437,7 @@
         </div>
     </div>
 
+    <!-- 5. NOTES VIEW -->
     <div id="view-notes" class="view-section hidden">
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
             <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -411,6 +452,7 @@
         </div>
     </div>
 
+    <!-- 6. FLASHCARDS VIEW -->
     <div id="view-flashcards" class="view-section hidden">
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 border-b border-gray-100 pb-4">
@@ -423,6 +465,7 @@
                 </div>
             </div>
 
+            <!-- FC EDIT -->
             <div id="fc-mode-edit" class="fc-mode-panel">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                     <p class="text-sm font-bold text-gray-500" id="fc-count-text">0 cards</p>
@@ -447,6 +490,7 @@
                 </div>
             </div>
 
+            <!-- FC PLAY -->
             <div id="fc-mode-play" class="fc-mode-panel hidden">
                 <div id="fc-play-selection" class="max-w-xl mx-auto border border-gray-200 rounded-2xl p-6 sm:p-8 bg-gray-50 text-center">
                     <h3 class="font-display text-xl font-bold mb-2">Start Study Session</h3>
@@ -489,6 +533,7 @@
                 </div>
             </div>
 
+            <!-- FC QUIZ -->
             <div id="fc-mode-quiz" class="fc-mode-panel hidden">
                 <div id="fc-quiz-setup" class="max-w-xl mx-auto border border-gray-200 rounded-2xl p-6 sm:p-8 bg-gray-50 text-center">
                     <h3 class="font-display text-xl font-bold mb-2">Quiz Mode</h3>
@@ -521,18 +566,21 @@
                 </div>
             </div>
 
+            <!-- FC COMMUNITY LIBRARY -->
             <div id="fc-mode-community" class="fc-mode-panel hidden">
                 <div class="mb-6">
                     <h3 class="font-display text-xl font-bold mb-1">Community Library</h3>
                     <p class="text-sm text-gray-500">Browse and download flashcard decks shared by other students.</p>
                 </div>
                 <div id="fc-community-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    </div>
+                    <!-- Injected via JS -->
+                </div>
             </div>
 
         </div>
     </div>
 
+    <!-- Q&A BOARD VIEW -->
     <div id="view-qa" class="view-section hidden">
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:min-h-[700px] flex flex-col">
             <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
@@ -545,6 +593,7 @@
         </div>
     </div>
 
+    <!-- CHAT VIEW -->
     <div id="view-chat" class="view-section hidden">
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col h-[70vh] sm:h-[700px]">
             <h2 class="font-display text-xl font-bold flex items-center gap-2 mb-4"><i data-lucide="messages-square" class="w-5 h-5 text-teal-primary"></i> Live Chat</h2>
@@ -561,6 +610,7 @@
         </div>
     </div>
     
+    <!-- PROFILE VIEW -->
     <div id="view-profile" class="view-section hidden">
         <div class="max-w-2xl mx-auto space-y-6">
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8 text-center">
@@ -823,7 +873,7 @@ const MY_FIREBASE_CONFIG = {
   authDomain: "bgorstudy-app-bdad6.firebaseapp.com",
   projectId: "bgorstudy-app-bdad6"
 };
-const appId = "bgorstudy-default"; 
+const appId = "bgorstudy"; 
 
 const app = initializeApp(MY_FIREBASE_CONFIG);
 const auth = getAuth(app);
@@ -985,13 +1035,19 @@ function calculateStreak(activeDates) {
     return streak;
 }
 
-window.updateStreak = function() {
+window.updateStreak = function(force = false) {
     const today = getHKDateString();
-    if(!userProfile.activeDates) userProfile.activeDates = [];
-    if(!userProfile.activeDates.includes(today)) {
-        userProfile.activeDates.push(today);
-        saveData();
-        if (!document.getElementById('view-home').classList.contains('hidden')) renderHome();
+    const todayLogs = studyLogs.filter(l => l.date === today);
+    const totalHrs = todayLogs.reduce((s, l) => s + (parseFloat(l.actual)||0), 0);
+    const anyHabit = habits.some(h => h.done);
+    
+    if (force || totalHrs >= 1 || anyHabit) {
+        if(!userProfile.activeDates) userProfile.activeDates = [];
+        if(!userProfile.activeDates.includes(today)) {
+            userProfile.activeDates.push(today);
+            saveData();
+            if (!document.getElementById('view-home').classList.contains('hidden')) renderHome();
+        }
     }
 }
 
@@ -1449,7 +1505,8 @@ function renderChat() {
         
         let timeStr = "Sending...";
         if (msg.timestamp) {
-            timeStr = new Date(msg.timestamp.toDate ? msg.timestamp.toDate() : msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const dateObj = msg.timestamp.toDate ? msg.timestamp.toDate() : new Date(msg.timestamp);
+            timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
         
         const likesCount = msg.likes ? msg.likes.length : 0;
@@ -1635,341 +1692,967 @@ function renderQA() {
     lucide.createIcons();
 }
 
-// ─── STUDY TIMER LOGIC ───
-window.setTimerMode = function(mode) {
-    timerState.mode = mode;
-    document.getElementById('t-mode-stopwatch').classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
-    document.getElementById('t-mode-stopwatch').classList.add('text-gray-500');
-    document.getElementById('t-mode-pomodoro').classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
-    document.getElementById('t-mode-pomodoro').classList.add('text-gray-500');
-    
-    if(mode === 'stopwatch') {
-        document.getElementById('t-mode-stopwatch').classList.add('bg-white', 'shadow-sm', 'text-gray-800');
-        document.getElementById('t-mode-stopwatch').classList.remove('text-gray-500');
-    } else {
-        document.getElementById('t-mode-pomodoro').classList.add('bg-white', 'shadow-sm', 'text-gray-800');
-        document.getElementById('t-mode-pomodoro').classList.remove('text-gray-500');
-    }
+// ─── 2. ASSIGNMENTS ───
+window.cycleAssignmentStatus = function(id) {
+    const item = assignments.find(a => a.id === id);
+    if (item.status === 'Not Started') item.status = 'In Progress';
+    else if (item.status === 'In Progress') item.status = 'Completed';
+    else item.status = 'Not Started';
+    saveData(); renderAssignments();
 }
-
-window.toggleGlobalTimer = function() {
-    if (timerState.active) stopGlobalTimer();
-    else openTimerModal();
-}
-
-window.openTimerModal = function() {
-    const select = document.getElementById('timer-log-select');
-    let opts = '<option value="new">-- New / Other Subject --</option>';
-    
-    const recentLogs = [...studyLogs].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 30);
-    recentLogs.forEach(l => {
-        opts += `<option value="${l.id}">[${l.date}] ${esc(l.subject)} (${esc(l.chapters)}) - Target: ${l.target}h</option>`;
+window.deleteAssignment = function(id) {
+    requestConfirm(() => {
+        assignments = assignments.filter(a => a.id !== id); saveData(); renderAssignments(); window.showToast('Deleted');
     });
-    select.innerHTML = opts;
-    
-    document.getElementById('timer-custom-subject').innerHTML = subjects.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
-    document.getElementById('timer-custom-chapters').value = '';
-    
-    toggleTimerCustomInputs();
-    document.getElementById('timer-modal-overlay').classList.remove('hidden');
+}
+function calculateDaysLeft(targetDateStr) {
+    const today = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"}));
+    today.setHours(0,0,0,0);
+    const target = new Date(targetDateStr);
+    const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+    return diffDays === 0 ? "Today!" : (diffDays < 0 ? "Past Due" : `${diffDays} days left`);
 }
 
-window.closeTimerModal = function() { document.getElementById('timer-modal-overlay').classList.add('hidden'); }
+function renderAssignments() {
+    const list = document.getElementById('assignments-list');
+    if(!list) return;
+    
+    let html = '';
+    let pending = 0, completed = 0;
 
-window.toggleTimerCustomInputs = function() {
-    const isNew = document.getElementById('timer-log-select').value === 'new';
-    document.getElementById('timer-custom-inputs').style.display = isNew ? 'block' : 'none';
+    assignments.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(ass => {
+        if (ass.status !== 'Completed') pending++;
+        else completed++;
+
+        const daysLeft = calculateDaysLeft(ass.date);
+        const isDone = ass.status === 'Completed';
+        let statusClass = 'badge-status-not'; let statusIcon = 'circle';
+        if (ass.status === 'In Progress') { statusClass = 'badge-status-prog'; statusIcon = 'loader'; }
+        if (isDone) { statusClass = 'badge-status-done'; statusIcon = 'check-circle-2'; }
+        let priorityClass = 'badge-low';
+        if (ass.priority === 'High') priorityClass = 'badge-high';
+        else if (ass.priority === 'Extremely high') priorityClass = 'badge-ext';
+        else if (ass.priority === 'Medium') priorityClass = 'badge-med';
+
+        html += `
+        <div class="border border-gray-200 rounded-xl p-4 transition hover:shadow-md bg-white ${isDone ? 'opacity-60' : ''} group relative">
+            <button onclick="deleteAssignment(${ass.id})" class="absolute top-2 right-2 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition opacity-0 group-hover:opacity-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            <div class="flex justify-between items-start mb-3 pr-8">
+                <div>
+                    <h3 class="font-bold text-lg leading-tight ${isDone ? 'line-through' : ''}">${esc(ass.title)}</h3>
+                    <p class="text-xs font-bold text-gray-500 mt-1"><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i> ${ass.date} • <span class="text-teal-700">${daysLeft}</span></p>
+                </div>
+            </div>
+            <div class="mb-3 flex flex-wrap items-center gap-2">
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-md ${priorityClass} uppercase tracking-wider">${esc(ass.priority)}</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 uppercase tracking-wider border border-gray-200">${esc(ass.type || 'Task')}</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-200"><i data-lucide="book" class="w-3 h-3 inline mr-1"></i>${esc(ass.subject)}</span>
+            </div>
+            <div class="pt-2 border-t border-gray-100">
+                <button onclick="cycleAssignmentStatus(${ass.id})" class="w-full justify-center text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${statusClass} shadow-sm border border-transparent hover:border-gray-300"><i data-lucide="${statusIcon}" class="w-4 h-4"></i> ${ass.status}</button>
+            </div>
+        </div>`;
+    });
+    
+    list.innerHTML = html;
+    
+    document.getElementById('ass-summary-total').textContent = assignments.length;
+    document.getElementById('ass-summary-completed').textContent = completed;
+    document.getElementById('ass-summary-pending').textContent = pending;
+
+    lucide.createIcons();
+
+    if(document.getElementById('view-assignments').classList.contains('hidden') === false) {
+        const ctxStatus = document.getElementById('assStatusChart').getContext('2d');
+        const cStatus = { 'Not Started': 0, 'In Progress': 0, 'Completed': 0 };
+        assignments.forEach(a => { if(cStatus[a.status]!==undefined) cStatus[a.status]++; });
+        if(assStatusChart) assStatusChart.destroy();
+        assStatusChart = new Chart(ctxStatus, { 
+            type: 'pie', 
+            data: { labels: Object.keys(cStatus), datasets: [{ data: Object.values(cStatus), backgroundColor: ['#f3f4f6', '#818cf8', '#34d399'] }] }, 
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } 
+        });
+
+        const ctxPri = document.getElementById('assPriorityChart').getContext('2d');
+        const cPri = { 'Low': 0, 'Medium': 0, 'High': 0, 'Extremely high': 0 };
+        assignments.forEach(a => { if(cPri[a.priority]!==undefined) cPri[a.priority]++; });
+        if(assPriorityChart) assPriorityChart.destroy();
+        assPriorityChart = new Chart(ctxPri, { 
+            type: 'pie', 
+            data: { labels: Object.keys(cPri), datasets: [{ data: Object.values(cPri), backgroundColor: ['#9ca3af', '#eab308', '#ef4444', '#7f1d1d'] }] }, 
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } 
+        });
+        
+        const ctxType = document.getElementById('assTypeChart').getContext('2d');
+        const cType = {}; assignments.forEach(a => { cType[a.type || 'Task'] = (cType[a.type || 'Task']||0)+1; });
+        if(assTypeChart) assTypeChart.destroy();
+        assTypeChart = new Chart(ctxType, { 
+            type: 'pie', 
+            data: { labels: Object.keys(cType), datasets: [{ data: Object.values(cType), backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'] }] }, 
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } 
+        });
+
+        const ctxSub = document.getElementById('assSubjectChart').getContext('2d');
+        const cSub = {}; assignments.forEach(a => { cSub[a.subject || 'Other'] = (cSub[a.subject || 'Other']||0)+1; });
+        if(assSubjectChart) assSubjectChart.destroy();
+        assSubjectChart = new Chart(ctxSub, { 
+            type: 'bar', 
+            data: { labels: Object.keys(cSub), datasets: [{ label: 'Tasks', data: Object.values(cSub), backgroundColor: '#0ea5e9' }] }, 
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } 
+        });
+    }
 }
 
-window.startGlobalTimer = function() {
-    const logVal = document.getElementById('timer-log-select').value;
-    if (logVal === 'new') {
-        const sub = document.getElementById('timer-custom-subject').value;
-        const chap = document.getElementById('timer-custom-chapters').value.trim();
-        if(!sub || !chap) return window.showToast("Subject and Chapters required", "error");
-        timerState.subject = sub;
-        timerState.chapters = chap;
-        timerState.logId = null;
+window.openAssignmentModal = function() {
+    document.getElementById('inp-ass-subject').innerHTML = subjects.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('') + '<option value="Other">Other</option>';
+    document.getElementById('inp-ass-title').value = '';
+    document.getElementById('inp-ass-date').value = getHKDateString();
+    document.getElementById('assignment-modal-overlay').classList.remove('hidden');
+}
+window.closeAssignmentModal = function() { document.getElementById('assignment-modal-overlay').classList.add('hidden'); }
+window.saveAssignment = function() {
+    const title = document.getElementById('inp-ass-title').value.trim();
+    const date = document.getElementById('inp-ass-date').value;
+    if(!title || !date) return window.showToast("Title and Date are required!", "error");
+    assignments.push({ id: Date.now(), title, date, subject: document.getElementById('inp-ass-subject').value, type: document.getElementById('inp-ass-type').value, status: 'Not Started', priority: document.getElementById('inp-ass-priority').value });
+    saveData(); renderAssignments(); closeAssignmentModal(); window.showToast("Task added!");
+}
+
+// ─── 3. HABITS ───
+window.toggleHabit = function(id) { 
+    const item = habits.find(h => h.id === id); 
+    item.done = !item.done; 
+    
+    if (item.done) {
+        window.showToast(`Completed: ${item.name}!`);
+        updateStreak(); // Might trigger a streak update
+    }
+    
+    if (habits.every(h => h.done)) {
+        const today = getHKDateString();
+        if (userProfile.lastAllHabitsDate !== today) {
+            userProfile.lastAllHabitsDate = today;
+            window.addXP(30, "All Habits Done!");
+        }
+    }
+    
+    saveData(); renderHabits(); 
+}
+window.resetHabits = function() { 
+    habits.forEach(h => { 
+        if(!h.history) h.history = [false,false,false,false,false,false,false];
+        h.history.shift(); 
+        h.history.push(h.done); 
+        h.done = false; 
+    }); 
+    saveData(); renderHabits(); 
+    window.showToast("Habits shifted and reset for a new day!"); 
+}
+function renderHabits() {
+    const list = document.getElementById('habits-list');
+    if(!list) return;
+    let html = ''; let doneCount = 0;
+    habits.forEach(hab => {
+        if (hab.done) doneCount++;
+        html += `
+        <div class="flex items-center justify-between p-3 sm:p-4 rounded-xl border ${hab.done ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-white hover:border-teal-300'} transition group relative">
+            <button onclick="deleteHabit(${hab.id})" class="absolute -left-2 -top-2 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm"><i data-lucide="x" class="w-3 h-3"></i></button>
+            <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="toggleHabit(${hab.id})">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center ${hab.done ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500 group-hover:bg-teal-50'} transition"><i data-lucide="${hab.icon || 'check-circle'}" class="w-4 h-4"></i></div>
+                <span class="font-bold text-sm sm:text-base ${hab.done ? 'text-green-800 line-through opacity-70' : 'text-gray-800'}">${esc(hab.name)}</span>
+            </div>
+            <div onclick="toggleHabit(${hab.id})" class="cursor-pointer w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${hab.done ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 bg-white'}">${hab.done ? '<i data-lucide="check" class="w-4 h-4" style="color: white !important;"></i>' : ''}</div>
+        </div>`;
+    });
+    list.innerHTML = html;
+    document.getElementById('habit-score-text').textContent = `${doneCount}/${habits.length}`;
+    document.getElementById('habit-score-bar').style.width = `${habits.length === 0 ? 0 : (doneCount/habits.length)*100}%`;
+    
+    const forgotten = habits.filter(h => h.history && h.history.slice(-7).filter(d => !d).length >= 4);
+    if (forgotten.length > 0) { document.getElementById('habit-alert-container').classList.remove('hidden'); document.getElementById('habit-alert-text').textContent = `You often forget: ${forgotten.map(f => f.name).join(', ')}. Focus on these today!`; } 
+    else { document.getElementById('habit-alert-container').classList.add('hidden'); }
+
+    if (document.getElementById('view-habits').classList.contains('hidden') === false) {
+        updateHabitCharts();
+    }
+    lucide.createIcons();
+}
+
+function updateHabitCharts() {
+    const ctxWeekly = document.getElementById('habitWeeklyChart');
+    if(!ctxWeekly) return;
+    const days = ['D1','D2','D3','D4','D5','D6','D7'];
+    const dataLine = [0,0,0,0,0,0,0]; 
+    habits.forEach(h => { 
+        if(!h.history) h.history = [false,false,false,false,false,false,false];
+        const last6 = h.history.slice(-6);
+        const combined = [...last6, h.done]; 
+        for(let i=0; i<7; i++) if(combined[i]) dataLine[i]++; 
+    });
+
+    if(habitWeeklyChart) habitWeeklyChart.destroy();
+    habitWeeklyChart = new Chart(ctxWeekly.getContext('2d'), { 
+        type: 'line', data: { labels: days, datasets: [{ label: 'Habits Completed', data: dataLine, borderColor: '#004b55', backgroundColor: 'rgba(0,75,85,0.1)', tension: 0.3, fill: true }] }, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: habits.length } } } 
+    });
+
+    let totalWeeklyDone = 0; let totalWeeklyMissed = 0;
+    habits.forEach(h => {
+        if(!h.history) h.history = [false,false,false,false,false,false,false];
+        const last6 = h.history.slice(-6);
+        const combined = [...last6, h.done]; 
+        totalWeeklyDone += combined.filter(d=>d).length;
+        totalWeeklyMissed += combined.filter(d=>!d).length;
+    });
+    if(habitWeeklyPieChart) habitWeeklyPieChart.destroy();
+    habitWeeklyPieChart = new Chart(document.getElementById('habitWeeklyPieChart').getContext('2d'), {
+        type: 'pie', data: { labels: ['Done', 'Missed'], datasets: [{ data: [totalWeeklyDone, totalWeeklyMissed], backgroundColor: ['#10b981', '#f3f4f6'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+
+    let totalMonthlyDone = 0; let totalMonthlyMissed = 0;
+    habits.forEach(h => {
+        if(!h.history) h.history = Array(30).fill(false);
+        const last29 = h.history.slice(-29);
+        const combined = [...last29, h.done]; 
+        totalMonthlyDone += combined.filter(d=>d).length;
+        totalMonthlyMissed += combined.filter(d=>!d).length;
+    });
+    if(habitMonthlyPieChart) habitMonthlyPieChart.destroy();
+    habitMonthlyPieChart = new Chart(document.getElementById('habitMonthlyPieChart').getContext('2d'), {
+        type: 'pie', data: { labels: ['Done', 'Missed'], datasets: [{ data: [totalMonthlyDone, totalMonthlyMissed], backgroundColor: ['#3b82f6', '#f3f4f6'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+}
+
+window.openHabitModal = function() { document.getElementById('inp-habit-title').value = ''; document.getElementById('habit-modal-overlay').classList.remove('hidden'); }
+window.closeHabitModal = function() { document.getElementById('habit-modal-overlay').classList.add('hidden'); }
+window.saveHabit = function() {
+    const title = document.getElementById('inp-habit-title').value.trim(); if(!title) return;
+    habits.push({ id: Date.now(), name: title, done: false, icon: document.getElementById('inp-habit-icon').value, history: Array(30).fill(false) });
+    saveData(); renderHabits(); closeHabitModal(); window.showToast("Habit added!");
+}
+window.deleteHabit = function(id) { 
+    requestConfirm(() => { habits = habits.filter(h => h.id !== id); saveData(); renderHabits(); window.showToast("Deleted"); });
+}
+
+// ─── 4. STUDY TRACKER ───
+window.openSubjectModal = function() {
+    document.getElementById('inp-sub-name').value = '';
+    document.getElementById('inp-sub-color').value = '#0ea5e9';
+    document.getElementById('subject-modal-overlay').classList.remove('hidden');
+}
+window.closeSubjectModal = function() { document.getElementById('subject-modal-overlay').classList.add('hidden'); }
+window.saveSubject = function() {
+    const name = document.getElementById('inp-sub-name').value.trim();
+    const color = document.getElementById('inp-sub-color').value;
+    if(!name) return window.showToast("Name is required!", "error");
+    subjects.push({ id: 'sub'+Date.now(), name, color });
+    saveData(); renderSubjects(); closeSubjectModal(); window.showToast("Subject Added!");
+}
+window.deleteSubject = function(id) {
+    requestConfirm(() => { subjects = subjects.filter(s => s.id !== id); saveData(); renderSubjects(); window.showToast("Deleted"); });
+}
+
+window.addStudyLog = function() {
+    const date = document.getElementById('log-date').value;
+    const subject = document.getElementById('log-subject').value;
+    const chapters = document.getElementById('log-chapters').value.trim();
+    const target = parseFloat(document.getElementById('log-target').value) || 0;
+    if(!date || !chapters || !subject) return window.showToast("Date, Subject and Chapters are required!", "error");
+    studyLogs.unshift({ id: Date.now(), date, subject, chapters, target, actual: 0 });
+    document.getElementById('log-chapters').value = ''; document.getElementById('log-target').value = '';
+    saveData(); renderSubjects(); window.showToast("Study Plan Logged!");
+}
+window.updateLogActual = function(id, val) {
+    const log = studyLogs.find(l => l.id === id);
+    if(log) { 
+        log.actual = Math.round(Math.max(0, parseFloat(val) || 0) * 100) / 100; 
+        updateStreak();
+        saveData(); 
+        renderSubjects(); 
+    }
+}
+window.deleteStudyLog = function(id) { 
+    requestConfirm(() => { studyLogs = studyLogs.filter(l => l.id !== id); saveData(); renderSubjects(); window.showToast("Deleted"); }); 
+}
+window.promptEditTarget = function(id) {
+    const sub = subjects.find(s => s.id === id);
+    requestInput(`Edit Target Hours override for ${sub.name}:`, sub.target || 0, (val) => {
+        const newTarget = parseFloat(val);
+        if(!isNaN(newTarget) && newTarget > 0) {
+            sub.target = newTarget;
+            saveData(); renderSubjects(); window.showToast("Target updated!");
+        }
+    });
+}
+
+function renderSubjects() {
+    const subSelect = document.getElementById('log-subject');
+    if(subSelect) {
+        const prev = subSelect.value;
+        subSelect.innerHTML = subjects.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
+        if(prev && subjects.find(s=>s.name === prev)) subSelect.value = prev;
+        if(!document.getElementById('log-date').value) document.getElementById('log-date').value = getHKDateString();
+    }
+    const grid = document.getElementById('subjects-grid');
+    if(grid) {
+        grid.innerHTML = subjects.map(sub => {
+            const calcTarget = studyLogs.filter(l => l.subject === sub.name).reduce((sum, l) => sum + (parseFloat(l.target) || 0), 0);
+            const actualSum = studyLogs.filter(l => l.subject === sub.name).reduce((sum, l) => sum + (parseFloat(l.actual) || 0), 0);
+            const actualRounded = Math.round(actualSum * 100) / 100;
+            const targetRounded = Math.round(calcTarget * 100) / 100;
+            const pct = targetRounded > 0 ? Math.min(100, Math.round((actualRounded / targetRounded) * 100)) : (actualRounded > 0 ? 100 : 0);
+            
+            return `
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden group">
+                <button onclick="deleteSubject('${sub.id}')" class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition opacity-0 group-hover:opacity-100 z-10"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                <div class="flex items-center justify-between mb-2 pr-6">
+                    <span class="font-bold text-gray-800 flex items-center gap-2"><span class="w-3 h-3 rounded-full block" style="background-color: ${sub.color}"></span> ${esc(sub.name)}</span>
+                </div>
+                <div class="flex justify-between items-end mb-2"><span class="text-2xl font-display font-bold">${actualRounded}</span><span class="text-xs font-bold text-gray-500 pb-1">/ ${targetRounded} hrs (${pct}%)</span></div>
+                <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden"><div class="h-full rounded-full transition-all duration-500 ease-out" style="width: ${pct}%; background-color: ${sub.color};"></div></div>
+            </div>`;
+        }).join('');
+    }
+    const logsList = document.getElementById('study-logs-list');
+    if(logsList) {
+        const sortedLogs = [...studyLogs].sort((a,b) => new Date(b.date) - new Date(a.date));
+        logsList.innerHTML = sortedLogs.length === 0 ? `<p class="text-sm font-bold text-gray-400 text-center py-8">No daily study logs yet.</p>` : sortedLogs.map(log => {
+            const subColor = subjects.find(s => s.name === log.subject)?.color || '#9ca3af';
+            const logPct = log.target > 0 ? Math.min(100, Math.round((log.actual / log.target) * 100)) : (log.actual > 0 ? 100 : 0);
+            return `
+            <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm flex items-center justify-between hover:shadow-md transition">
+                <div class="flex-1 pr-4">
+                    <p class="text-xs font-bold mb-1"><span class="text-gray-500">${log.date} • </span> <span style="color: ${subColor} !important;">${esc(log.subject)}</span></p>
+                    <p class="font-bold text-sm bg-gray-50 p-2 rounded-lg border border-gray-100 inline-block">${esc(log.chapters)}</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-center"><p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Target</p><p class="font-bold text-gray-800">${log.target}h</p></div>
+                    <div class="text-center bg-teal-50 px-3 py-2 rounded-lg border border-teal-100">
+                        <p class="text-[10px] text-teal-700 font-bold uppercase tracking-wider mb-1" style="color: #0f766e !important;">Actual</p>
+                        <div class="flex items-center gap-1">
+                            <input type="number" step="0.1" value="${log.actual}" onchange="updateLogActual(${log.id}, this.value)" class="w-16 p-1 text-center border border-gray-300 rounded font-bold text-sm bg-white outline-none transition" style="color: #1f2937 !important;">
+                        </div>
+                    </div>
+                    <div class="text-center w-12"><p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Done</p><p class="font-bold text-indigo-600">${logPct}%</p></div>
+                    <button onclick="deleteStudyLog(${log.id})" class="text-gray-300 hover:text-red-500 transition ml-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+    lucide.createIcons();
+}
+
+// ─── 5. NOTES ───
+window.switchNoteSubject = function(sub) { currentNoteSubject = sub; renderNotes(); }
+window.updateNoteStatus = function(id, st) { const note = notes.find(n => n.id === id); note.status = st; if(st !== 'Notes revised') note.revCount = 0; saveData(); renderNotes(); }
+window.updateNoteRevCount = function(id, count) { notes.find(n => n.id === id).revCount = parseInt(count) || 0; saveData(); }
+
+window.openNoteModal = function() {
+    const subList = document.getElementById('note-sub-list');
+    const uniqueSubs = [...new Set(notes.map(n => n.subject))];
+    subList.innerHTML = uniqueSubs.map(s => `<option value="${esc(s)}">`).join('');
+    
+    document.getElementById('inp-note-subject').value = currentNoteSubject || (uniqueSubs.length > 0 ? uniqueSubs[0] : '');
+    document.getElementById('inp-note-chapter').value = '';
+    document.getElementById('inp-note-link').value = '';
+    document.getElementById('note-modal-overlay').classList.remove('hidden');
+}
+window.closeNoteModal = function() { document.getElementById('note-modal-overlay').classList.add('hidden'); }
+
+window.saveNote = function() {
+    const subject = document.getElementById('inp-note-subject').value.trim();
+    const chapter = document.getElementById('inp-note-chapter').value.trim();
+    const link = document.getElementById('inp-note-link').value.trim();
+    if(!subject || !chapter) return window.showToast("Subject and Chapter required", "error");
+    
+    notes.push({ id: Date.now().toString(), subject, chapter, link, status: 'Not yet started', revCount: 0 });
+    currentNoteSubject = subject; 
+    saveData(); renderNotes(); closeNoteModal(); window.showToast("Note tracker added!");
+}
+
+window.editNoteLink = function(id) {
+    requestInput("Enter Google Doc or PDF URL for this Note:", "", (val) => {
+        if(val !== null) {
+            notes.find(n => n.id === id).link = val.trim();
+            saveData(); renderNotes();
+        }
+    });
+}
+
+function renderNotes() {
+    const tabsContainer = document.getElementById('notes-subject-tabs');
+    const grid = document.getElementById('notes-grid');
+    const emptyMsg = document.getElementById('notes-empty');
+    if(!tabsContainer || !grid) return;
+
+    const subNames = [...new Set(notes.map(n => n.subject))];
+    if(subNames.length > 0 && !subNames.includes(currentNoteSubject)) currentNoteSubject = subNames[0];
+
+    tabsContainer.innerHTML = subNames.map(sub => `
+        <button onclick="switchNoteSubject('${esc(sub)}')" class="pb-2 px-1 font-bold text-sm transition-colors border-b-2 ${sub === currentNoteSubject ? 'border-teal-primary text-teal-primary' : 'border-transparent text-gray-500 hover:text-gray-800'}">${esc(sub)}</button>
+    `).join('');
+
+    const filteredNotes = notes.filter(n => n.subject === currentNoteSubject);
+    if(filteredNotes.length === 0) {
+        grid.innerHTML = '';
+        if(emptyMsg) emptyMsg.classList.remove('hidden');
     } else {
-        timerState.logId = parseFloat(logVal);
-        const lg = studyLogs.find(x=>x.id === timerState.logId);
-        if(lg) timerState.subject = lg.subject; 
+        if(emptyMsg) emptyMsg.classList.add('hidden');
+        grid.innerHTML = filteredNotes.map(n => {
+            let statusColor = 'bg-gray-100';
+            if(n.status === 'Notes done') statusColor = 'bg-blue-100 border-blue-200 text-blue-800';
+            if(n.status === 'Notes revised') statusColor = 'bg-purple-100 border-purple-200 text-purple-800';
+            if(n.status === 'Done PP') statusColor = 'bg-green-100 border-green-200 text-green-800';
+            return `
+            <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm flex flex-col justify-between h-32 hover:border-teal-300 transition relative group">
+                <button onclick="deleteNote('${n.id}')" class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition opacity-0 group-hover:opacity-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                <div class="flex justify-between items-start mb-2 pr-6">
+                    <h4 class="font-bold text-lg truncate" title="${esc(n.chapter)}">${esc(n.chapter)}</h4>
+                    ${n.link ? `<a href="${esc(n.link)}" target="_blank" class="text-teal-600 hover:text-teal-800 transition bg-teal-50 p-1.5 rounded-lg" title="Open Note"><i data-lucide="external-link" class="w-4 h-4"></i></a>` : `<button onclick="editNoteLink('${n.id}')" class="text-gray-400 hover:text-teal-600 transition bg-gray-50 p-1.5 rounded-lg" title="Add Link"><i data-lucide="link" class="w-4 h-4"></i></button>`}
+                </div>
+                <div class="flex gap-2 items-center">
+                    <select onchange="updateNoteStatus('${n.id}', this.value)" class="flex-1 text-xs font-bold p-1.5 border rounded-lg outline-none cursor-pointer ${statusColor}">
+                        <option value="Not yet started" ${n.status==='Not yet started'?'selected':''}>Not yet started</option>
+                        <option value="Notes done" ${n.status==='Notes done'?'selected':''}>Notes done</option>
+                        <option value="Notes revised" ${n.status==='Notes revised'?'selected':''}>Notes revised</option>
+                        <option value="Done PP" ${n.status==='Done PP'?'selected':''}>Done PP</option>
+                    </select>
+                    ${n.status === 'Notes revised' ? `<div class="flex items-center gap-1"><input type="number" min="1" value="${n.revCount || 1}" onchange="updateNoteRevCount('${n.id}', this.value)" class="w-12 text-xs font-bold p-1.5 border border-purple-200 rounded-lg outline-none text-center bg-purple-50" style="color: #1f2937 !important;"><span class="text-xs font-bold text-gray-500">times</span></div>` : ''}
+                </div>
+            </div>`;
+        }).join('');
     }
+    lucide.createIcons();
+}
+
+window.deleteNote = function(id) {
+    requestConfirm(() => { notes = notes.filter(n => n.id !== id); saveData(); renderNotes(); window.showToast("Deleted"); });
+}
+
+
+// ─── 6. FLASHCARD STUDIO ───
+window.switchFcMode = function(mode) {
+  document.querySelectorAll('.fc-mode-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById(`fc-mode-${mode}`).classList.remove('hidden');
+  document.querySelectorAll('.fc-mode-btn').forEach(b => {
+    b.classList.remove('bg-teal-primary', 'text-white', 'shadow-sm');
+    b.classList.add('bg-transparent', 'text-gray-600');
+  });
+  const active = document.getElementById(`fc-btn-${mode}`);
+  if (active) {
+      active.classList.add('bg-teal-primary', 'text-white', 'shadow-sm');
+      active.classList.remove('bg-transparent', 'text-gray-600');
+  }
+  
+  if (mode === 'edit') renderFlashcards();
+  if (mode === 'play') window.buildFcPlayCategories();
+  if (mode === 'quiz') window.buildFcQuizCategories();
+  if (mode === 'community') window.loadCommunityDecks();
+}
+
+window.updateFcFilters = function() {
+  const subjects = [...new Set(flashcards.map(c => c.subject).filter(Boolean))];
+  const topics = [...new Set(flashcards.map(c => c.topic).filter(Boolean))];
+  const fs = document.getElementById('fc-filter-subject');
+  const ft = document.getElementById('fc-filter-topic');
+  if(fs && ft) {
+      const sv = fs.value, tv = ft.value;
+      fs.innerHTML = '<option value="">All Subjects</option>' + subjects.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+      ft.innerHTML = '<option value="">All Topics</option>' + topics.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+      fs.value = sv; ft.value = tv;
+  }
+}
+
+window.renderFlashcards = function() {
+  const fs = document.getElementById('fc-filter-subject')?.value;
+  const ft = document.getElementById('fc-filter-topic')?.value;
+  let filtered = flashcards;
+  if (fs) filtered = filtered.filter(c => c.subject === fs);
+  if (ft) filtered = filtered.filter(c => c.topic === ft);
+  
+  const grid = document.getElementById('fc-grid');
+  const empty = document.getElementById('fc-empty-state');
+  if(!grid || !empty) return;
+  
+  if (filtered.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  
+  grid.innerHTML = filtered.map(card => `
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-2">
+            <div class="flex flex-wrap gap-1">
+                ${card.subject ? `<span class="text-[10px] font-bold uppercase tracking-wider text-teal-primary bg-teal-light px-2 py-0.5 rounded-full">${esc(card.subject)}</span>` : ''}
+                ${card.topic ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50">${esc(card.topic)}</span>` : ''}
+            </div>
+            <div class="flex gap-1">
+                <button onclick="window.editFlashcard('${card.__backendId}')" class="p-1 rounded bg-white hover:bg-gray-100 transition"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
+                <button onclick="window.deleteFlashcard('${card.__backendId}')" class="p-1 rounded bg-white hover:bg-red-50 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-incorrect"></i></button>
+            </div>
+        </div>
+        ${card.image ? `<img src="${esc(card.image)}" class="w-full h-24 object-cover rounded-lg mb-2 border border-gray-100" onerror="this.style.display='none'">` : ''}
+        <p class="text-sm font-bold mb-1 line-clamp-2">${esc(card.question)}</p>
+        <p class="text-xs line-clamp-1 text-gray-500">${esc(card.answer)}</p>
+        ${card.hint ? `<p class="text-[10px] mt-1 italic font-bold text-gray-400">💡 ${esc(card.hint)}</p>` : ''}
+    </div>
+  `).join('');
+  document.getElementById('fc-count-text').textContent = `${flashcards.length} cards`;
+  lucide.createIcons();
+}
+
+window.openFcModal = function() {
+  editingFcCard = null;
+  document.getElementById('fc-modal-title').textContent = 'New Card';
+  document.getElementById('fc-inp-subject').value = '';
+  document.getElementById('fc-inp-topic').value = '';
+  document.getElementById('fc-inp-question').value = '';
+  document.getElementById('fc-inp-answer').value = '';
+  document.getElementById('fc-inp-image').value = '';
+  document.getElementById('fc-inp-hint').value = '';
+  document.getElementById('fc-modal-overlay').classList.remove('hidden');
+}
+window.closeFcModal = function() { document.getElementById('fc-modal-overlay').classList.add('hidden'); }
+
+window.editFlashcard = function(id) {
+  const card = flashcards.find(c => c.__backendId === id);
+  if (card) {
+      editingFcCard = card;
+      document.getElementById('fc-modal-title').textContent = 'Edit Card';
+      document.getElementById('fc-inp-subject').value = card.subject || '';
+      document.getElementById('fc-inp-topic').value = card.topic || '';
+      document.getElementById('fc-inp-question').value = card.question || '';
+      document.getElementById('fc-inp-answer').value = card.answer || '';
+      document.getElementById('fc-inp-image').value = card.image || '';
+      document.getElementById('fc-inp-hint').value = card.hint || '';
+      document.getElementById('fc-modal-overlay').classList.remove('hidden');
+  }
+}
+
+window.saveFlashcard = function() {
+  const q = document.getElementById('fc-inp-question').value.trim();
+  const a = document.getElementById('fc-inp-answer').value.trim();
+  if (!q || !a) return window.showToast('Question and answer are required', 'error'); 
+  
+  const data = {
+    question: q, answer: a,
+    image: document.getElementById('fc-inp-image').value.trim(),
+    hint: document.getElementById('fc-inp-hint').value.trim(),
+    subject: document.getElementById('fc-inp-subject').value.trim(),
+    topic: document.getElementById('fc-inp-topic').value.trim()
+  };
+  
+  const cardId = editingFcCard ? editingFcCard.__backendId : crypto.randomUUID();
+  if (editingFcCard) {
+      const index = flashcards.findIndex(c => c.__backendId === cardId);
+      if (index !== -1) flashcards[index] = { ...data, __backendId: cardId };
+  } else {
+      flashcards.push({ ...data, __backendId: cardId });
+  }
+  
+  saveData();
+  updateFcFilters();
+  renderFlashcards();
+  closeFcModal();
+  window.showToast(editingFcCard ? 'Card updated!' : 'Card created!');
+}
+
+window.deleteFlashcard = function(id) {
+  requestConfirm(() => { flashcards = flashcards.filter(c => c.__backendId !== id); saveData(); updateFcFilters(); renderFlashcards(); window.showToast('Deleted'); });
+}
+
+window.buildFcPlayCategories = function() {
+  const categories = {};
+  flashcards.forEach(c => {
+      const sub = c.subject || 'Uncategorized'; const top = c.topic || 'General';
+      if (!categories[sub]) categories[sub] = new Set();
+      categories[sub].add(top);
+  });
+  
+  const el = document.getElementById('fc-play-categories');
+  if (Object.keys(categories).length === 0) { el.innerHTML = '<p class="text-sm font-bold">No cards yet.</p>'; return; }
+  
+  let html = '';
+  for (const sub in categories) {
+      html += `<div class="font-bold text-sm mb-2 mt-4">${esc(sub)}</div>`;
+      categories[sub].forEach(top => {
+          html += `<label class="flex items-center gap-2 bg-white rounded-lg px-3 py-2.5 shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition text-sm font-bold ml-2 mb-2"><input type="checkbox" value="${esc(sub)}:::${esc(top)}" checked class="play-cat accent-teal-primary w-4 h-4"> ${esc(top)}</label>`;
+      });
+  }
+  el.innerHTML = html;
+  document.getElementById('fc-play-selection').classList.remove('hidden');
+  document.getElementById('fc-play-area').classList.add('hidden');
+}
+
+window.startFcPlay = function() {
+  const checked = [...document.querySelectorAll('#fc-play-selection .play-cat:checked')].map(c => c.value);
+  if (checked.length === 0) return window.showToast('Select at least one topic', 'error');
+  fcPlayCards = flashcards.filter(c => checked.includes(`${c.subject || 'Uncategorized'}:::${c.topic || 'General'}`));
+  if (fcPlayCards.length === 0) return window.showToast('No cards in selected topics', 'error'); 
+  if (document.getElementById('fc-shuffle-check').checked) shuffleArray(fcPlayCards);
+  fcPlayIndex = 0; fcPlayFlipped = false;
+  document.getElementById('fc-play-selection').classList.add('hidden');
+  document.getElementById('fc-play-area').classList.remove('hidden');
+  window.renderFcPlayCard();
+}
+
+window.renderFcPlayCard = function() {
+  if (!fcPlayCards.length) return;
+  const card = fcPlayCards[fcPlayIndex];
+  document.getElementById('fc-play-card-front').innerHTML = `${card.image ? `<img src="${esc(card.image)}" class="max-h-32 w-auto mx-auto object-contain mb-4 rounded-lg shadow-sm" onerror="this.style.display='none'">` : ''}<p class="text-lg sm:text-xl font-bold text-center">${esc(card.question)}</p>`;
+  document.getElementById('fc-play-card-back').textContent = card.answer;
+  
+  const cardEl = document.getElementById('fc-play-card');
+  cardEl.style.transition = 'none';
+  cardEl.style.transform = `rotateY(0deg) translateX(0px) rotate(0deg)`;
+  cardEl.classList.remove('flipped');
+  setTimeout(() => { cardEl.style.transition = 'transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1)'; }, 50);
+
+  fcPlayFlipped = false;
+  
+  const hintBtn = document.getElementById('fc-hint-btn');
+  const hintText = document.getElementById('fc-hint-text');
+  hintText.classList.add('hidden');
+  if (card.hint) { hintBtn.classList.remove('hidden'); } else { hintBtn.classList.add('hidden'); }
+  
+  document.getElementById('fc-play-progress-text').textContent = `${fcPlayIndex + 1} / ${fcPlayCards.length}`;
+  document.getElementById('fc-play-progress-bar').style.width = `${((fcPlayIndex + 1) / fcPlayCards.length) * 100}%`;
+}
+
+// Tinder Swipe Logic for Flashcards
+let fcTouchStartX = 0;
+let fcCurrentX = 0;
+
+window.handleFcTouchStart = function(e) {
+    fcTouchStartX = e.touches[0].clientX;
+    const cardEl = document.getElementById('fc-play-card');
+    cardEl.style.transition = 'none'; 
+}
+window.handleFcTouchMove = function(e) {
+    fcCurrentX = e.touches[0].clientX - fcTouchStartX;
+    const cardEl = document.getElementById('fc-play-card');
+    cardEl.style.transform = `rotateY(${fcPlayFlipped ? 180 : 0}deg) translateX(${fcCurrentX}px) rotate(${fcCurrentX * 0.05}deg)`;
     
-    if (timerState.interval) clearInterval(timerState.interval);
-    timerState.startTime = Date.now();
-    timerState.active = true;
-    timerState.phase = 'study';
-    if(timerState.mode === 'pomodoro') {
-        timerState.targetEndTime = Date.now() + (25 * 60 * 1000); 
+    if (fcCurrentX > 80) cardEl.style.boxShadow = "0 0 0 4px #16a34a, 0 10px 15px -3px rgba(0, 0, 0, 0.1)";
+    else if (fcCurrentX < -80) cardEl.style.boxShadow = "0 0 0 4px #dc2626, 0 10px 15px -3px rgba(0, 0, 0, 0.1)";
+    else cardEl.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)";
+}
+window.handleFcTouchEnd = function(e) {
+    const cardEl = document.getElementById('fc-play-card');
+    cardEl.style.transition = 'transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1)';
+    cardEl.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)";
+    
+    if (fcCurrentX > 100) {
+        window.showToast("Got it! Next card.");
+        nextFcCard();
+    } else if (fcCurrentX < -100) {
+        window.showToast("Need review! Next card.", "error");
+        nextFcCard();
+    } else {
+        cardEl.style.transform = `rotateY(${fcPlayFlipped ? 180 : 0}deg)`;
     }
+    fcCurrentX = 0;
+}
+
+window.flipFcCard = function() { 
+    fcPlayFlipped = !fcPlayFlipped; 
+    const cardEl = document.getElementById('fc-play-card');
+    cardEl.classList.toggle('flipped', fcPlayFlipped); 
+    cardEl.style.transform = `rotateY(${fcPlayFlipped ? 180 : 0}deg) translateX(0px) rotate(0deg)`;
+}
+window.showFcHint = function() { document.getElementById('fc-hint-text').textContent = fcPlayCards[fcPlayIndex]?.hint || ''; document.getElementById('fc-hint-text').classList.remove('hidden'); }
+window.nextFcCard = function() { if (fcPlayIndex < fcPlayCards.length - 1) { fcPlayIndex++; window.renderFcPlayCard(); } }
+window.prevFcCard = function() { if (fcPlayIndex > 0) { fcPlayIndex--; window.renderFcPlayCard(); } }
+
+window.buildFcQuizCategories = function() {
+  const categories = {};
+  flashcards.forEach(c => {
+      const sub = c.subject || 'Uncategorized'; const top = c.topic || 'General';
+      if (!categories[sub]) categories[sub] = new Set();
+      categories[sub].add(top);
+  });
+  const el = document.getElementById('fc-quiz-categories');
+  if (Object.keys(categories).length === 0) { el.innerHTML = '<p class="text-sm font-bold">No cards yet.</p>'; return; }
+  let html = '';
+  for (const sub in categories) {
+      html += `<div class="font-bold text-sm mb-2 mt-4">${esc(sub)}</div>`;
+      categories[sub].forEach(top => {
+          html += `<label class="flex items-center gap-2 bg-white rounded-lg px-3 py-2.5 shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition text-sm font-bold ml-2 mb-2"><input type="checkbox" value="${esc(sub)}:::${esc(top)}" checked class="quiz-cat accent-teal-primary w-4 h-4"> ${esc(top)}</label>`;
+      });
+  }
+  el.innerHTML = html;
+  document.getElementById('fc-quiz-setup').classList.remove('hidden');
+  document.getElementById('fc-quiz-area').classList.add('hidden');
+  document.getElementById('fc-quiz-results').classList.add('hidden');
+}
+
+window.startFcQuiz = function() {
+  const checked = [...document.querySelectorAll('#fc-quiz-setup .quiz-cat:checked')].map(c => c.value);
+  if (checked.length === 0) return window.showToast('Select at least one topic', 'error');
+  fcQuizCards = flashcards.filter(c => checked.includes(`${c.subject || 'Uncategorized'}:::${c.topic || 'General'}`));
+  if (fcQuizCards.length < 2) return window.showToast('Need at least 2 cards for a quiz', 'error');
+  shuffleArray(fcQuizCards);
+  fcQuizIndex = 0; fcQuizScore = 0; fcQuizAnswered = false;
+  document.getElementById('fc-quiz-setup').classList.add('hidden');
+  document.getElementById('fc-quiz-results').classList.add('hidden');
+  document.getElementById('fc-quiz-area').classList.remove('hidden');
+  window.renderFcQuizQuestion();
+}
+
+window.renderFcQuizQuestion = function() {
+  if (fcQuizIndex >= fcQuizCards.length) { 
+      document.getElementById('fc-quiz-area').classList.add('hidden');
+      document.getElementById('fc-quiz-results').classList.remove('hidden');
+      document.getElementById('fc-final-score').textContent = `${fcQuizScore} / ${fcQuizCards.length}`;
+      const pct = fcQuizScore / fcQuizCards.length;
+      document.getElementById('fc-final-message').textContent = pct === 1 ? 'Perfect score!' : (pct >= 0.7 ? 'Great job!' : 'Keep practicing!');
+      
+      if (pct === 1) {
+          const today = getHKDateString();
+          if (userProfile.lastPerfectQuizDate !== today) {
+              userProfile.lastPerfectQuizDate = today;
+              window.addXP(50, "Perfect Quiz Score!");
+          }
+      }
+      
+      return; 
+  }
+  fcQuizAnswered = false;
+  const card = fcQuizCards[fcQuizIndex];
+  
+  document.getElementById('fc-quiz-question').innerHTML = `${card.image ? `<img src="${esc(card.image)}" class="max-h-32 w-auto mx-auto object-contain mb-4 rounded-lg shadow-sm" onerror="this.style.display='none'">` : ''}<span>${esc(card.question)}</span>`;
+  document.getElementById('fc-quiz-score').textContent = `Score: ${fcQuizScore}/${fcQuizIndex}`;
+  document.getElementById('fc-quiz-progress-text').textContent = `${fcQuizIndex + 1}/${fcQuizCards.length}`;
+  document.getElementById('fc-quiz-progress-bar').style.width = `${((fcQuizIndex + 1) / fcQuizCards.length) * 100}%`;
+  document.getElementById('fc-quiz-feedback').classList.add('hidden');
+  document.getElementById('fc-quiz-next-btn').classList.add('hidden');
+  
+  let sameTopicPool = flashcards.filter(c => c.__backendId !== card.__backendId && c.subject === card.subject && c.topic === card.topic).map(c => c.answer);
+  let sameSubjectPool = flashcards.filter(c => c.__backendId !== card.__backendId && c.subject === card.subject && c.topic !== card.topic).map(c => c.answer);
+  let otherPool = flashcards.filter(c => c.__backendId !== card.__backendId && c.subject !== card.subject).map(c => c.answer);
+  sameTopicPool = [...new Set(sameTopicPool)]; sameSubjectPool = [...new Set(sameSubjectPool)]; otherPool = [...new Set(otherPool)];
+  shuffleArray(sameTopicPool); shuffleArray(sameSubjectPool); shuffleArray(otherPool);
+  
+  let wrongAnswers = [...sameTopicPool];
+  if (wrongAnswers.length < 3) wrongAnswers.push(...sameSubjectPool);
+  if (wrongAnswers.length < 3) wrongAnswers.push(...otherPool);
+  wrongAnswers = wrongAnswers.slice(0, 3);
+  
+  const options = [card.answer, ...wrongAnswers]; shuffleArray(options); currentFcQuizOptions = options;
+  
+  document.getElementById('fc-quiz-options').innerHTML = options.map((o, i) => `<button onclick="window.selectFcQuizAnswer(this, ${i})" class="w-full text-left px-5 py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition font-bold" style="background-color: #ffffff !important; color: #1f2937 !important;">${esc(o)}</button>`).join('');
+}
+
+window.selectFcQuizAnswer = function(btnEl, optionIndex) {
+  if (fcQuizAnswered) return;
+  fcQuizAnswered = true;
+  const isCorrect = currentFcQuizOptions[optionIndex] === fcQuizCards[fcQuizIndex].answer;
+  if (isCorrect) fcQuizScore++;
+  document.getElementById('fc-quiz-score').textContent = `Score: ${fcQuizScore}/${fcQuizIndex + 1}`;
+
+  const feedback = document.getElementById('fc-quiz-feedback');
+  feedback.classList.remove('hidden', 'bg-correct', 'bg-incorrect');
+  
+  if (isCorrect) {
+    feedback.classList.add('bg-correct'); feedback.innerHTML = '<span style="color: white !important;">Correct!</span>';
+    btnEl.classList.add('bg-correct', 'border-correct'); btnEl.classList.remove('hover:bg-gray-50', 'bg-white'); btnEl.style.color = "white"; 
+  } else {
+    feedback.classList.add('bg-incorrect'); feedback.innerHTML = `<span style="color: white !important;">Incorrect. The correct answer was: ${fcQuizCards[fcQuizIndex].answer}</span>`;
+    btnEl.classList.add('bg-incorrect', 'border-incorrect'); btnEl.classList.remove('hover:bg-gray-50', 'bg-white'); btnEl.style.color = "white"; 
+    const optionsContainer = document.getElementById('fc-quiz-options');
+    const correctIndex = currentFcQuizOptions.indexOf(fcQuizCards[fcQuizIndex].answer);
+    if (correctIndex > -1 && optionsContainer.children[correctIndex]) optionsContainer.children[correctIndex].classList.add('border-correct', 'border-2');
+  }
+  document.getElementById('fc-quiz-next-btn').classList.remove('hidden');
+}
+window.nextFcQuizQuestion = function() { fcQuizIndex++; window.renderFcQuizQuestion(); }
+
+// Flashcard Community Sharing
+window.promptShareDeck = function() {
+    const topics = [...new Set(flashcards.map(c => c.topic).filter(Boolean))];
+    if(topics.length === 0) return window.showToast("You have no topics to share.", "error");
     
-    const btn = document.getElementById('global-timer-btn');
-    btn.classList.add('timer-active');
-    document.getElementById('global-timer-icon').setAttribute('data-lucide', 'square');
-    
-    const mobBtn = document.getElementById('mobile-timer-btn');
-    if(mobBtn) {
-        mobBtn.classList.add('timer-active');
-        document.getElementById('mobile-timer-icon').setAttribute('data-lucide', 'square');
-    }
-    
+    requestInput("Enter the exact Topic name you want to share:", topics[0], async (topic) => {
+        if(!topic) return;
+        const deckCards = flashcards.filter(c => c.topic.toLowerCase() === topic.toLowerCase());
+        if(!deckCards.length) return window.showToast("Topic not found.", "error");
+        
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_shared_decks'), {
+                topic: deckCards[0].topic,
+                subject: deckCards[0].subject || 'Mixed',
+                author: currentUserName,
+                cards: deckCards,
+                timestamp: Date.now()
+            });
+            window.showToast("Deck successfully published to Community!");
+        } catch(e) {
+            console.error(e);
+            window.showToast("Error publishing deck. Check rules.", "error");
+        }
+    });
+}
+
+window.loadCommunityDecks = async function() {
+    const listEl = document.getElementById('fc-community-list');
+    listEl.innerHTML = `<div class="col-span-2 text-center py-8"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-gray-400"></i></div>`;
     lucide.createIcons();
     
-    timerState.interval = setInterval(updateTimerDisplay, 1000);
-    closeTimerModal();
-    window.showToast(timerState.mode === 'pomodoro' ? "Pomodoro Started! 25 mins on the clock." : "Study Session Started!");
-    updateTimerDisplay();
-
-    if (authUser) {
-        updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser), {
-            currentlyStudying: { active: true, subject: timerState.subject, isPomodoro: timerState.mode === 'pomodoro' }
-        }).catch(()=>{});
-    }
-}
-
-function updateTimerDisplay() {
-    if(!timerState.active) return;
-    
-    if (timerState.mode === 'stopwatch') {
-        const diff = Math.floor((Date.now() - timerState.startTime) / 1000);
-        const h = Math.floor(diff / 3600).toString().padStart(2, '0');
-        const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
-        const s = (diff % 60).toString().padStart(2, '0');
-        document.getElementById('global-timer-text').textContent = `${h}:${m}:${s}`;
-    } else {
-        const remainingMs = timerState.targetEndTime - Date.now();
-        timerState.timeLeft = Math.ceil(remainingMs / 1000);
-        
-        if (timerState.timeLeft <= 0) {
-            new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3').play().catch(()=>{});
+    try {
+        const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_shared_decks'), orderBy('timestamp', 'desc'), limit(20));
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async (module) => {
+            const getDocs = module.getDocs;
+            const res = await getDocs(q);
+            sharedDecks = res.docs.map(doc => ({id: doc.id, ...doc.data()}));
             
-            if (timerState.phase === 'study') {
-                logTime(25 / 60); 
-                window.addXP(25, "Pomodoro Completed!");
-                window.showToast("Pomodoro complete! Time for a 5 min break ☕.", "success");
-                timerState.phase = 'break';
-                timerState.targetEndTime = Date.now() + (5 * 60 * 1000); 
-            } else {
-                window.showToast("Break over! Ready to study?", "success");
-                stopGlobalTimer(true, false); 
+            if (sharedDecks.length === 0) {
+                listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-gray-500 font-bold">No community decks found. Be the first to share one!</div>`;
                 return;
             }
-        }
-        const displayTime = Math.max(0, timerState.timeLeft);
-        const m = Math.floor(displayTime / 60).toString().padStart(2, '0');
-        const s = (displayTime % 60).toString().padStart(2, '0');
-        document.getElementById('global-timer-text').textContent = `${timerState.phase === 'study' ? '🍅' : '☕'} ${m}:${s}`;
-    }
-}
-
-function logTime(elapsedHrs) {
-    if (timerState.logId) {
-        const log = studyLogs.find(l => l.id === timerState.logId);
-        if(log) log.actual = Math.round((log.actual + elapsedHrs)*100)/100;
-    } else {
-        const today = getHKDateString();
-        studyLogs.unshift({
-            id: Date.now() + Math.random(),
-            date: today,
-            subject: timerState.subject,
-            chapters: timerState.chapters,
-            target: 0,
-            actual: Math.round(elapsedHrs*100)/100
+            
+            listEl.innerHTML = sharedDecks.map(deck => `
+                <div class="border border-gray-200 bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-lg text-teal-primary truncate">${esc(deck.topic)}</h4>
+                        <span class="text-[10px] bg-gray-100 px-2 py-1 rounded-full font-bold text-gray-500">${deck.cards?.length || 0} cards</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">By <span class="font-bold text-gray-700">${esc(deck.author)}</span></p>
+                    <button onclick="downloadDeck('${deck.id}')" class="w-full bg-teal-50 text-teal-700 hover:bg-teal-100 font-bold py-2 rounded-lg text-sm transition flex items-center justify-center gap-1"><i data-lucide="download" class="w-4 h-4"></i> Download</button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }).catch(e => {
+            console.log(e);
+            listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-red-500 font-bold">Error loading community decks. (Rules issue?)</div>`;
         });
-        timerState.logId = studyLogs[0].id; 
+
+    } catch(e) {
+        console.error(e);
+        listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-red-500 font-bold">Error loading community decks. (Rules issue?)</div>`;
     }
-    updateStreak();
+}
+
+window.downloadDeck = function(deckId) {
+    const deck = sharedDecks.find(d => d.id === deckId);
+    if(!deck || !deck.cards) return;
+    
+    const newCards = deck.cards.map(c => ({...c, __backendId: crypto.randomUUID()}));
+    flashcards = [...flashcards, ...newCards];
     saveData();
-    if (!document.getElementById('view-study').classList.contains('hidden')) renderSubjects();
-    if (!document.getElementById('view-home').classList.contains('hidden')) { renderHome(); renderCommunityGoal(); }
+    window.showToast(`Downloaded ${newCards.length} cards from ${deck.topic}!`);
 }
 
-window.stopGlobalTimer = function(skipLogging = false, skipCloudSync = false) {
-    if(!timerState.active) return;
-    clearInterval(timerState.interval);
-    
-    if (!skipLogging && timerState.mode === 'stopwatch') {
-        const diffMs = Date.now() - timerState.startTime;
-        const elapsedHrs = diffMs / (1000 * 60 * 60); 
-        logTime(elapsedHrs);
-        let earnedXP = Math.floor(elapsedHrs * 50);
-        if(earnedXP > 0) window.addXP(earnedXP, "Study Session");
-        window.showToast(`Session ended! Logged ${elapsedHrs.toFixed(2)} hours.`);
-    } else if (!skipLogging && timerState.mode === 'pomodoro' && timerState.phase === 'study') {
-        const elapsedSecs = Math.max(0, (25 * 60) - timerState.timeLeft);
-        const elapsedHrs = elapsedSecs / 3600;
-        logTime(elapsedHrs);
-        let earnedXP = Math.floor(elapsedHrs * 50);
-        if(earnedXP > 0) window.addXP(earnedXP, "Partial Pomodoro");
-        window.showToast(`Pomodoro interrupted! Logged ${elapsedHrs.toFixed(2)} hours.`);
-    }
-    
-    timerState.active = false;
-    timerState.startTime = null;
-    timerState.logId = null;
-    
-    const btn = document.getElementById('global-timer-btn');
-    btn.classList.remove('timer-active');
-    document.getElementById('global-timer-text').textContent = 'Start Study';
-    document.getElementById('global-timer-icon').setAttribute('data-lucide', 'play-circle');
-    
-    const mobBtn = document.getElementById('mobile-timer-btn');
-    if(mobBtn) {
-        mobBtn.classList.remove('timer-active');
-        document.getElementById('mobile-timer-icon').setAttribute('data-lucide', 'play-circle');
-    }
-    
-    lucide.createIcons();
-
-    if (!skipCloudSync && authUser) {
-        updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser), {
-            currentlyStudying: { active: false }
-        }).catch(()=>{});
-    }
-}
-
-
-// ─── MAIN TABS LOGIC ───
-window.switchTab = function(tabName) {
-  document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-  document.querySelectorAll('.nav-tab, .nav-tab-mobile').forEach(el => el.classList.remove('active'));
-  document.getElementById(`view-${tabName}`).classList.remove('hidden');
-  
-  const desktopTab = document.getElementById(`tab-${tabName}`);
-  if (desktopTab) desktopTab.classList.add('active');
-  const mobileTab = document.getElementById(`mob-tab-${tabName}`);
-  if (mobileTab) mobileTab.classList.add('active');
-
-  if(tabName === 'home') renderHome();
-  if(tabName === 'assignments') renderAssignments();
-  if(tabName === 'habits') renderHabits();
-  if(tabName === 'study') renderSubjects();
-  if(tabName === 'notes') renderNotes();
-  if(tabName === 'flashcards') { window.switchFcMode('edit'); updateFcFilters(); }
-  if(tabName === 'qa') { renderQA(); }
-  if(tabName === 'chat') { renderChat(); }
-  if(tabName === 'profile') {
-      const myStickers = userProfile.stickers || [];
-      const sDiv = document.getElementById('prof-my-stickers');
-      if(myStickers.length === 0) sDiv.innerHTML = '<span class="text-xs text-gray-400">No badges yet. Earn them from the community!</span>';
-      else {
-          sDiv.innerHTML = myStickers.map((s, i) => `
-              <button onclick="equipBadge(${i})" class="px-2 py-1 rounded-full text-xs font-bold border ${userProfile.equippedBadge === s.icon + ' ' + s.name ? 'bg-teal-100 border-teal-300 text-teal-800' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'} transition shadow-sm">
-                  ${s.icon} ${esc(s.name)}
-              </button>
-          `).join('');
-      }
-  }
-}
-
-// ─── GLOBAL MUSIC PLAYER ───
-window.toggleMusicPanel = function() {
-  const p = document.getElementById('music-panel');
-  p.classList.toggle('hidden');
-  if (!p.classList.contains('hidden') && document.getElementById('music-genres').innerHTML === '') {
-    document.getElementById('music-genres').innerHTML = genres.map(g => `<button onclick="window.setGenre('${g.id}')" id="genre-${g.id}" class="music-btn px-2 py-1.5 rounded text-xs font-bold border border-gray-200 bg-white hover:bg-gray-50" style="color: #1f2937 !important; ${g.id === currentGenre ? 'border-color: #004b55; background-color: rgba(0,75,85,.1) !important;' : ''}">${g.label}</button>`).join('');
-  }
-}
-window.switchMusicType = function(type) {
-    ['ambient', 'online', 'upload'].forEach(t => {
-        document.getElementById(`mtab-${t}`).classList.remove('border-teal-primary', 'text-teal-primary');
-        document.getElementById(`mtab-${t}`).classList.add('border-transparent', 'text-gray-500');
-        document.getElementById(`mview-${t}`).classList.add('hidden');
-    });
-    document.getElementById(`mtab-${type}`).classList.add('border-teal-primary', 'text-teal-primary');
-    document.getElementById(`mtab-${type}`).classList.remove('border-transparent', 'text-gray-500');
-    document.getElementById(`mview-${type}`).classList.remove('hidden');
-
-    if(type === 'online') loadOnlineRadio();
-}
-
-window.loadOnlineRadio = function() {
-    if(musicPlaying) stopMusic();
-    const vidId = document.getElementById('online-radio-select').value;
-    document.getElementById('youtube-container').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vidId}" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>`;
-    document.getElementById('music-controls').style.display = 'none'; 
-}
-
-window.loadCustomYT = function() {
-    const link = document.getElementById('custom-yt-link').value.trim();
-    if(!link) return;
-    let vidId = null;
-    try {
-        if (link.includes('youtu.be/')) {
-            vidId = link.split('youtu.be/')[1].split('?')[0];
-        } else if (link.includes('youtube.com/watch')) {
-            const urlParams = new URLSearchParams(new URL(link).search);
-            vidId = urlParams.get('v');
-        } else {
-            vidId = link; 
+// ─── Q&A LOGIC ───
+window.promptNewQuestion = function() {
+    requestInput("What is your question?", "", async (title) => {
+        if(title) {
+            requestInput("Add details or context (optional):", "", async (detail) => {
+                try {
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection}) => {
+                         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
+                             title: title.trim(),
+                             detail: detail ? detail.trim() : '',
+                             uid: currentUser,
+                             username: currentUserName,
+                             avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                             timestamp: Date.now(),
+                             replies: [],
+                             resolved: false
+                         });
+                         window.showToast("Question posted!");
+                    });
+                } catch(e) { console.error(e); window.showToast("Error posting.", "error"); }
+            });
         }
-    } catch(e) {}
-    
-    if(vidId) {
-        if(musicPlaying) stopMusic();
-        document.getElementById('youtube-container').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vidId}" title="YouTube video player" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>`;
-        document.getElementById('music-controls').style.display = 'none'; 
-    } else {
-        window.showToast("Invalid YouTube link", "error");
+    });
+}
+
+window.addQAReply = function(qaId) {
+    requestInput("Your reply/answer:", "", async (text) => {
+        if(text) {
+            try {
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion}) => {
+                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId);
+                     const replyObj = {
+                         uid: currentUser,
+                         text: text.trim(),
+                         username: currentUserName,
+                         avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                         timestamp: Date.now()
+                     };
+                     await updateDoc(docRef, { replies: arrayUnion(replyObj) });
+                     window.showToast("Reply added!");
+                });
+            } catch(e) { console.error(e); window.showToast("Error replying.", "error"); }
+        }
+    });
+}
+
+window.awardBestAnswer = async function(qaId, replyUid, replyUsername) {
+    try {
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion, increment}) => {
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', replyUid);
+            const newSticker = { senderName: currentUserName, name: "Best Answer", icon: "💡", timestamp: Date.now() };
+            await updateDoc(docRef, {
+                'profile.stickers': arrayUnion(newSticker),
+                'profile.xp': increment(50)
+            });
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId), { resolved: true });
+            window.showToast(`Awarded Best Answer to ${replyUsername}!`);
+        });
+    } catch(e) {
+        console.error(e);
+        window.showToast("Error awarding best answer.", "error");
     }
 }
 
-window.setGenre = function(id) {
-  isCustomAudio = false; currentGenre = id;
-  document.getElementById('music-controls').style.display = 'flex';
-  document.getElementById('youtube-container').innerHTML = ''; 
-  document.querySelectorAll('.music-btn').forEach(b => { b.style.borderColor = ""; b.style.backgroundColor = "#ffffff"; });
-  const activeBtn = document.getElementById(`genre-${id}`);
-  if (activeBtn) { activeBtn.style.borderColor = "#004b55"; activeBtn.style.backgroundColor = "rgba(0,75,85,.1)"; }
-  if (musicPlaying) { stopMusic(); startMusic(); }
+function renderQA() {
+    const list = document.getElementById('qa-list');
+    if(!list) return;
+    
+    if(qaPosts.length === 0) {
+        list.innerHTML = `<div class="text-center p-10 text-gray-400 font-bold">No questions yet. Ask something!</div>`;
+        return;
+    }
+    
+    list.innerHTML = qaPosts.map(qa => {
+        const timeStr = new Date(qa.timestamp).toLocaleDateString() + ' ' + new Date(qa.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        return `
+        <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition">
+            <div class="flex items-start gap-3 mb-3">
+                <img src="${esc(qa.avatar)}" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer" onclick="showPublicProfile('${esc(qa.uid)}')">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold text-sm text-gray-800">${esc(qa.username)}</span>
+                        <span class="text-[10px] text-gray-400">${timeStr}</span>
+                        ${qa.resolved ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold border border-green-200 ml-auto">✅ Resolved</span>' : ''}
+                    </div>
+                    <h4 class="font-bold text-lg leading-tight mb-1 text-teal-primary">${esc(qa.title)}</h4>
+                    ${qa.detail ? `<p class="text-sm text-gray-600 mb-2">${esc(qa.detail)}</p>` : ''}
+                </div>
+            </div>
+            
+            <div class="pl-12 space-y-3 mt-4 border-t border-gray-100 pt-3">
+                ${(qa.replies || []).map(r => `
+                    <div class="flex items-start gap-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <img src="${esc(r.avatar)}" class="w-6 h-6 rounded-full object-cover cursor-pointer" onclick="showPublicProfile('${esc(r.uid)}')">
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-gray-700 mb-0.5">${esc(r.username)} <span class="text-[9px] text-gray-400 font-normal ml-1">${new Date(r.timestamp).toLocaleDateString()}</span></p>
+                            <p class="text-sm text-gray-800">${esc(r.text)}</p>
+                            ${(qa.uid === currentUser && !qa.resolved && r.uid !== currentUser) ? `<button onclick="awardBestAnswer('${qa.id}', '${r.uid}', '${esc(r.username)}')" class="text-[10px] text-yellow-700 bg-yellow-50 px-2 py-1 rounded shadow-sm border border-yellow-200 mt-2 font-bold hover:bg-yellow-100 transition">⭐ Award Best Answer</button>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+                <button onclick="addQAReply('${qa.id}')" class="text-xs font-bold text-teal-600 hover:text-teal-800 transition flex items-center gap-1 mt-2 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-100">
+                    <i data-lucide="message-circle" class="w-3 h-3"></i> Add Reply
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+    lucide.createIcons();
 }
 
-window.togglePlayPause = function() { if (musicPlaying) stopMusic(); else startMusic(); }
 
-function startMusic() {
-  musicPlaying = true;
-  document.getElementById('play-pause-icon').setAttribute('data-lucide', 'square');
-  lucide.createIcons();
-
-  if (isCustomAudio) {
-      document.getElementById('custom-audio-player').play();
-  } else {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      
-      const genre = genres.find(g => g.id === currentGenre);
-      gainNode = audioCtx.createGain(); gainNode.gain.value = musicVolume * 0.8; gainNode.connect(audioCtx.destination);
-
-      function playNote() {
-        if (!musicPlaying || isCustomAudio) return;
-        const osc = audioCtx.createOscillator(); osc.type = genre.type; 
-        osc.frequency.value = genre.notes[noteIndex % genre.notes.length]; noteIndex++;
-        
-        const env = audioCtx.createGain();
-        const now = audioCtx.currentTime;
-        env.gain.setValueAtTime(0, now); 
-        env.gain.linearRampToValueAtTime(1, now + 0.1); 
-        env.gain.linearRampToValueAtTime(0, now + (genre.speed / 1000));
-        
-        osc.connect(env); env.connect(gainNode); 
-        osc.start(now); osc.stop(now + (genre.speed / 1000));
-      }
-      if (musicInterval) clearInterval(musicInterval);
-      musicInterval = setInterval(playNote, genre.speed); playNote();
-  }
-}
-function stopMusic() {
-  musicPlaying = false; document.getElementById('play-pause-icon').setAttribute('data-lucide', 'play'); lucide.createIcons();
-  const player = document.getElementById('custom-audio-player'); if (player) player.pause();
-  if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
-  if (gainNode) { gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2); setTimeout(() => { if(gainNode) gainNode.disconnect(); gainNode = null; }, 200); }
-}
-window.setVolume = function(v) {
-  musicVolume = v / 100;
-  const player = document.getElementById('custom-audio-player'); if (player) player.volume = musicVolume;
-  if (gainNode) gainNode.gain.value = musicVolume * 0.8; 
-}
 </script>
  </body>
 </html>
