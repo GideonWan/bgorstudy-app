@@ -13,6 +13,19 @@
     html, body { min-height: 100vh; margin: 0; font-family: 'DM Sans', sans-serif; background-color: #f4f1ec !important; }
     * { box-sizing: border-box; }
     .font-display { font-family: 'Fraunces', serif; }
+/* Bottom Navigation Bar for Mobile */
+#bottom-nav { display: none; }
+@media (max-width: 768px) {
+    header .flex-wrap { display: none !important; } /* Hide top tabs */
+    #bottom-nav {
+        display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+        background: white; border-top: 1px solid #e5e7eb; z-index: 1000;
+        justify-content: space-around; padding: 0.5rem 0; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05);
+    }
+    #bottom-nav button { flex: 1; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; color: #6b7280; gap: 2px; }
+    #bottom-nav button.active { color: #004b55; font-weight: bold; }
+    #app-container { padding-bottom: 80px; } /* Prevent content clipping */
+}
     
     /* --- CSS OVERRIDE --- */
     body, #app-container, .modal-content { color: #1f2937 !important; }
@@ -63,6 +76,13 @@
   </script>
  </head>
  <body>
+ <div id="bottom-nav">
+    <button onclick="switchTab('home')"><i data-lucide="home" class="w-5 h-5"></i>Home</button>
+    <button onclick="switchTab('calendar')"><i data-lucide="calendar" class="w-5 h-5"></i>Calendar</button>
+    <button onclick="switchTab('study')"><i data-lucide="timer" class="w-5 h-5"></i>Study</button>
+    <button onclick="switchTab('chat')"><i data-lucide="message-square" class="w-5 h-5"></i>Chat</button>
+    <button onclick="switchTab('profile')"><i data-lucide="user" class="w-5 h-5"></i>Profile</button>
+</div>
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
@@ -87,6 +107,38 @@
          Continue with Google
         </button>
     </div>
+
+function addXP(amount) {
+    if (!userData) return;
+    let newXp = (userData.xp || 0) + amount;
+    let nextLevelBoundary = (userData.level || 1) * 1000; // 1000 XP per level
+    let newLevel = userData.level || 1;
+
+    if (newXp >= nextLevelBoundary) {
+        newLevel++;
+        newXp -= nextLevelBoundary;
+        showToast(`Level Up! You are now Level ${newLevel} 🎉`);
+    }
+    saveData({ xp: newXp, level: newLevel }, { merge: true });
+    updateProfileUI();
+}
+
+function updateStreak(didStudyHourOrHabit) {
+    const today = new Date().toISOString().split('T')[0];
+    let lastUpdate = userData.lastStreakUpdate || "";
+    let currentStreak = userData.streak || 0;
+
+    if (didStudyHourOrHabit && lastUpdate !== today) {
+        // If yesterday was missed, and last update wasn't today, reset to 1
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yStr = yesterday.toISOString().split('T')[0];
+        
+        currentStreak = (lastUpdate === yStr) ? currentStreak + 1 : 1;
+        saveData({ streak: currentStreak, lastStreakUpdate: today }, { merge: true });
+        showToast(`Streak 🔥 updated: ${currentStreak} days!`);
+    }
+}
 
     <!-- Active Session State -->
     <div id="login-active-state" class="hidden space-y-3">
@@ -408,6 +460,37 @@
         </div>
     </div>
     <!-- 5. Calendar -->
+<div id="view-calendar" class="view-section hidden flex-col gap-6">
+    <div class="flex justify-between items-center bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+        <div>
+            <h2 class="font-display text-2xl font-bold flex items-center gap-2">
+                <i data-lucide="calendar" class="w-6 h-6 text-teal-primary"></i> Calendar Hub
+            </h2>
+        </div>
+        <button onclick="exportToGoogleCalendar()" class="btn-teal px-4 py-2 rounded-xl text-sm font-bold shadow-md flex items-center gap-2">
+            <i data-lucide="download" class="w-4 h-4"></i> Export to .ics
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+            <div id="calendar-header" class="flex justify-between mb-4 font-bold text-lg"></div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
+        </div>
+        
+        <div class="flex flex-col gap-6">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+                <h3 class="font-bold mb-2">Study Heatmap</h3>
+                <div id="heatmap-grid" class="flex flex-wrap gap-1"></div>
+            </div>
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex-1">
+                <h3 class="font-bold mb-2" id="day-view-title">Day View</h3>
+                <div id="day-view-content" class="text-sm space-y-2 text-gray-600">Click a day to view past logs and future plans.</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ?. calendar -->
 <div id="view-calendar" class="view-section hidden flex-col gap-6">
     <div class="flex justify-between items-center bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
         <div>
@@ -1167,6 +1250,51 @@ async function saveData() {
         console.error(e);
         window.showToast("Failed to save changes", "error");
     }
+}
+
+// --- CALENDAR & HEATMAP LOGIC ---
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+
+function renderCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    grid.innerHTML = ''; // Clear previous
+    // Example: generate days (implement standard getDaysInMonth logic)
+    // For each day cell, add event listeners for Drag & Drop:
+    // cell.ondragover = (e) => e.preventDefault();
+    // cell.ondrop = (e) => handleEventDrop(e, dateString);
+    
+    // 1. Pull Assignments (Deadlines) -> Red Markers
+    // 2. Pull Study slots -> Blue Markers
+    // 3. Pull Custom Events -> Green Markers
+    generateHeatmap();
+}
+
+function handleEventDrop(e, newDate) {
+    const eventId = e.dataTransfer.getData('text/plain');
+    // Find event in userData.calendarEvents or userData.study
+    // Update date to newDate
+    saveData({ calendarEvents: userData.calendarEvents }, { merge: true });
+    renderCalendar();
+}
+
+function exportToGoogleCalendar() {
+    let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//bgorstudy//EN\n";
+    userData.calendarEvents.forEach(ev => {
+        icsContent += `BEGIN:VEVENT\nSUMMARY:${ev.title}\nDTSTART:${ev.date.replace(/-/g, '')}T090000Z\nEND:VEVENT\n`;
+    });
+    icsContent += "END:VCALENDAR";
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'bgorstudy.ics'; a.click();
+}
+
+function generateHeatmap() {
+    const container = document.getElementById('heatmap-grid');
+    container.innerHTML = '';
+    // Generate last 35 days blocks. Color mapping based on userData.studyLogs duration
+    // E.g., > 4 hrs: bg-teal-800, > 2 hrs: bg-teal-600, etc.
 }
 
 // ─── PROFILE LOGIC ───
