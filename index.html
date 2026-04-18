@@ -54,11 +54,9 @@
     .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; background-color: #ffffff; }
     .card-back { transform: rotateY(180deg); }
     
-    /* Timer Pulse */
+    /* Timer & Studying Pulse */
     @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     .timer-active { animation: pulse-red 2s infinite; background-color: #ef4444 !important; color: white !important; border-color: #ef4444 !important; }
-
-    /* Currently Studying Pulse */
     @keyframes pulse-green { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
     .studying-dot { animation: pulse-green 2s infinite; }
 
@@ -78,6 +76,7 @@
  </head>
  <body>
 
+  <!-- TOAST CONTAINER -->
   <div id="toast-container" class="fixed bottom-24 sm:bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- LOGIN VIEW -->
@@ -89,6 +88,7 @@
     <h1 class="font-display text-4xl font-bold mb-2">bgorstudy</h1>
     <p class="mb-8 font-medium text-sm text-gray-500">Log in to securely sync your progress to the cloud across all your devices.</p>
 
+    <!-- Standard Login Button -->
     <div id="login-standard-state">
         <button onclick="handleGoogleLogin(false)" id="btn-google-login" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -101,6 +101,7 @@
         </button>
     </div>
 
+    <!-- Active Session Switcher -->
     <div id="login-active-state" class="hidden space-y-3">
         <button onclick="proceedToApp()" id="btn-continue-active" class="w-full bg-teal-primary hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
             <img id="active-user-avatar" src="" class="w-6 h-6 rounded-full border border-teal-300">
@@ -116,7 +117,7 @@
   <!-- MAIN APP VIEW -->
   <div id="app-container" class="hidden max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       
-    <!-- HEADER & NAVIGATION -->
+    <!-- HEADER -->
     <header class="flex flex-col mb-4 sm:mb-8 pb-4 border-b border-gray-200">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
             <div class="flex justify-between w-full sm:w-auto items-center">
@@ -124,7 +125,7 @@
                     <h1 onclick="secretLogoClick()" class="cursor-pointer font-display text-3xl sm:text-4xl font-bold text-teal-primary tracking-tight" style="color: #004b55 !important;" title="Click me 5 times for a secret!">bgorstudy</h1>
                     <p class="text-sm font-bold text-gray-500 mt-1 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1 text-teal-700"></i><span id="current-date-display">Loading time...</span></p>
                 </div>
-                <!-- Mobile Only Timer Button -->
+                <!-- Mobile Timer Btn -->
                 <button onclick="toggleGlobalTimer()" class="sm:hidden p-2.5 bg-white border border-gray-200 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50 transition flex items-center justify-center" id="mobile-timer-btn">
                     <i data-lucide="play-circle" class="w-6 h-6 text-teal-600" id="mobile-timer-icon"></i>
                 </button>
@@ -182,7 +183,7 @@
         <button onclick="toggleMusicPanel()" class="nav-tab-mobile flex-shrink-0 flex flex-col items-center p-2 text-gray-400 transition-colors w-16"><i data-lucide="music" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Music</span></button>
     </div>
     
-    <!-- MUSIC PANEL (Global) -->
+    <!-- MUSIC PANEL -->
     <div id="music-panel" class="hidden fixed top-28 sm:top-28 bottom-24 sm:bottom-auto left-4 right-4 sm:left-auto sm:right-4 z-[100] rounded-xl shadow-2xl border border-gray-200 p-5 sm:w-80 bg-white">
         <div class="flex items-center justify-between mb-4">
             <span class="font-bold text-sm">Study Music Player</span> 
@@ -254,6 +255,7 @@
             </div>
         </div>
 
+        <!-- STATS -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center text-center gap-2">
                 <div class="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-700"><i data-lucide="file-text" class="w-4 h-4"></i></div>
@@ -304,7 +306,7 @@
             <i data-lucide="calendar-check" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
             <div>
                 <h4 class="font-bold text-blue-800 text-sm">Calendar & Analytics Hub</h4>
-                <p class="text-xs text-blue-700 mt-1">Export to Google Calendar, visually track your study streaks via the Heatmap, and drag-and-drop your planned study sessions across the calendar grid.</p>
+                <p class="text-xs text-blue-700 mt-1">Export to .ics, visually track your study intensity via the Heatmap, and drag-and-drop your planned study sessions across the calendar grid.</p>
             </div>
         </div>
 
@@ -389,7 +391,7 @@
                 </div>
             </div>
             
-            <!-- 4 Charts for Assignments -->
+            <!-- Charts -->
             <div class="space-y-6 lg:h-[700px] lg:overflow-y-auto pr-2 pb-10">
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
                     <h3 class="font-bold text-sm text-gray-500 mb-4 text-center uppercase tracking-wider">State of Assignment</h3>
