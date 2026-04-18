@@ -1164,6 +1164,102 @@ document.getElementById('input-modal-btn').addEventListener('click', () => {
     closeInputModal();
 });
 
+// ─── DEFAULT DATA ───
+const getFutureDate = (days) => {
+    const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"}));
+    d.setDate(d.getDate() + days);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+const defaultAssignments = [
+    { id: 1, title: 'Chinese UT', subject: 'Chinese', type: 'Test', date: getFutureDate(3), status: 'Not Started', priority: 'High' },
+    { id: 2, title: 'Math Past Paper', subject: 'Math', type: 'Homework', date: getFutureDate(1), status: 'In Progress', priority: 'Medium' },
+    { id: 3, title: 'English Essay', subject: 'English', type: 'Project', date: getFutureDate(5), status: 'Not Started', priority: 'High' }
+];
+const defaultHabits = [
+    { id: 1, name: 'Math 20 min', done: false, icon: 'calculator', history: Array(30).fill(false) },
+    { id: 2, name: 'Read 10 pages', done: false, icon: 'book', history: Array(30).fill(false) },
+    { id: 3, name: 'Drink Water', done: false, icon: 'droplet', history: Array(30).fill(false) }
+];
+const defaultSubjects = [
+    { id: 'sub1', name: 'Chinese', color: '#ef4444' },     
+    { id: 'sub2', name: 'English', color: '#3b82f6' },     
+    { id: 'sub3', name: 'Math', color: '#6366f1' },
+    { id: 'sub4', name: 'M2', color: '#a855f7' },
+    { id: 'sub5', name: 'Physics', color: '#f97316' },
+    { id: 'sub6', name: 'Chemistry', color: '#10b981' },
+    { id: 'sub7', name: 'Biology', color: '#22c55e' }
+];
+const defaultStudyLogs = [];
+const defaultNotes = [
+    { id: 'n1', subject: 'Biology', chapter: 'Ch 1: Cells', link: '', status: 'Not yet started', revCount: 0 },
+    { id: 'n2', subject: 'Chemistry', chapter: 'Ch 3: Metals', link: '', status: 'Notes done', revCount: 0 }
+];
+
+const defaultFlashcards = [
+    { __backendId: 'fc1', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「完璧歸趙」中，藺相如如何威脅秦王以保住和氏璧？', answer: '他拿著和氏璧倚著柱子，威脅如果秦王強奪，他就會把自己的頭和玉璧一起撞碎在柱子上。' },
+    { __backendId: 'fc2', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「澠池之會」中，藺相如為何逼秦王擊缻？', answer: '為了報復秦王要趙王鼓瑟的侮辱，維護趙國的尊嚴，顯示兩國地位平等。' },
+    { __backendId: 'fc3', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「負荊請罪」的原因是什麼？', answer: '廉頗意識到自己心胸狹隘，而藺相如以國家利益為重（先國家之急而後私讎），因此感到慚愧並認錯。' },
+    { __backendId: 'fc4', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '藺相如的性格特徵是什麼？（寫出兩個）', answer: '1. 智勇雙全（有勇有謀） 2. 以國為重（公而忘私/顧全大局）' },
+    { __backendId: 'fc5', subject: 'Chinese', topic: '文言知識', question: '解釋文言詞彙「徒」在「徒見欺」中的意思。', answer: '白白地 / 徒然' },
+    { __backendId: 'fc6', subject: 'English', topic: 'Text Types', question: 'What is the main difference between an Editorial and a Letter to the Editor?', answer: 'An Editorial represents the official opinion of the newspaper\'s editors/board, while a Letter to the Editor is the opinion of a reader/public citizen.', hint: 'Who writes it?' },
+    { __backendId: 'fc7', subject: 'English', topic: 'Text Types', question: 'What are 3 typical components/features of a Feature Article?', answer: '1. Catchy headline/title 2. Engaging hook/introduction 3. Quotes or interviews from experts/people involved.' },
+    { __backendId: 'fc8', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'ubiquitous\'?', answer: 'Present, appearing, or found everywhere.', hint: 'Synonym: everywhere' },
+    { __backendId: 'fc9', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'pragmatic\'?', answer: 'Dealing with things sensibly and realistically in a way that is based on practical rather than theoretical considerations.', hint: 'Synonym: practical' },
+    { __backendId: 'fc10', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'detrimental\'?', answer: 'Tending to cause harm; damaging.', hint: 'Synonym: harmful' }
+];
+
+// ─── STATE ───
+let authUser = null;
+let currentUser = null; 
+let currentUserName = ''; 
+let userProfile = { avatar: '', bio: '' };
+let assignments = [];
+let habits = [];
+let subjects = [];
+let notes = [];
+let studyLogs = [];
+let flashcards = [];
+let unsubscribeData = null;
+let unsubscribeLeaderboard = null;
+let allUsersData = [];
+
+// Chat State
+let chatMessages = [];
+let unsubscribeChat = null;
+
+// Flashcard State
+let editingFcCard = null;
+let fcPlayCards = [], fcPlayIndex = 0, fcPlayFlipped = false;
+let fcQuizCards = [], fcQuizIndex = 0, fcQuizScore = 0, fcQuizAnswered = false, currentFcQuizOptions = [];
+
+// Chart Variables
+let homeStatusChart, homeHoursChart, assStatusChart, assPriorityChart, assTypeChart, assSubjectChart, habitWeeklyChart, habitWeeklyPieChart, habitMonthlyPieChart;
+let currentNoteSubject = '';
+
+// Study Timer State
+let timerState = { active: false, startTime: null, interval: null, logId: null, subject: '', chapters: '' };
+
+// Music State
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let gainNode = null;
+let musicPlaying = false;
+let currentGenre = 'lofi'; 
+let isCustomAudio = false; 
+let musicVolume = 0.5;
+let musicInterval = null;
+let noteIndex = 0;
+
+const genres = [
+  { id: 'lofi', label: '🎵 Lo-fi', type: 'sine', notes: [261.6, 329.6, 392.0, 523.3], speed: 600 },
+  { id: 'ambient', label: '🌊 Ambient', type: 'triangle', notes: [220.0, 261.6, 329.6, 440.0], speed: 1000 },
+  { id: 'classical', label: '🎹 Classical', type: 'sine', notes: [392.0, 493.9, 587.3, 784.0], speed: 450 },
+  { id: 'nature', label: '🌿 Nature', type: 'sine', notes: [329.6, 392.0, 440.0, 523.3], speed: 800 }
+];
+
+let confirmCallback = null;
+let inputCallback = null;
 
 // ─── INIT & EVENT LISTENERS ───
 document.addEventListener('DOMContentLoaded', () => {
