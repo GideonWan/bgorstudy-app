@@ -964,17 +964,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, orderBy, limit, addDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyArvSV-RkzHFSIh6h5byPR4arQnpM1-IQE",
   authDomain: "bgorstudy-app-bdad6.firebaseapp.com",
-  projectId: "bgorstudy-app-bdad6"
+  projectId: "bgorstudy-app-bdad6",
+  storageBucket: "bgorstudy-app-bdad6.firebasestorage.app",
+  messagingSenderId: "686769076395",
+  appId: "1:686769076395:web:809330d9dfda90593b9fee"
 };
-const appId = "bgorstudy"; 
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
 // ─── STATE ───
 let authUser = null;
 let currentUser = null; 
