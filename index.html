@@ -975,11 +975,12 @@ const firebaseConfig = {
   authDomain: "bgorstudy-app-bdad6.firebaseapp.com",
   projectId: "bgorstudy-app-bdad6"
 };
-const appId = "bgorstudy"; 
+const appId = "bgorstudy-default"; 
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 
 // ─── STATE ───
 let authUser = null;
