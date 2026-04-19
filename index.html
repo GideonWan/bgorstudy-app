@@ -83,7 +83,7 @@
 
     <!-- Standard Login Button -->
     <div id="login-standard-state">
-        <button onclick="handleGoogleLogin()" id="btn-google-login" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
+        <button onclick="handleGoogleLogin(false)" id="btn-google-login" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 active:scale-95">
          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -1120,103 +1120,87 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ─── GOOGLE AUTH LOGIC ───
-setPersistence(auth, browserLocalPersistence).catch((err) => console.log(err));
-
 window.handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' }); 
+    
     const btn = document.getElementById('btn-google-login');
     const origHtml = btn.innerHTML;
     btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Loading...`;
     lucide.createIcons();
     
     try {
-        sessionStorage.setItem('active_session', 'true');
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' }); 
         await signInWithPopup(auth, provider);
     } catch (error) {
-        console.error("Login Error Details:", error);
+        console.error(error);
         if (error.code !== 'auth/popup-closed-by-user') {
-            try {
-                window.showToast("Google Sign-In failed. Try allowing popups.", "error");
-            } catch(e) {
-                alert("Google Sign-In failed: " + error.message);
-            }
+            window.showToast("Google Sign-In cancelled or failed.", "error");
         }
         btn.innerHTML = origHtml;
         lucide.createIcons();
     }
 };
 
-async function handleUserAuthenticated(user) {
-    currentUser = user.uid; 
-    currentUserName = user.displayName || 'Student';
-
-    document.getElementById('login-view').classList.add('hidden');
-    document.getElementById('app-container').classList.remove('hidden');
-    document.getElementById('header-user-badge').classList.remove('hidden');
-    
-    try {
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser);
-        const docSnap = await getDoc(docRef);
-        
-        if (!docSnap.exists()) {
-            const newData = {
-                username: currentUserName,
-                profile: { avatar: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`, bio: 'A dedicated student.', stickers: [], xp: 0, level: 1, equippedBadge: '', activeDates: [] },
-                assignments: defaultAssignments,
-                habits: defaultHabits,
-                subjects: defaultSubjects,
-                studyLogs: defaultStudyLogs,
-                notes: defaultNotes,
-                flashcards: defaultFlashcards,
-                currentlyStudying: { active: false }
-            };
-            await setDoc(docRef, newData);
-            window.showToast("Cloud Profile Created!");
-        } else {
-            await setDoc(docRef, { 
-                username: currentUserName,
-                'profile.avatar': docSnap.data().profile?.avatar || user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`
-            }, { merge: true });
-            window.showToast(`Welcome back, ${currentUserName}!`);
-        }
-        
-        setupDataListener();
-        initChatListener();
-        initQAListener();
-        initGoalListener();
-        
-        if (unsubscribeLeaderboard) unsubscribeLeaderboard();
-        unsubscribeLeaderboard = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users'), (snapshot) => {
-            allUsersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            if (!document.getElementById('view-home').classList.contains('hidden')) renderUserComparison();
-        }, (err) => console.log("Silent error on public fetch", err));
-
-    } catch (e) {
-        console.error("Cloud connect error", e);
-        window.showToast("Error connecting to Cloud. Check Firebase rules.", "error");
-        setupDataListener(); // Fallback attempt
-    }
-}
-
 onAuthStateChanged(auth, async (user) => {
     authUser = user;
     if (user) {
-        sessionStorage.setItem('active_session', 'true');
-        await handleUserAuthenticated(user);
+        currentUser = user.uid; 
+        currentUserName = user.displayName || 'Student';
+
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('app-container').classList.remove('hidden');
+        document.getElementById('header-user-badge').textContent = currentUserName;
+        document.getElementById('header-user-badge').classList.remove('hidden');
+        
+        const profUser = document.getElementById('prof-username');
+        if (profUser) profUser.value = currentUserName;
+
+        try {
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser);
+            const docSnap = await getDoc(docRef);
+            
+            if (!docSnap.exists()) {
+                const newData = {
+                    username: currentUserName,
+                    profile: { avatar: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`, bio: 'A dedicated student.' },
+                    assignments: defaultAssignments,
+                    habits: defaultHabits,
+                    subjects: defaultSubjects,
+                    studyLogs: defaultStudyLogs,
+                    notes: defaultNotes,
+                    flashcards: defaultFlashcards
+                };
+                await setDoc(docRef, newData);
+                window.showToast("Cloud Profile Created!");
+            } else {
+                await setDoc(docRef, { 
+                    username: currentUserName,
+                    'profile.avatar': docSnap.data().profile?.avatar || user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`
+                }, { merge: true });
+                window.showToast(`Welcome back, ${currentUserName}!`);
+            }
+            
+            setupDataListener();
+            initChatListener();
+            
+            // Leaderboard Sync
+            if (unsubscribeLeaderboard) unsubscribeLeaderboard();
+            unsubscribeLeaderboard = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users'), (snapshot) => {
+                allUsersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (!document.getElementById('view-home').classList.contains('hidden')) renderUserComparison();
+            }, (err) => console.log("Silent error on public fetch", err));
+
+        } catch (e) {
+            console.error("Cloud connect error", e);
+            window.showToast("Error connecting to Cloud: " + e.message, "error");
+        }
     } else {
         currentUser = null;
-        sessionStorage.removeItem('active_session');
         if (unsubscribeData) { unsubscribeData(); unsubscribeData = null; }
         if (unsubscribeLeaderboard) { unsubscribeLeaderboard(); unsubscribeLeaderboard = null; }
         if (unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
-        if (unsubscribeQA) { unsubscribeQA(); unsubscribeQA = null; }
-        if (unsubscribeGoal) { unsubscribeGoal(); unsubscribeGoal = null; }
-        
         document.getElementById('login-view').classList.remove('hidden');
         document.getElementById('app-container').classList.add('hidden');
-        document.getElementById('login-standard-state').classList.remove('hidden');
-        document.getElementById('login-active-state').classList.add('hidden');
         
         const btn = document.getElementById('btn-google-login');
         if(btn) {
@@ -1226,14 +1210,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 window.signOutUser = () => {
-    if(timerState.active) stopGlobalTimer(false, true); 
-    if (authUser) {
-        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({doc, updateDoc}) => {
-             updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser), {
-                currentlyStudying: { active: false }
-             }).catch(()=>{});
-        });
-    }
+    if(timerState.active) stopGlobalTimer();
     signOut(auth);
 };
 
