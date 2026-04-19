@@ -179,7 +179,7 @@
         <button onclick="toggleMusicPanel()" class="nav-tab-mobile flex-shrink-0 flex flex-col items-center p-2 text-gray-400 transition-colors w-16"><i data-lucide="music" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Music</span></button>
     </div>
     
-    <!-- MUSIC PANEL (Global) -->
+    <!-- MUSIC PANEL -->
     <div id="music-panel" class="hidden fixed top-28 sm:top-28 bottom-24 sm:bottom-auto left-4 right-4 sm:left-auto sm:right-4 z-[100] rounded-xl shadow-2xl border border-gray-200 p-5 sm:w-80 bg-white">
         <div class="flex items-center justify-between mb-4">
             <span class="font-bold text-sm">Study Music Player</span> 
@@ -209,7 +209,7 @@
                 <input type="text" id="custom-yt-link" placeholder="Or paste YouTube link..." class="w-full border border-gray-200 rounded p-2 text-xs bg-gray-50 outline-none">
                 <button onclick="loadCustomYT()" class="bg-teal-primary text-white px-3 py-2 rounded text-xs font-bold shadow-sm">Play</button>
             </div>
-            <!-- Standard embed without autoplay=1 to fix mobile issue -->
+            <!-- Removed autoplay=1 so mobile doesn't block it -->
             <div id="youtube-container" class="w-full rounded overflow-hidden shadow-sm border border-gray-200 relative pb-[56.25%] h-0"></div>
         </div>
 
@@ -863,14 +863,14 @@
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, query, orderBy, limit, addDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, orderBy, limit, addDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyArvSV-RkzHFSIh6h5byPR4arQnpM1-IQE",
   authDomain: "bgorstudy-app-bdad6.firebaseapp.com",
   projectId: "bgorstudy-app-bdad6"
 };
-const appId = "bgorstudy"; 
+const appId = "bgorstudy-default"; 
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -948,17 +948,17 @@ const defaultHabits = [
 ];
 
 const defaultSubjects = [
-    { id: 'sub1', name: 'Chinese', color: '#ef4444' },     
-    { id: 'sub2', name: 'English', color: '#3b82f6' },     
-    { id: 'sub3', name: 'Math', color: '#6366f1' },
-    { id: 'sub4', name: 'M2', color: '#a855f7' },
-    { id: 'sub5', name: 'Physics', color: '#f97316' },
-    { id: 'sub6', name: 'Chemistry', color: '#10b981' },
-    { id: 'sub7', name: 'Biology', color: '#22c55e' }
+    { id: 'sub1', name: 'Chinese', color: '#ef4444', target: 5 },     
+    { id: 'sub2', name: 'English', color: '#3b82f6', target: 5 },     
+    { id: 'sub3', name: 'Math', color: '#6366f1', target: 6 },
+    { id: 'sub4', name: 'Biology', color: '#22c55e', target: 4 },
+    { id: 'sub5', name: 'Chemistry', color: '#10b981', target: 4 }
 ];
+
 const defaultStudyLogs = [];
+
 const defaultNotes = [
-    { id: 'n1', subject: 'Biology', chapter: 'Ch 1: Cells', link: '', status: 'Not yet started', revCount: 0 },
+    { id: 'n1', subject: 'Biology', chapter: 'Ch 14: Reproduction in Humans', link: '', status: 'Not yet started', revCount: 0 },
     { id: 'n2', subject: 'Chemistry', chapter: 'Ch 3: Metals', link: '', status: 'Notes done', revCount: 0 }
 ];
 
@@ -966,13 +966,10 @@ const defaultFlashcards = [
     { __backendId: 'fc1', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「完璧歸趙」中，藺相如如何威脅秦王以保住和氏璧？', answer: '他拿著和氏璧倚著柱子，威脅如果秦王強奪，他就會把自己的頭和玉璧一起撞碎在柱子上。' },
     { __backendId: 'fc2', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「澠池之會」中，藺相如為何逼秦王擊缻？', answer: '為了報復秦王要趙王鼓瑟的侮辱，維護趙國的尊嚴，顯示兩國地位平等。' },
     { __backendId: 'fc3', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「負荊請罪」的原因是什麼？', answer: '廉頗意識到自己心胸狹隘，而藺相如以國家利益為重（先國家之急而後私讎），因此感到慚愧並認錯。' },
-    { __backendId: 'fc4', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '藺相如的性格特徵是什麼？（寫出兩個）', answer: '1. 智勇雙全（有勇有謀） 2. 以國為重（公而忘私/顧全大局）' },
-    { __backendId: 'fc5', subject: 'Chinese', topic: '文言知識', question: '解釋文言詞彙「徒」在「徒見欺」中的意思。', answer: '白白地 / 徒然' },
-    { __backendId: 'fc6', subject: 'English', topic: 'Text Types', question: 'What is the main difference between an Editorial and a Letter to the Editor?', answer: 'An Editorial represents the official opinion of the newspaper\'s editors/board, while a Letter to the Editor is the opinion of a reader/public citizen.', hint: 'Who writes it?' },
-    { __backendId: 'fc7', subject: 'English', topic: 'Text Types', question: 'What are 3 typical components/features of a Feature Article?', answer: '1. Catchy headline/title 2. Engaging hook/introduction 3. Quotes or interviews from experts/people involved.' },
-    { __backendId: 'fc8', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'ubiquitous\'?', answer: 'Present, appearing, or found everywhere.', hint: 'Synonym: everywhere' },
-    { __backendId: 'fc9', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'pragmatic\'?', answer: 'Dealing with things sensibly and realistically in a way that is based on practical rather than theoretical considerations.', hint: 'Synonym: practical' },
-    { __backendId: 'fc10', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'detrimental\'?', answer: 'Tending to cause harm; damaging.', hint: 'Synonym: harmful' }
+    { __backendId: 'fc4', subject: 'Chinese', topic: '文言知識', question: '解釋文言詞彙「徒」在「徒見欺」中的意思。', answer: '白白地 / 徒然' },
+    { __backendId: 'fc5', subject: 'English', topic: 'Text Types', question: 'What is the main difference between an Editorial and a Letter to the Editor?', answer: 'An Editorial represents the official opinion of the newspaper\'s editors/board, while a Letter to the Editor is the opinion of a reader/public citizen.', hint: 'Who writes it?' },
+    { __backendId: 'fc6', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'ubiquitous\'?', answer: 'Present, appearing, or found everywhere.', hint: 'Synonym: everywhere' },
+    { __backendId: 'fc7', subject: 'Biology', topic: 'Reproduction', question: 'How do combined contraceptive pills biologically prevent pregnancy?', answer: 'They are made of synthetic estrogen and progesterone. They primarily work by inhibiting ovulation.' }
 ];
 
 // ─── UTILITIES ───
@@ -1153,13 +1150,13 @@ window.handleGoogleLogin = async (forceSwitch = false) => {
     }
 };
 
+// Extremely robust function to handle the entire login sequence
 async function handleUserAuthenticated(user) {
     currentUser = user.uid; 
     currentUserName = user.displayName || 'Student';
 
     document.getElementById('login-view').classList.add('hidden');
     document.getElementById('app-container').classList.remove('hidden');
-    document.getElementById('header-user-name-display').textContent = currentUserName;
     document.getElementById('header-user-badge').classList.remove('hidden');
     
     try {
@@ -1201,7 +1198,8 @@ async function handleUserAuthenticated(user) {
 
     } catch (e) {
         console.error("Cloud connect error", e);
-        window.showToast("Error connecting to Cloud: " + e.message, "error");
+        window.showToast("Error connecting to Cloud. Check Firebase rules.", "error");
+        setupDataListener(); // Fallback attempt
     }
 }
 
@@ -1278,12 +1276,23 @@ function setupDataListener() {
             document.getElementById('prof-avatar-preview').src = userProfile.avatar || '';
             document.getElementById('prof-avatar-url').value = userProfile.avatar || '';
             document.getElementById('prof-bio').value = userProfile.bio || '';
-            document.getElementById('header-level-badge').textContent = `Lvl ${userProfile.level || 1}`;
-            document.getElementById('header-level-badge').classList.remove('hidden');
             
-            // Streak render
-            const streak = calculateStreak(userProfile.activeDates || []);
-            document.getElementById('header-streak-badge').textContent = `${streak} 🔥`;
+            // Clean UI updates for the header badge so it doesn't get destroyed
+            const nameDisplay = document.getElementById('header-user-name-display');
+            if (nameDisplay) nameDisplay.textContent = 'Profile';
+            
+            const levelBadge = document.getElementById('header-level-badge');
+            if (levelBadge) {
+                levelBadge.textContent = `Lvl ${userProfile.level || 1}`;
+                levelBadge.classList.remove('hidden');
+            }
+            
+            const streakBadge = document.getElementById('header-streak-badge');
+            if (streakBadge) {
+                const streak = calculateStreak(userProfile.activeDates || []);
+                streakBadge.textContent = `${streak} 🔥`;
+                streakBadge.classList.remove('hidden');
+            }
             
             const subNames = [...new Set(notes.map(n => n.subject))];
             if(subNames.length > 0 && !currentNoteSubject) currentNoteSubject = subNames[0];
@@ -1470,6 +1479,63 @@ function renderCommunityGoal() {
     lucide.createIcons();
 }
 
+function renderUserComparison() {
+    let usersData = [];
+    const today = getHKDateString();
+    const currentMonth = today.substring(0, 7); 
+
+    allUsersData.forEach(docData => {
+        const uid = docData.id;
+        const name = docData.username || 'Student';
+        const logs = docData.studyLogs || [];
+        const dailyHrs = logs.filter(l => l.date === today).reduce((sum, l) => sum + (l.actual || 0), 0);
+        const monthlyHrs = logs.filter(l => l.date && l.date.startsWith(currentMonth)).reduce((sum, l) => sum + (l.actual || 0), 0);
+        const habitsDone = (docData.habits || []).filter(h => h.done).length;
+        const streak = calculateStreak(docData.profile?.activeDates || []);
+        const avatar = docData.profile?.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${uid}`;
+        const currentlyStudying = docData.currentlyStudying || { active: false };
+        const level = docData.profile?.level || 1;
+        
+        usersData.push({ uid, username: name, dailyHrs, monthlyHrs, habitsDone, streak, avatar, currentlyStudying, level });
+    });
+    
+    usersData.sort((a,b) => b.monthlyHrs - a.monthlyHrs); 
+    
+    const listEl = document.getElementById('user-comparison-list');
+    if (usersData.length === 0) {
+        listEl.innerHTML = `<p class="text-sm font-bold text-gray-400">No community data found.</p>`;
+        return;
+    }
+
+    listEl.innerHTML = usersData.map((u, i) => {
+        const isStudying = u.currentlyStudying?.active;
+        const studyingBadge = isStudying ? `<div class="mt-1 inline-flex items-center gap-1.5 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-green-500 studying-dot"></span> Studying ${esc(u.currentlyStudying.subject)}</div>` : '';
+
+        return `
+        <div class="flex items-center justify-between p-4 rounded-xl ${u.uid === currentUser ? 'bg-teal-50 border border-teal-100' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'} transition cursor-pointer" onclick="showPublicProfile('${esc(u.uid)}')">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <span class="font-display text-lg font-bold text-gray-400 w-4 sm:w-6">#${i+1}</span>
+                <div class="relative">
+                    <img src="${esc(u.avatar)}" class="w-10 h-10 rounded-full bg-white object-cover border border-gray-200">
+                    ${u.streak > 0 ? `<span class="absolute -bottom-1 -right-1 text-[10px] bg-orange-100 border border-orange-200 rounded-full px-1 shadow-sm font-bold text-orange-600 z-10">${u.streak}🔥</span>` : ''}
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-gray-800 text-sm sm:text-base">${esc(u.username)} <span class="text-[10px] text-teal-600 bg-teal-100 px-1 rounded ml-1">Lvl ${u.level}</span> ${u.uid === currentUser ? '<span class="text-teal-600 text-[10px] uppercase ml-1">(You)</span>' : ''}</span>
+                    ${studyingBadge}
+                </div>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+                <div class="flex gap-4 sm:gap-6 text-sm font-bold text-gray-500 text-right">
+                    <div class="flex flex-col hidden sm:flex"><span class="text-[10px] uppercase tracking-wider text-teal-600">Daily Hrs</span><span class="text-gray-800">${u.dailyHrs.toFixed(1)}h</span></div>
+                    <div class="flex flex-col"><span class="text-[10px] uppercase tracking-wider text-indigo-600">Monthly Hrs</span><span class="text-gray-800">${u.monthlyHrs.toFixed(1)}h</span></div>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+    lucide.createIcons();
+}
+
 // ─── CHATROOM LOGIC ───
 function initChatListener() {
     if(!authUser) return;
@@ -1494,17 +1560,7 @@ function renderChat() {
     }
     
     list.innerHTML = chatMessages.map(msg => {
-        if(msg.isSystemMsg) {
-            return `<div class="flex justify-center mb-4">
-                <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs font-bold px-4 py-2 rounded-full shadow-sm flex items-center gap-2">
-                    <img src="${esc(msg.avatar)}" class="w-4 h-4 rounded-full border border-yellow-300"> 
-                    ${esc(msg.text)}
-                </div>
-            </div>`;
-        }
-
         const isMe = msg.uid === currentUser;
-        
         let timeStr = "Sending...";
         if (msg.timestamp) {
             const dateObj = msg.timestamp.toDate ? msg.timestamp.toDate() : new Date(msg.timestamp);
@@ -1598,7 +1654,7 @@ function initQAListener() {
 window.promptNewQuestion = function() {
     requestInput("What is your question?", "", async (title) => {
         if(title) {
-            requestInput("Add details (optional):", "", async (detail) => {
+            requestInput("Add details or context (optional):", "", async (detail) => {
                 try {
                     import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection}) => {
                          await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
@@ -1840,7 +1896,7 @@ window.toggleHabit = function(id) {
         updateStreak(); 
     }
     
-    if (habits.every(h => h.done)) {
+    if (habits.length > 0 && habits.every(h => h.done)) {
         const today = getHKDateString();
         if (userProfile.lastAllHabitsDate !== today) {
             userProfile.lastAllHabitsDate = today;
@@ -1971,7 +2027,7 @@ window.saveSubject = function() {
     const name = document.getElementById('inp-sub-name').value.trim();
     const color = document.getElementById('inp-sub-color').value;
     if(!name) return window.showToast("Name is required!", "error");
-    subjects.push({ id: 'sub'+Date.now(), name, color });
+    subjects.push({ id: 'sub'+Date.now(), name, color, target: 10 });
     saveData(); renderSubjects(); closeSubjectModal(); window.showToast("Subject Added!");
 }
 window.deleteSubject = function(id) {
@@ -2504,16 +2560,14 @@ window.promptShareDeck = function() {
         if(!deckCards.length) return window.showToast("Topic not found.", "error");
         
         try {
-            import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection}) => {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_shared_decks'), {
-                    topic: deckCards[0].topic,
-                    subject: deckCards[0].subject || 'Mixed',
-                    author: currentUserName,
-                    cards: deckCards,
-                    timestamp: Date.now()
-                });
-                window.showToast("Deck successfully published to Community!");
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_shared_decks'), {
+                topic: deckCards[0].topic,
+                subject: deckCards[0].subject || 'Mixed',
+                author: currentUserName,
+                cards: deckCards,
+                timestamp: Date.now()
             });
+            window.showToast("Deck successfully published to Community!");
         } catch(e) {
             console.error(e);
             window.showToast("Error publishing deck. Check rules.", "error");
@@ -2528,31 +2582,25 @@ window.loadCommunityDecks = async function() {
     
     try {
         const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_shared_decks'), orderBy('timestamp', 'desc'), limit(20));
-        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async (module) => {
-            const getDocs = module.getDocs;
-            const res = await getDocs(q);
-            sharedDecks = res.docs.map(doc => ({id: doc.id, ...doc.data()}));
-            
-            if (sharedDecks.length === 0) {
-                listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-gray-500 font-bold">No community decks found. Be the first to share one!</div>`;
-                return;
-            }
-            
-            listEl.innerHTML = sharedDecks.map(deck => `
-                <div class="border border-gray-200 bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-bold text-lg text-teal-primary truncate">${esc(deck.topic)}</h4>
-                        <span class="text-[10px] bg-gray-100 px-2 py-1 rounded-full font-bold text-gray-500">${deck.cards?.length || 0} cards</span>
-                    </div>
-                    <p class="text-xs text-gray-500 mb-3">By <span class="font-bold text-gray-700">${esc(deck.author)}</span></p>
-                    <button onclick="downloadDeck('${deck.id}')" class="w-full bg-teal-50 text-teal-700 hover:bg-teal-100 font-bold py-2 rounded-lg text-sm transition flex items-center justify-center gap-1"><i data-lucide="download" class="w-4 h-4"></i> Download</button>
+        const res = await getDocs(q);
+        sharedDecks = res.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        
+        if (sharedDecks.length === 0) {
+            listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-gray-500 font-bold">No community decks found. Be the first to share one!</div>`;
+            return;
+        }
+        
+        listEl.innerHTML = sharedDecks.map(deck => `
+            <div class="border border-gray-200 bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-bold text-lg text-teal-primary truncate">${esc(deck.topic)}</h4>
+                    <span class="text-[10px] bg-gray-100 px-2 py-1 rounded-full font-bold text-gray-500">${deck.cards?.length || 0} cards</span>
                 </div>
-            `).join('');
-            lucide.createIcons();
-        }).catch(e => {
-            console.log(e);
-            listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-red-500 font-bold">Error loading community decks. (Rules issue?)</div>`;
-        });
+                <p class="text-xs text-gray-500 mb-3">By <span class="font-bold text-gray-700">${esc(deck.author)}</span></p>
+                <button onclick="downloadDeck('${deck.id}')" class="w-full bg-teal-50 text-teal-700 hover:bg-teal-100 font-bold py-2 rounded-lg text-sm transition flex items-center justify-center gap-1"><i data-lucide="download" class="w-4 h-4"></i> Download</button>
+            </div>
+        `).join('');
+        lucide.createIcons();
 
     } catch(e) {
         console.error(e);
@@ -2576,41 +2624,37 @@ window.promptNewQuestion = function() {
         if(title) {
             requestInput("Add details or context (optional):", "", async (detail) => {
                 try {
-                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection}) => {
-                         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
-                             title: title.trim(),
-                             detail: detail ? detail.trim() : '',
-                             uid: currentUser,
-                             username: currentUserName,
-                             avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
-                             timestamp: Date.now(),
-                             replies: [],
-                             resolved: false
-                         });
-                         window.showToast("Question posted!");
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
+                         title: title.trim(),
+                         detail: detail ? detail.trim() : '',
+                         uid: currentUser,
+                         username: currentUserName,
+                         avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                         timestamp: Date.now(),
+                         replies: [],
+                         resolved: false
                     });
+                    window.showToast("Question posted!");
                 } catch(e) { console.error(e); window.showToast("Error posting.", "error"); }
             });
         }
     });
 }
 
-window.addQAReply = function(qaId) {
+window.addQAReply = async function(qaId) {
     requestInput("Your reply/answer:", "", async (text) => {
         if(text) {
             try {
-                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion}) => {
-                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId);
-                     const replyObj = {
-                         uid: currentUser,
-                         text: text.trim(),
-                         username: currentUserName,
-                         avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
-                         timestamp: Date.now()
-                     };
-                     await updateDoc(docRef, { replies: arrayUnion(replyObj) });
-                     window.showToast("Reply added!");
-                });
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId);
+                const replyObj = {
+                     text: text.trim(),
+                     uid: currentUser,
+                     username: currentUserName,
+                     avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                     timestamp: Date.now()
+                };
+                await updateDoc(docRef, { replies: arrayUnion(replyObj) });
+                window.showToast("Reply added!");
             } catch(e) { console.error(e); window.showToast("Error replying.", "error"); }
         }
     });
@@ -2618,16 +2662,14 @@ window.addQAReply = function(qaId) {
 
 window.awardBestAnswer = async function(qaId, replyUid, replyUsername) {
     try {
-        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion, increment}) => {
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', replyUid);
-            const newSticker = { senderName: currentUserName, name: "Best Answer", icon: "💡", timestamp: Date.now() };
-            await updateDoc(docRef, {
-                'profile.stickers': arrayUnion(newSticker),
-                'profile.xp': increment(50)
-            });
-            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId), { resolved: true });
-            window.showToast(`Awarded Best Answer to ${replyUsername}!`);
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', replyUid);
+        const newSticker = { senderName: currentUserName, name: "Best Answer", icon: "💡", timestamp: Date.now() };
+        await updateDoc(docRef, {
+            'profile.stickers': arrayUnion(newSticker),
+            'profile.xp': increment(50)
         });
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId), { resolved: true });
+        window.showToast(`Awarded Best Answer to ${replyUsername}!`);
     } catch(e) {
         console.error(e);
         window.showToast("Error awarding best answer.", "error");
