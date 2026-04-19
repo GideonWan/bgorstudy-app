@@ -64,6 +64,7 @@
     
     /* Mobile Spacing */
     #app-container { padding-bottom: 90px; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
   </style>
  </head>
  <body>
@@ -130,9 +131,13 @@
                     <span id="global-timer-text">Start Study</span>
                 </button>
 
-                <div class="flex items-center gap-2 bg-teal-50 border border-teal-100 px-3 py-1.5 rounded-full shadow-sm cursor-pointer hover:bg-teal-100 transition" onclick="switchTab('profile')" title="View Profile">
+                <div id="header-user-badge" class="hidden flex items-center gap-2 bg-teal-50 border border-teal-100 px-3 py-1.5 rounded-full shadow-sm cursor-pointer hover:bg-teal-100 transition" onclick="switchTab('profile')" title="View Profile">
                     <img id="header-user-avatar" src="" class="w-6 h-6 rounded-full bg-white object-cover border border-teal-200">
-                    <span id="header-user-badge" class="text-xs font-bold text-teal-800">Profile <span class="text-[10px] text-teal-600 bg-teal-100 px-1 rounded ml-1" id="header-level-badge">Lvl 1</span></span>
+                    <span class="text-xs font-bold text-teal-800 flex items-center gap-1">
+                        <span id="header-user-name-display">Profile</span>
+                        <span class="text-[10px] text-teal-600 bg-teal-100 px-1.5 py-0.5 rounded font-bold" id="header-level-badge">Lvl 1</span>
+                        <span class="text-[10px] text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded font-bold" id="header-streak-badge">0 🔥</span>
+                    </span>
                 </div>
                 
                 <button onclick="signOutUser()" class="p-2 bg-red-50 border border-red-200 text-red-600 rounded-full text-sm font-bold shadow-sm hover:bg-red-100 transition flex items-center justify-center" title="Log Out">
@@ -174,7 +179,7 @@
         <button onclick="toggleMusicPanel()" class="nav-tab-mobile flex-shrink-0 flex flex-col items-center p-2 text-gray-400 transition-colors w-16"><i data-lucide="music" class="w-5 h-5 mb-1"></i><span class="text-[9px] font-bold">Music</span></button>
     </div>
     
-    <!-- MUSIC PANEL -->
+    <!-- MUSIC PANEL (Global) -->
     <div id="music-panel" class="hidden fixed top-28 sm:top-28 bottom-24 sm:bottom-auto left-4 right-4 sm:left-auto sm:right-4 z-[100] rounded-xl shadow-2xl border border-gray-200 p-5 sm:w-80 bg-white">
         <div class="flex items-center justify-between mb-4">
             <span class="font-bold text-sm">Study Music Player</span> 
@@ -204,7 +209,7 @@
                 <input type="text" id="custom-yt-link" placeholder="Or paste YouTube link..." class="w-full border border-gray-200 rounded p-2 text-xs bg-gray-50 outline-none">
                 <button onclick="loadCustomYT()" class="bg-teal-primary text-white px-3 py-2 rounded text-xs font-bold shadow-sm">Play</button>
             </div>
-            <!-- Removed autoplay=1 so mobile doesn't block it -->
+            <!-- Standard embed without autoplay=1 to fix mobile issue -->
             <div id="youtube-container" class="w-full rounded overflow-hidden shadow-sm border border-gray-200 relative pb-[56.25%] h-0"></div>
         </div>
 
@@ -647,7 +652,6 @@
   </div> 
   
   <!-- MODALS -->
-
   <div id="input-modal-overlay" class="hidden fixed inset-0 bg-black/40 z-[250] flex items-center justify-center p-4">
       <div class="modal-content rounded-2xl shadow-2xl w-full max-w-sm my-auto bg-white border border-gray-100 p-6 text-center">
           <h3 class="font-display text-xl font-bold mb-4 text-gray-800" id="input-modal-title">Enter Value</h3>
@@ -924,6 +928,53 @@ let inputCallback = null;
 let currentViewedUser = null; 
 let secretClicks = 0;
 
+// ─── DEFAULT DATA ───
+const getFutureDate = (days) => {
+    const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"}));
+    d.setDate(d.getDate() + days);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+const defaultAssignments = [
+    { id: 1, title: 'Chinese UT', subject: 'Chinese', type: 'Test', date: getFutureDate(3), status: 'Not Started', priority: 'High' },
+    { id: 2, title: 'Math Past Paper', subject: 'Math', type: 'Homework', date: getFutureDate(1), status: 'In Progress', priority: 'Medium' },
+    { id: 3, title: 'English Essay', subject: 'English', type: 'Project', date: getFutureDate(5), status: 'Not Started', priority: 'High' }
+];
+
+const defaultHabits = [
+    { id: 1, name: 'Math 20 min', done: false, icon: 'calculator', history: Array(30).fill(false) },
+    { id: 2, name: 'Read 10 pages', done: false, icon: 'book', history: Array(30).fill(false) },
+    { id: 3, name: 'Drink Water', done: false, icon: 'droplet', history: Array(30).fill(false) }
+];
+
+const defaultSubjects = [
+    { id: 'sub1', name: 'Chinese', color: '#ef4444' },     
+    { id: 'sub2', name: 'English', color: '#3b82f6' },     
+    { id: 'sub3', name: 'Math', color: '#6366f1' },
+    { id: 'sub4', name: 'M2', color: '#a855f7' },
+    { id: 'sub5', name: 'Physics', color: '#f97316' },
+    { id: 'sub6', name: 'Chemistry', color: '#10b981' },
+    { id: 'sub7', name: 'Biology', color: '#22c55e' }
+];
+const defaultStudyLogs = [];
+const defaultNotes = [
+    { id: 'n1', subject: 'Biology', chapter: 'Ch 1: Cells', link: '', status: 'Not yet started', revCount: 0 },
+    { id: 'n2', subject: 'Chemistry', chapter: 'Ch 3: Metals', link: '', status: 'Notes done', revCount: 0 }
+];
+
+const defaultFlashcards = [
+    { __backendId: 'fc1', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「完璧歸趙」中，藺相如如何威脅秦王以保住和氏璧？', answer: '他拿著和氏璧倚著柱子，威脅如果秦王強奪，他就會把自己的頭和玉璧一起撞碎在柱子上。' },
+    { __backendId: 'fc2', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「澠池之會」中，藺相如為何逼秦王擊缻？', answer: '為了報復秦王要趙王鼓瑟的侮辱，維護趙國的尊嚴，顯示兩國地位平等。' },
+    { __backendId: 'fc3', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '「負荊請罪」的原因是什麼？', answer: '廉頗意識到自己心胸狹隘，而藺相如以國家利益為重（先國家之急而後私讎），因此感到慚愧並認錯。' },
+    { __backendId: 'fc4', subject: 'Chinese', topic: '廉頗藺相如列傳', question: '藺相如的性格特徵是什麼？（寫出兩個）', answer: '1. 智勇雙全（有勇有謀） 2. 以國為重（公而忘私/顧全大局）' },
+    { __backendId: 'fc5', subject: 'Chinese', topic: '文言知識', question: '解釋文言詞彙「徒」在「徒見欺」中的意思。', answer: '白白地 / 徒然' },
+    { __backendId: 'fc6', subject: 'English', topic: 'Text Types', question: 'What is the main difference between an Editorial and a Letter to the Editor?', answer: 'An Editorial represents the official opinion of the newspaper\'s editors/board, while a Letter to the Editor is the opinion of a reader/public citizen.', hint: 'Who writes it?' },
+    { __backendId: 'fc7', subject: 'English', topic: 'Text Types', question: 'What are 3 typical components/features of a Feature Article?', answer: '1. Catchy headline/title 2. Engaging hook/introduction 3. Quotes or interviews from experts/people involved.' },
+    { __backendId: 'fc8', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'ubiquitous\'?', answer: 'Present, appearing, or found everywhere.', hint: 'Synonym: everywhere' },
+    { __backendId: 'fc9', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'pragmatic\'?', answer: 'Dealing with things sensibly and realistically in a way that is based on practical rather than theoretical considerations.', hint: 'Synonym: practical' },
+    { __backendId: 'fc10', subject: 'English', topic: 'Vocabulary', question: 'What is the meaning of the word \'detrimental\'?', answer: 'Tending to cause harm; damaging.', hint: 'Synonym: harmful' }
+];
+
 // ─── UTILITIES ───
 function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
@@ -1102,66 +1153,69 @@ window.handleGoogleLogin = async (forceSwitch = false) => {
     }
 };
 
+async function handleUserAuthenticated(user) {
+    currentUser = user.uid; 
+    currentUserName = user.displayName || 'Student';
+
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('app-container').classList.remove('hidden');
+    document.getElementById('header-user-name-display').textContent = currentUserName;
+    document.getElementById('header-user-badge').classList.remove('hidden');
+    
+    try {
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser);
+        const docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) {
+            const newData = {
+                username: currentUserName,
+                profile: { avatar: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`, bio: 'A dedicated student.', stickers: [], xp: 0, level: 1, equippedBadge: '', activeDates: [] },
+                assignments: defaultAssignments,
+                habits: defaultHabits,
+                subjects: defaultSubjects,
+                studyLogs: defaultStudyLogs,
+                notes: defaultNotes,
+                flashcards: defaultFlashcards,
+                currentlyStudying: { active: false }
+            };
+            await setDoc(docRef, newData);
+            window.showToast("Cloud Profile Created!");
+        } else {
+            await setDoc(docRef, { 
+                username: currentUserName,
+                'profile.avatar': docSnap.data().profile?.avatar || user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`
+            }, { merge: true });
+            window.showToast(`Welcome back, ${currentUserName}!`);
+        }
+        
+        setupDataListener();
+        initChatListener();
+        initQAListener();
+        initGoalListener();
+        
+        if (unsubscribeLeaderboard) unsubscribeLeaderboard();
+        unsubscribeLeaderboard = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users'), (snapshot) => {
+            allUsersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (!document.getElementById('view-home').classList.contains('hidden')) renderUserComparison();
+        }, (err) => console.log("Silent error on public fetch", err));
+
+    } catch (e) {
+        console.error("Cloud connect error", e);
+        window.showToast("Error connecting to Cloud: " + e.message, "error");
+    }
+}
+
 onAuthStateChanged(auth, async (user) => {
     authUser = user;
     if (user) {
-        currentUser = user.uid; 
-        currentUserName = user.displayName || 'Student';
-
         if (!sessionStorage.getItem('active_session')) {
             document.getElementById('login-standard-state').classList.add('hidden');
             document.getElementById('login-active-state').classList.remove('hidden');
-            document.getElementById('active-user-name').textContent = currentUserName;
+            document.getElementById('active-user-name').textContent = user.displayName || 'Student';
             document.getElementById('active-user-avatar').src = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`;
             return; 
         }
-
-        document.getElementById('login-view').classList.add('hidden');
-        document.getElementById('app-container').classList.remove('hidden');
-        document.getElementById('header-user-badge').textContent = currentUserName;
-        document.getElementById('header-user-badge').classList.remove('hidden');
-        
-        try {
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser);
-            const docSnap = await getDoc(docRef);
-            
-            if (!docSnap.exists()) {
-                const newData = {
-                    username: currentUserName,
-                    profile: { avatar: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`, bio: 'A dedicated student.', stickers: [], xp: 0, level: 1, equippedBadge: '', activeDates: [] },
-                    assignments: [],
-                    habits: [],
-                    subjects: [],
-                    studyLogs: [],
-                    notes: [],
-                    flashcards: [],
-                    currentlyStudying: { active: false }
-                };
-                await setDoc(docRef, newData);
-                window.showToast("Cloud Profile Created!");
-            } else {
-                await setDoc(docRef, { 
-                    username: currentUserName,
-                    'profile.avatar': docSnap.data().profile?.avatar || user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`
-                }, { merge: true });
-                window.showToast(`Welcome back, ${currentUserName}!`);
-            }
-            
-            setupDataListener();
-            initChatListener();
-            initQAListener();
-            initGoalListener();
-            
-            if (unsubscribeLeaderboard) unsubscribeLeaderboard();
-            unsubscribeLeaderboard = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users'), (snapshot) => {
-                allUsersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (!document.getElementById('view-home').classList.contains('hidden')) renderUserComparison();
-            }, (err) => console.log("Silent error on public fetch", err));
-
-        } catch (e) {
-            console.error("Cloud connect error", e);
-            window.showToast("Error connecting to Cloud: " + e.message, "error");
-        }
+        await handleUserAuthenticated(user);
     } else {
         currentUser = null;
         sessionStorage.removeItem('active_session');
@@ -1185,20 +1239,21 @@ onAuthStateChanged(auth, async (user) => {
 
 window.proceedToApp = function() {
     sessionStorage.setItem('active_session', 'true');
-    const user = auth.currentUser;
-    if (user) {
+    if (authUser) {
         document.getElementById('login-standard-state').classList.remove('hidden');
         document.getElementById('login-active-state').classList.add('hidden');
-        onAuthStateChanged(auth, () => {})(user); 
+        handleUserAuthenticated(authUser); 
     }
 }
 
 window.signOutUser = () => {
     if(timerState.active) stopGlobalTimer(false, true); 
     if (authUser) {
-        updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser), {
-            currentlyStudying: { active: false }
-        }).catch(()=>{});
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({doc, updateDoc}) => {
+             updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentUser), {
+                currentlyStudying: { active: false }
+             }).catch(()=>{});
+        });
     }
     signOut(auth);
 };
@@ -1224,6 +1279,11 @@ function setupDataListener() {
             document.getElementById('prof-avatar-url').value = userProfile.avatar || '';
             document.getElementById('prof-bio').value = userProfile.bio || '';
             document.getElementById('header-level-badge').textContent = `Lvl ${userProfile.level || 1}`;
+            document.getElementById('header-level-badge').classList.remove('hidden');
+            
+            // Streak render
+            const streak = calculateStreak(userProfile.activeDates || []);
+            document.getElementById('header-streak-badge').textContent = `${streak} 🔥`;
             
             const subNames = [...new Set(notes.map(n => n.subject))];
             if(subNames.length > 0 && !currentNoteSubject) currentNoteSubject = subNames[0];
@@ -1320,13 +1380,15 @@ window.promptCustomSticker = async function() {
         requestInput("Enter Badge Name:", "Awesome Buddy", async (name) => {
             if(!name) return;
             try {
-                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentViewedUser);
-                 const newSticker = { senderName: currentUserName, name: name.trim(), icon: icon.trim(), timestamp: Date.now() };
-                 await updateDoc(docRef, {
-                     'profile.stickers': arrayUnion(newSticker)
-                 });
-                 window.showToast(`Awarded ${icon} ${name} to ${targetName}!`);
-                 closePublicProfileModal();
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion}) => {
+                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', currentViewedUser);
+                     const newSticker = { senderName: currentUserName, name: name.trim(), icon: icon.trim(), timestamp: Date.now() };
+                     await updateDoc(docRef, {
+                         'profile.stickers': arrayUnion(newSticker)
+                     });
+                     window.showToast(`Awarded ${icon} ${name} to ${targetName}!`);
+                     closePublicProfileModal();
+                });
             } catch(e) {
                 console.error(e);
                 window.showToast("Error giving sticker.", "error");
@@ -1386,7 +1448,7 @@ function renderCommunityGoal() {
         });
     });
     
-    const pct = Math.min(100, Math.round((totalHrs / communityGoal.targetHrs) * 100));
+    const pct = communityGoal.targetHrs > 0 ? Math.min(100, Math.round((totalHrs / communityGoal.targetHrs) * 100)) : 0;
     
     el.innerHTML = `
         <div class="flex justify-between items-end mb-2">
@@ -1486,13 +1548,15 @@ window.sendChatMessage = async function() {
     input.value = '';
     
     try {
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_chat'), {
-             text: text,
-             uid: currentUser,
-             username: currentUserName,
-             avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
-             timestamp: serverTimestamp(),
-             likes: []
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection, serverTimestamp}) => {
+             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_chat'), {
+                 text: text,
+                 uid: currentUser,
+                 username: currentUserName,
+                 avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                 timestamp: serverTimestamp(),
+                 likes: []
+             });
         });
     } catch(e) {
         window.showToast("Failed to send message. Please check Firebase rules.", "error");
@@ -1503,17 +1567,19 @@ window.sendChatMessage = async function() {
 window.toggleLikeMessage = async function(msgId) {
     if (!currentUser) return;
     try {
-        const msgRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_chat', msgId);
-        const docSnap = await getDoc(msgRef);
-        if (docSnap.exists()) {
-             const data = docSnap.data();
-             const likes = data.likes || [];
-             if (likes.includes(currentUser)) {
-                 await updateDoc(msgRef, { likes: arrayRemove(currentUser) });
-             } else {
-                 await updateDoc(msgRef, { likes: arrayUnion(currentUser) });
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, getDoc, updateDoc, arrayRemove, arrayUnion}) => {
+             const msgRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_chat', msgId);
+             const docSnap = await getDoc(msgRef);
+             if (docSnap.exists()) {
+                 const data = docSnap.data();
+                 const likes = data.likes || [];
+                 if (likes.includes(currentUser)) {
+                     await updateDoc(msgRef, { likes: arrayRemove(currentUser) });
+                 } else {
+                     await updateDoc(msgRef, { likes: arrayUnion(currentUser) });
+                 }
              }
-        }
+        });
     } catch(e) {
         console.error(e);
     }
@@ -1534,17 +1600,19 @@ window.promptNewQuestion = function() {
         if(title) {
             requestInput("Add details (optional):", "", async (detail) => {
                 try {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
-                         title: title.trim(),
-                         detail: detail ? detail.trim() : '',
-                         uid: currentUser,
-                         username: currentUserName,
-                         avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
-                         timestamp: Date.now(),
-                         replies: [],
-                         resolved: false
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection}) => {
+                         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
+                             title: title.trim(),
+                             detail: detail ? detail.trim() : '',
+                             uid: currentUser,
+                             username: currentUserName,
+                             avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                             timestamp: Date.now(),
+                             replies: [],
+                             resolved: false
+                         });
+                         window.showToast("Question posted!");
                     });
-                    window.showToast("Question posted!");
                 } catch(e) { console.error(e); window.showToast("Error posting.", "error"); }
             });
         }
@@ -1555,16 +1623,18 @@ window.addQAReply = async function(qaId) {
     requestInput("Your reply/answer:", "", async (text) => {
         if(text) {
             try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId);
-                const replyObj = {
-                     text: text.trim(),
-                     uid: currentUser,
-                     username: currentUserName,
-                     avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
-                     timestamp: Date.now()
-                };
-                await updateDoc(docRef, { replies: arrayUnion(replyObj) });
-                window.showToast("Reply added!");
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion}) => {
+                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId);
+                     const replyObj = {
+                         text: text.trim(),
+                         uid: currentUser,
+                         username: currentUserName,
+                         avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                         timestamp: Date.now()
+                     };
+                     await updateDoc(docRef, { replies: arrayUnion(replyObj) });
+                     window.showToast("Reply added!");
+                });
             } catch(e) { console.error(e); window.showToast("Error replying.", "error"); }
         }
     });
@@ -1572,14 +1642,16 @@ window.addQAReply = async function(qaId) {
 
 window.awardBestAnswer = async function(qaId, replyUid, replyUsername) {
     try {
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', replyUid);
-        const newSticker = { senderName: currentUserName, name: "Best Answer", icon: "💡", timestamp: Date.now() };
-        await updateDoc(docRef, {
-            'profile.stickers': arrayUnion(newSticker),
-            'profile.xp': increment(50)
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion, increment}) => {
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', replyUid);
+            const newSticker = { senderName: currentUserName, name: "Best Answer", icon: "💡", timestamp: Date.now() };
+            await updateDoc(docRef, {
+                'profile.stickers': arrayUnion(newSticker),
+                'profile.xp': increment(50)
+            });
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId), { resolved: true });
+            window.showToast(`Awarded Best Answer to ${replyUsername}!`);
         });
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId), { resolved: true });
-        window.showToast(`Awarded Best Answer to ${replyUsername}!`);
     } catch(e) {
         console.error(e);
         window.showToast("Error awarding best answer.", "error");
@@ -2432,14 +2504,16 @@ window.promptShareDeck = function() {
         if(!deckCards.length) return window.showToast("Topic not found.", "error");
         
         try {
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_shared_decks'), {
-                topic: deckCards[0].topic,
-                subject: deckCards[0].subject || 'Mixed',
-                author: currentUserName,
-                cards: deckCards,
-                timestamp: Date.now()
+            import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection}) => {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_shared_decks'), {
+                    topic: deckCards[0].topic,
+                    subject: deckCards[0].subject || 'Mixed',
+                    author: currentUserName,
+                    cards: deckCards,
+                    timestamp: Date.now()
+                });
+                window.showToast("Deck successfully published to Community!");
             });
-            window.showToast("Deck successfully published to Community!");
         } catch(e) {
             console.error(e);
             window.showToast("Error publishing deck. Check rules.", "error");
@@ -2477,12 +2551,12 @@ window.loadCommunityDecks = async function() {
             lucide.createIcons();
         }).catch(e => {
             console.log(e);
-            listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-red-500 font-bold">Error loading community decks.</div>`;
+            listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-red-500 font-bold">Error loading community decks. (Rules issue?)</div>`;
         });
 
     } catch(e) {
         console.error(e);
-        listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-red-500 font-bold">Error loading community decks.</div>`;
+        listEl.innerHTML = `<div class="col-span-2 text-center py-8 text-red-500 font-bold">Error loading community decks. (Rules issue?)</div>`;
     }
 }
 
@@ -2502,17 +2576,19 @@ window.promptNewQuestion = function() {
         if(title) {
             requestInput("Add details or context (optional):", "", async (detail) => {
                 try {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
-                         title: title.trim(),
-                         detail: detail ? detail.trim() : '',
-                         uid: currentUser,
-                         username: currentUserName,
-                         avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
-                         timestamp: Date.now(),
-                         replies: [],
-                         resolved: false
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({addDoc, collection}) => {
+                         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa'), {
+                             title: title.trim(),
+                             detail: detail ? detail.trim() : '',
+                             uid: currentUser,
+                             username: currentUserName,
+                             avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                             timestamp: Date.now(),
+                             replies: [],
+                             resolved: false
+                         });
+                         window.showToast("Question posted!");
                     });
-                    window.showToast("Question posted!");
                 } catch(e) { console.error(e); window.showToast("Error posting.", "error"); }
             });
         }
@@ -2523,16 +2599,18 @@ window.addQAReply = function(qaId) {
     requestInput("Your reply/answer:", "", async (text) => {
         if(text) {
             try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId);
-                const replyObj = {
-                    uid: currentUser,
-                    text: text.trim(),
-                    username: currentUserName,
-                    avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
-                    timestamp: Date.now()
-                };
-                await updateDoc(docRef, { replies: arrayUnion(replyObj) });
-                window.showToast("Reply added!");
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion}) => {
+                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId);
+                     const replyObj = {
+                         uid: currentUser,
+                         text: text.trim(),
+                         username: currentUserName,
+                         avatar: userProfile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser}`,
+                         timestamp: Date.now()
+                     };
+                     await updateDoc(docRef, { replies: arrayUnion(replyObj) });
+                     window.showToast("Reply added!");
+                });
             } catch(e) { console.error(e); window.showToast("Error replying.", "error"); }
         }
     });
@@ -2540,14 +2618,16 @@ window.addQAReply = function(qaId) {
 
 window.awardBestAnswer = async function(qaId, replyUid, replyUsername) {
     try {
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', replyUid);
-        const newSticker = { senderName: currentUserName, name: "Best Answer", icon: "💡", timestamp: Date.now() };
-        await updateDoc(docRef, {
-            'profile.stickers': arrayUnion(newSticker),
-            'profile.xp': increment(50)
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({doc, updateDoc, arrayUnion, increment}) => {
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_users', replyUid);
+            const newSticker = { senderName: currentUserName, name: "Best Answer", icon: "💡", timestamp: Date.now() };
+            await updateDoc(docRef, {
+                'profile.stickers': arrayUnion(newSticker),
+                'profile.xp': increment(50)
+            });
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId), { resolved: true });
+            window.showToast(`Awarded Best Answer to ${replyUsername}!`);
         });
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bgorstudy_qa', qaId), { resolved: true });
-        window.showToast(`Awarded Best Answer to ${replyUsername}!`);
     } catch(e) {
         console.error(e);
         window.showToast("Error awarding best answer.", "error");
